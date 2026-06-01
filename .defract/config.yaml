@@ -31,4 +31,5 @@ defract:
     tier2_scoped_filesystem: true
     tier3_workflow_writes: true
   team: null
-  user: null
+  user:
+    github_handle: falucas90
