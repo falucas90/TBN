@@ -32,6 +32,7 @@ function App() {
             <Route path="/searches/:id/edit" element={<ProtectedRoute><CreateSearch /></ProtectedRoute>} />
             <Route path="/alerts" element={<ProtectedRoute><AlertHistory /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>
       </ToastProvider>
