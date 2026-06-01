@@ -1,0 +1,62 @@
+{
+  "id": "task-add-a-catch-all-redirect-route-in-app-01kt2gckza2g",
+  "status": "active",
+  "stage": "scope",
+  "phase": 0,
+  "totalPhases": 1,
+  "createdAt": "2026-06-01T21:10:43Z",
+  "updatedAt": "2026-06-01T21:11:18Z",
+  "events": [
+    {
+      "base_branch": "main",
+      "branch": "feature/task-add-a-catch-all-redirect-route-in-app-01kt2gckza2g",
+      "path": "/Users/franciscolucas/Documents/TBN/.defract-worktrees/task-add-a-catch-all-redirect-route-in-app-01kt2gckza2g",
+      "timestamp": "2026-06-01T21:10:43Z",
+      "type": "worktree_created"
+    },
+    {
+      "mode": "start",
+      "session_id": "01kt2gckgdc32yy6qycqs60yfz",
+      "stage": "scope",
+      "timestamp": "2026-06-01T21:10:43Z",
+      "type": "stage_agent_started"
+    },
+    {
+      "change_summary": "Intent check: catch-all redirect route in App.jsx",
+      "revision": 1,
+      "timestamp": "2026-06-01T21:11:14Z",
+      "type": "scope_update"
+    },
+    {
+      "stage": "scope",
+      "summary": "Intent check pushed: add a catch-all `<Route path=\"*\">` redirect to `/` so unknown paths never render a blank screen.",
+      "timestamp": "2026-06-01T21:11:18Z",
+      "type": "stage_work_complete",
+      "worktree_head": "7d0a208ab6a2a0d7023192dd164baf2d50e7ad07",
+      "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "stages": {
+    "review": {
+      "status": "not_started"
+    },
+    "scope": {
+      "status": "awaiting_approval",
+      "startedAt": "2026-06-01T21:10:43Z"
+    },
+    "design": {
+      "status": "not_started"
+    },
+    "release": {
+      "status": "not_started"
+    },
+    "architecture": {
+      "status": "not_started"
+    },
+    "implementation": {
+      "status": "not_started"
+    }
+  },
+  "worktreePath": "/Users/franciscolucas/Documents/TBN/.defract-worktrees/task-add-a-catch-all-redirect-route-in-app-01kt2gckza2g",
+  "worktreeBaseBranch": "main"
+}

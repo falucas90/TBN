@@ -1,0 +1,83 @@
+{
+  "id": "task-apply-brand-and-margin-filters-in-01kt2gbyb299",
+  "status": "active",
+  "stage": "scope",
+  "phase": 0,
+  "totalPhases": 1,
+  "createdAt": "2026-06-01T21:10:21Z",
+  "updatedAt": "2026-06-01T21:11:11Z",
+  "events": [
+    {
+      "base_branch": "main",
+      "branch": "feature/task-apply-brand-and-margin-filters-in-01kt2gbyb299",
+      "path": "/Users/franciscolucas/Documents/TBN/.defract-worktrees/task-apply-brand-and-margin-filters-in-01kt2gbyb299",
+      "timestamp": "2026-06-01T21:10:22Z",
+      "type": "worktree_created"
+    },
+    {
+      "mode": "start",
+      "session_id": "01kt2gbyjscrsc2y9999akzkbw",
+      "stage": "scope",
+      "timestamp": "2026-06-01T21:10:22Z",
+      "type": "stage_agent_started"
+    },
+    {
+      "change_summary": "Intent check: wire existing brand and margin filter controls to the alert list",
+      "revision": 1,
+      "timestamp": "2026-06-01T21:10:49Z",
+      "type": "scope_update"
+    },
+    {
+      "stage": "scope",
+      "summary": "Intent check pushed — approve in the UI to continue to the full scope, or reply here to refine.",
+      "timestamp": "2026-06-01T21:10:52Z",
+      "type": "stage_work_complete",
+      "worktree_head": "7d0a208ab6a2a0d7023192dd164baf2d50e7ad07",
+      "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "base_branch": "main",
+      "reason": "already_up_to_date",
+      "timestamp": "2026-06-01T21:11:10Z",
+      "type": "worktree_sync_skipped"
+    },
+    {
+      "mode": "approve_initial",
+      "session_id": "01kt2gde5y6z119dfezhtt15c5",
+      "stage": "scope",
+      "timestamp": "2026-06-01T21:11:10Z",
+      "type": "stage_agent_started"
+    },
+    {
+      "exit_code": 143,
+      "session_id": "01kt2gbyjscrsc2y9999akzkbw",
+      "timed_out": false,
+      "timestamp": "2026-06-01T21:11:11Z",
+      "type": "agent_exited"
+    }
+  ],
+  "stages": {
+    "scope": {
+      "status": "in_progress",
+      "startedAt": "2026-06-01T21:11:10Z"
+    },
+    "design": {
+      "status": "not_started"
+    },
+    "implementation": {
+      "status": "not_started"
+    },
+    "release": {
+      "status": "not_started"
+    },
+    "review": {
+      "status": "not_started"
+    },
+    "architecture": {
+      "status": "not_started"
+    }
+  },
+  "worktreePath": "/Users/franciscolucas/Documents/TBN/.defract-worktrees/task-apply-brand-and-margin-filters-in-01kt2gbyb299",
+  "worktreeBaseBranch": "main",
+  "worktreeLastSyncedAt": "2026-06-01T21:11:10Z"
+}

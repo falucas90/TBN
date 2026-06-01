@@ -1,0 +1,292 @@
+{
+  "id": "task-add-delete-support-to-the-searches-page-01kt2g5b99gx",
+  "status": "active",
+  "stage": "implementation",
+  "phase": 0,
+  "totalPhases": 1,
+  "createdAt": "2026-06-01T21:06:45Z",
+  "updatedAt": "2026-06-01T21:11:22Z",
+  "events": [
+    {
+      "base_branch": "main",
+      "branch": "feature/task-add-delete-support-to-the-searches-page-01kt2g5b99gx",
+      "path": "/Users/franciscolucas/Documents/TBN/.defract-worktrees/task-add-delete-support-to-the-searches-page-01kt2g5b99gx",
+      "timestamp": "2026-06-01T21:06:45Z",
+      "type": "worktree_created"
+    },
+    {
+      "mode": "start",
+      "session_id": "01kt2g5bhvw4wyc0bezvxxtdbb",
+      "stage": "scope",
+      "timestamp": "2026-06-01T21:06:45Z",
+      "type": "stage_agent_started"
+    },
+    {
+      "change_summary": "Initial intent check: delete button on search cards",
+      "revision": 1,
+      "timestamp": "2026-06-01T21:07:22Z",
+      "type": "scope_update"
+    },
+    {
+      "stage": "scope",
+      "summary": "Intent check pushed: adds an \"Eliminar\" ghost button to each search card alongside \"Editar\", removes the search from state on click, and shows a toast. No confirmation dialog, no persistence.",
+      "timestamp": "2026-06-01T21:07:26Z",
+      "type": "stage_work_complete",
+      "worktree_head": "7d0a208ab6a2a0d7023192dd164baf2d50e7ad07",
+      "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "base_branch": "main",
+      "reason": "already_up_to_date",
+      "timestamp": "2026-06-01T21:07:37Z",
+      "type": "worktree_sync_skipped"
+    },
+    {
+      "mode": "approve_initial",
+      "session_id": "01kt2g6yc05n5gk8pt7kxxc50z",
+      "stage": "scope",
+      "timestamp": "2026-06-01T21:07:37Z",
+      "type": "stage_agent_started"
+    },
+    {
+      "exit_code": 143,
+      "session_id": "01kt2g5bhvw4wyc0bezvxxtdbb",
+      "timed_out": false,
+      "timestamp": "2026-06-01T21:07:38Z",
+      "type": "agent_exited"
+    },
+    {
+      "change_summary": "Full scope: single-phase implementation in Searches.jsx — delete handler + ghost button + toast",
+      "revision": 2,
+      "timestamp": "2026-06-01T21:08:54Z",
+      "type": "scope_update"
+    },
+    {
+      "rationale": "Single-file UI change — no new design decisions (ghost variant and placement are specified by the builder), no new system boundaries (skip architecture). One file, ~5 lines of code. bug-fix template stages fit: scope → implementation → review → release.",
+      "stages": [
+        "scope",
+        "implementation",
+        "review",
+        "release"
+      ],
+      "template": "bug-fix",
+      "tier": "trivial",
+      "timestamp": "2026-06-01T21:08:58Z",
+      "type": "workflow_classified"
+    },
+    {
+      "alternatives_considered": [],
+      "decision": "Use ghost variant (not danger) for the Eliminar button",
+      "rationale": "The builder's brief explicitly requested a ghost-variant button. The danger variant exists on Button but would create visual asymmetry with the adjacent Editar button (also ghost). Ghost keeps the destructive action visually understated, which is appropriate given deletion is immediate with no confirm step.",
+      "timestamp": "2026-06-01T21:09:04Z",
+      "type": "decision"
+    },
+    {
+      "alternatives_considered": [],
+      "decision": "Toast type warn for deletion confirmation",
+      "rationale": "The existing toggleSearchStatus uses 'warn' when pausing (another semi-destructive, irreversible-until-action operation). Using 'warn' for deletion is consistent with that convention and signals to the user that something permanent happened, without using the 'error' type which implies failure.",
+      "timestamp": "2026-06-01T21:09:09Z",
+      "type": "decision"
+    },
+    {
+      "stage": "scope",
+      "summary": "Full scope written as revision 2. Single-phase, trivial tier, bug-fix workflow (no design, no architecture). One file to touch: Searches.jsx — add a deleteSearch handler (filter by id + warn toast) and a ghost Button labelled \"Eliminar\" after the existing Editar button on every card. Five acceptance criteria, all independently verifiable in the browser.",
+      "timestamp": "2026-06-01T21:09:14Z",
+      "type": "stage_work_complete",
+      "worktree_head": "7d0a208ab6a2a0d7023192dd164baf2d50e7ad07",
+      "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "base_branch": "main",
+      "reason": "already_up_to_date",
+      "timestamp": "2026-06-01T21:09:33Z",
+      "type": "worktree_sync_skipped"
+    },
+    {
+      "actor": null,
+      "stage": "scope",
+      "timestamp": "2026-06-01T21:09:33Z",
+      "type": "stage_approved"
+    },
+    {
+      "from": "scope",
+      "timestamp": "2026-06-01T21:09:33Z",
+      "to": "implementation",
+      "type": "stage_advanced"
+    },
+    {
+      "base_branch": "main",
+      "reason": "already_up_to_date",
+      "timestamp": "2026-06-01T21:09:33Z",
+      "type": "worktree_sync_skipped"
+    },
+    {
+      "mode": "start",
+      "session_id": "01kt2gaf5eg37mkb5zz1msw6wm",
+      "stage": "implementation",
+      "timestamp": "2026-06-01T21:09:33Z",
+      "type": "stage_agent_started"
+    },
+    {
+      "exit_code": 143,
+      "session_id": "01kt2g6yc05n5gk8pt7kxxc50z",
+      "timed_out": false,
+      "timestamp": "2026-06-01T21:09:33Z",
+      "type": "agent_exited"
+    },
+    {
+      "note": "Starting Phase 1: adding deleteSearch handler and Eliminar ghost button to Searches.jsx",
+      "phase": 0,
+      "stage": "implementation",
+      "timestamp": "2026-06-01T21:09:49Z",
+      "type": "work_resumed"
+    },
+    {
+      "description": "Starting phase 1: Add delete button and handler to each search card",
+      "percentage": 0,
+      "phase": 1,
+      "timestamp": "2026-06-01T21:09:53Z",
+      "type": "progress_report"
+    },
+    {
+      "description": "Implementing core changes",
+      "percentage": 20,
+      "phase": 1,
+      "timestamp": "2026-06-01T21:09:57Z",
+      "type": "progress_report"
+    },
+    {
+      "description": "Running verification checks",
+      "percentage": 60,
+      "phase": 1,
+      "timestamp": "2026-06-01T21:10:19Z",
+      "type": "progress_report"
+    },
+    {
+      "description": "Running full check suite",
+      "percentage": 80,
+      "phase": 1,
+      "timestamp": "2026-06-01T21:10:40Z",
+      "type": "progress_report"
+    },
+    {
+      "details": "Vite production build succeeded. Pre-existing ESLint unused-React-import warning in original file unchanged by this diff. No automated tests exist in the project.",
+      "failed": 0,
+      "passed": 1,
+      "phase": 0,
+      "skipped": 0,
+      "timestamp": "2026-06-01T21:10:53Z",
+      "type": "test_results"
+    },
+    {
+      "description": "Phase 1 implementation complete — awaiting approval",
+      "percentage": 100,
+      "phase": 1,
+      "timestamp": "2026-06-01T21:10:57Z",
+      "type": "progress_report"
+    },
+    {
+      "change_summary": "Phase 1 complete: Add delete button and handler to each search card",
+      "revision": 1,
+      "stage": "implementation",
+      "timestamp": "2026-06-01T21:11:06Z",
+      "type": "stage_content_updated"
+    },
+    {
+      "artifacts_created": [
+        "src/pages/Searches.jsx"
+      ],
+      "phase": 0,
+      "summary": "Added deleteSearch(id) handler (filter + warn toast) and a ghost-variant Eliminar button after the Editar link on every search card. Both active and paused cards show the button. Build passes.",
+      "timestamp": "2026-06-01T21:11:10Z",
+      "type": "phase_completed"
+    },
+    {
+      "items": [
+        {
+          "description": "Run `npm run dev` and open `http://localhost:5173/searches` in the browser."
+        },
+        {
+          "description": "Verify each search card has an \"Eliminar\" button rendered after the \"Editar\" button, for both active and paused cards."
+        },
+        {
+          "description": "Click \"Eliminar\" on any card — confirm that card disappears from the list immediately without a page reload."
+        },
+        {
+          "description": "After clicking \"Eliminar\", confirm a yellow/warn toast reading \"Pesquisa eliminada.\" appears."
+        },
+        {
+          "description": "Check the page subtitle (e.g., \"Está a acompanhar 2 pesquisas em 2 plataformas.\") — confirm its count decrements by one after each deletion."
+        },
+        {
+          "description": "Delete a paused search card (pause one first via \"Pausar\" if needed) and confirm the \"Eliminar\" button is present and works on paused cards too."
+        }
+      ],
+      "phase": 0,
+      "phase_title": "Add delete button and handler to each search card",
+      "timestamp": "2026-06-01T21:11:17Z",
+      "type": "manual_tests"
+    },
+    {
+      "agent_phase": 1,
+      "phase_title": "Add delete button and handler to each search card",
+      "server_phase": 0,
+      "timestamp": "2026-06-01T21:11:22Z",
+      "type": "phase_drift_detected"
+    },
+    {
+      "phase": 0,
+      "phase_title": "Add delete button and handler to each search card",
+      "timestamp": "2026-06-01T21:11:22Z",
+      "type": "phase_awaiting_approval",
+      "worktree_head": "7d0a208ab6a2a0d7023192dd164baf2d50e7ad07",
+      "worktree_status_digest": "5139962a81490867eebdb0f61eb84ff03e9aa2081c528d85736eeb8500685c5b"
+    }
+  ],
+  "needsArchitecture": false,
+  "needsDesign": false,
+  "workflow": {
+    "tier": "trivial",
+    "template": "bug-fix",
+    "stages": [
+      "scope",
+      "implementation",
+      "review",
+      "release"
+    ],
+    "classifiedBy": "scope-agent",
+    "rationale": "Single-file UI change — no new design decisions (ghost variant and placement are specified by the builder), no new system boundaries (skip architecture). One file, ~5 lines of code. bug-fix template stages fit: scope → implementation → review → release."
+  },
+  "stageApprovals": {
+    "scope": "2026-06-01T21:09:33Z"
+  },
+  "stageContent": {
+    "implementation": "## Phase 1: Add delete button and handler to each search card\n\n### Changes made\n\n**`src/pages/Searches.jsx`**\n\n- Added `deleteSearch(id)` function immediately after `toggleSearchStatus`. It filters the search with the given id out of the `searches` state array, then calls `addToast('Pesquisa eliminada.', 'warn')` — mirroring the exact pattern used by `toggleSearchStatus`.\n- Added a `<Button variant=\"ghost\" onClick={() => deleteSearch(search.id)}>Eliminar</Button>` immediately after the existing `<Link to={...}><Button variant=\"ghost\">Editar</Button></Link>` block. The button is outside the active/paused conditional branches so it appears on both card states.\n\n### Deviations from plan\n\nNone. Implementation followed the spec exactly.\n\n### Build\n\nVite production build passed. Pre-existing ESLint warning (`React` unused import) was present before this change and was not modified."
+  },
+  "stages": {
+    "release": {
+      "status": "not_started"
+    },
+    "scope": {
+      "status": "approved",
+      "approvedAt": "2026-06-01T21:09:33Z",
+      "startedAt": "2026-06-01T21:07:37Z"
+    },
+    "review": {
+      "status": "not_started"
+    },
+    "architecture": {
+      "status": "skipped"
+    },
+    "implementation": {
+      "status": "in_progress",
+      "startedAt": "2026-06-01T21:09:33Z"
+    },
+    "design": {
+      "status": "skipped"
+    }
+  },
+  "worktreePath": "/Users/franciscolucas/Documents/TBN/.defract-worktrees/task-add-delete-support-to-the-searches-page-01kt2g5b99gx",
+  "worktreeBaseBranch": "main",
+  "worktreeLastSyncedAt": "2026-06-01T21:09:33Z"
+}
