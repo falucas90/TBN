@@ -3,7 +3,7 @@ defract:
   id: task-add-delete-support-to-the-searches-page-01kt2g5b99gx
   type: task
   status: active
-  stage: release
+  stage: implementation
   phase: 0
   total_phases: 1
   priority: normal
@@ -14,6 +14,7 @@ defract:
   created_by: null
   assignee: null
 ---
+
 
 
 ## Story Brief
