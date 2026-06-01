@@ -142,14 +142,14 @@ Vite production build passed. Pre-existing ESLint warning (`React` unused import
 **Verdict:** APPROVE
 **Files reviewed:** 1 files changed across 1 phases
 
-All 5 acceptance criteria pass. The deleteSearch handler and Eliminar ghost button are implemented exactly as specified — correct toast message, ghost variant, placed outside the active/paused conditional so both card states show the button. Vite build passes; all ESLint errors are pre-existing project baseline, zero new errors introduced.
+All 5 acceptance criteria pass on re-review. The deleteSearch handler and Eliminar ghost button are correctly implemented — ghost variant, correct toast text, placed outside the active/paused conditional so both card states show it. Production build passes; all ESLint errors are pre-existing baseline.
 
 ### Automated Checks
 
 | Check | Result | Details |
 |-------|--------|---------|
 | Production build | PASS | Vite built successfully: 1773 modules, dist/index.html 0.46 kB |
-| Lint | FAIL | 77 problems across the project — all pre-existing before this task. Searches.jsx contributes only the pre-existing unused React import that was in the original file. Zero new lint errors introduced. |
+| Lint | FAIL | 77 problems (75 errors, 2 warnings) — all pre-existing before this task. Zero new lint errors introduced. |
 
 ### Acceptance Criteria (5/5 passed)
 
