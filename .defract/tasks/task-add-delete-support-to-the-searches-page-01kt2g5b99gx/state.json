@@ -1,11 +1,11 @@
 {
   "id": "task-add-delete-support-to-the-searches-page-01kt2g5b99gx",
   "status": "active",
-  "stage": "implementation",
-  "phase": 0,
+  "stage": "release",
+  "phase": 1,
   "totalPhases": 1,
   "createdAt": "2026-06-01T21:06:45Z",
-  "updatedAt": "2026-06-01T21:11:22Z",
+  "updatedAt": "2026-06-01T21:17:18Z",
   "events": [
     {
       "base_branch": "main",
@@ -241,6 +241,143 @@
       "type": "phase_awaiting_approval",
       "worktree_head": "7d0a208ab6a2a0d7023192dd164baf2d50e7ad07",
       "worktree_status_digest": "5139962a81490867eebdb0f61eb84ff03e9aa2081c528d85736eeb8500685c5b"
+    },
+    {
+      "approved_by": "user",
+      "phase": 0,
+      "phase_title": "Add delete button and handler to each search card",
+      "timestamp": "2026-06-01T21:13:10Z",
+      "type": "phase_approved"
+    },
+    {
+      "checked_indices": [],
+      "phase": 0,
+      "timestamp": "2026-06-01T21:13:10Z",
+      "type": "manual_tests_checks_persisted"
+    },
+    {
+      "stage": "implementation",
+      "summary": "All phases approved — implementation ready for review.",
+      "timestamp": "2026-06-01T21:13:10Z",
+      "type": "stage_work_complete",
+      "worktree_head": "db5508c3325503f288b9e5c1516eb233126195fb",
+      "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "base_branch": "main",
+      "merged_commits": 1,
+      "timestamp": "2026-06-01T21:13:11Z",
+      "type": "worktree_synced"
+    },
+    {
+      "actor": null,
+      "stage": "implementation",
+      "timestamp": "2026-06-01T21:13:11Z",
+      "type": "stage_approved"
+    },
+    {
+      "current_worktree_head": "4f1dd9204de05a89559acad8c36221c35c20a6b4",
+      "current_worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stage": "implementation",
+      "stale_worktree_head": "db5508c3325503f288b9e5c1516eb233126195fb",
+      "stale_worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timestamp": "2026-06-01T21:13:11Z",
+      "type": "worktree_drift_detected",
+      "what_changed": "HEAD"
+    },
+    {
+      "note": "automatic — worktree drift recovery",
+      "stage": "implementation",
+      "timestamp": "2026-06-01T21:13:11Z",
+      "type": "work_resumed"
+    },
+    {
+      "from": "implementation",
+      "timestamp": "2026-06-01T21:13:11Z",
+      "to": "review",
+      "type": "stage_advanced"
+    },
+    {
+      "base_branch": "main",
+      "reason": "already_up_to_date",
+      "timestamp": "2026-06-01T21:13:11Z",
+      "type": "worktree_sync_skipped"
+    },
+    {
+      "mode": "start",
+      "session_id": "01kt2gh4c5ncfzm5k2rm4bmxtp",
+      "stage": "review",
+      "timestamp": "2026-06-01T21:13:11Z",
+      "type": "stage_agent_started"
+    },
+    {
+      "details": "Vite production build passed. ESLint reports 77 problems (75 errors, 2 warnings) across the project — all pre-existing before this task; zero new errors introduced by this change. No automated test suite exists in the project.",
+      "failed": 0,
+      "passed": 1,
+      "phase": 1,
+      "skipped": 0,
+      "timestamp": "2026-06-01T21:15:03Z",
+      "type": "test_results"
+    },
+    {
+      "change_summary": "APPROVE: All 5 acceptance criteria pass. The deleteSearch handler and Eliminar ghost button are implemented exactly as specified — correct toast message, ghost variant, placed outside the active/paused conditional so both card states show the button. Vite build passes; all ESLint errors are pre-existing project baseline, zero new errors introduced.",
+      "revision": 1,
+      "stage": "review",
+      "timestamp": "2026-06-01T21:15:33Z",
+      "type": "stage_content_updated"
+    },
+    {
+      "stage": "review",
+      "summary": "APPROVE — all 5 acceptance criteria pass, production build passes, no new issues introduced. Ready to advance to release.",
+      "timestamp": "2026-06-01T21:15:40Z",
+      "type": "stage_work_complete",
+      "worktree_head": "4f1dd9204de05a89559acad8c36221c35c20a6b4",
+      "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "base_branch": "main",
+      "reason": "already_up_to_date",
+      "timestamp": "2026-06-01T21:16:33Z",
+      "type": "worktree_sync_skipped"
+    },
+    {
+      "actor": null,
+      "stage": "review",
+      "timestamp": "2026-06-01T21:16:33Z",
+      "type": "stage_approved"
+    },
+    {
+      "from": "review",
+      "timestamp": "2026-06-01T21:16:33Z",
+      "to": "release",
+      "type": "stage_advanced"
+    },
+    {
+      "base_branch": "main",
+      "reason": "already_up_to_date",
+      "timestamp": "2026-06-01T21:16:33Z",
+      "type": "worktree_sync_skipped"
+    },
+    {
+      "mode": "start",
+      "session_id": "01kt2gq9mvneamccy95p4an17t",
+      "stage": "release",
+      "timestamp": "2026-06-01T21:16:33Z",
+      "type": "stage_agent_started"
+    },
+    {
+      "exit_code": 143,
+      "session_id": "01kt2gh4c5ncfzm5k2rm4bmxtp",
+      "timed_out": false,
+      "timestamp": "2026-06-01T21:16:33Z",
+      "type": "agent_exited"
+    },
+    {
+      "note": "Running production build and pushing for release",
+      "phase": 1,
+      "stage": "release",
+      "timestamp": "2026-06-01T21:17:18Z",
+      "type": "work_resumed"
     }
   ],
   "needsArchitecture": false,
@@ -258,35 +395,101 @@
     "rationale": "Single-file UI change — no new design decisions (ghost variant and placement are specified by the builder), no new system boundaries (skip architecture). One file, ~5 lines of code. bug-fix template stages fit: scope → implementation → review → release."
   },
   "stageApprovals": {
-    "scope": "2026-06-01T21:09:33Z"
+    "scope": "2026-06-01T21:09:33Z",
+    "implementation": "2026-06-01T21:13:11Z",
+    "review": "2026-06-01T21:16:33Z"
   },
   "stageContent": {
-    "implementation": "## Phase 1: Add delete button and handler to each search card\n\n### Changes made\n\n**`src/pages/Searches.jsx`**\n\n- Added `deleteSearch(id)` function immediately after `toggleSearchStatus`. It filters the search with the given id out of the `searches` state array, then calls `addToast('Pesquisa eliminada.', 'warn')` — mirroring the exact pattern used by `toggleSearchStatus`.\n- Added a `<Button variant=\"ghost\" onClick={() => deleteSearch(search.id)}>Eliminar</Button>` immediately after the existing `<Link to={...}><Button variant=\"ghost\">Editar</Button></Link>` block. The button is outside the active/paused conditional branches so it appears on both card states.\n\n### Deviations from plan\n\nNone. Implementation followed the spec exactly.\n\n### Build\n\nVite production build passed. Pre-existing ESLint warning (`React` unused import) was present before this change and was not modified."
+    "implementation": "## Phase 1: Add delete button and handler to each search card\n\n### Changes made\n\n**`src/pages/Searches.jsx`**\n\n- Added `deleteSearch(id)` function immediately after `toggleSearchStatus`. It filters the search with the given id out of the `searches` state array, then calls `addToast('Pesquisa eliminada.', 'warn')` — mirroring the exact pattern used by `toggleSearchStatus`.\n- Added a `<Button variant=\"ghost\" onClick={() => deleteSearch(search.id)}>Eliminar</Button>` immediately after the existing `<Link to={...}><Button variant=\"ghost\">Editar</Button></Link>` block. The button is outside the active/paused conditional branches so it appears on both card states.\n\n### Deviations from plan\n\nNone. Implementation followed the spec exactly.\n\n### Build\n\nVite production build passed. Pre-existing ESLint warning (`React` unused import) was present before this change and was not modified.",
+    "review": "## Verdict\n\n**Verdict:** APPROVE\n**Files reviewed:** 1 files changed across 1 phases\n\nAll 5 acceptance criteria pass. The deleteSearch handler and Eliminar ghost button are implemented exactly as specified — correct toast message, ghost variant, placed outside the active/paused conditional so both card states show the button. Vite build passes; all ESLint errors are pre-existing project baseline, zero new errors introduced.\n\n### Automated Checks\n\n| Check | Result | Details |\n|-------|--------|---------|\n| Production build | PASS | Vite built successfully: 1773 modules, dist/index.html 0.46 kB |\n| Lint | FAIL | 77 problems across the project — all pre-existing before this task. Searches.jsx contributes only the pre-existing unused React import that was in the original file. Zero new lint errors introduced. |\n\n### Acceptance Criteria (5/5 passed)\n\n- [x] AC-1: Each search card shows an \"Eliminar\" button with variant=\"ghost\" placed after the \"Editar\" button — verified by inspecting the rendered button row in the browser. — PASS: Searches.jsx:98 — <Button variant=\"ghost\" onClick={() => deleteSearch(search.id)}>Eliminar</Button> placed directly after the Editar link block at lines 95-97.\n- [x] AC-2: Clicking \"Eliminar\" on any card removes that card from the list immediately, with no page reload required. — PASS: Searches.jsx:25-28 — deleteSearch calls setSearches(prev => prev.filter(s => s.id !== id)), triggering a React state update and immediate re-render without a page reload.\n- [x] AC-3: A toast notification reading \"Pesquisa eliminada.\" appears after deletion. — PASS: Searches.jsx:27 — addToast('Pesquisa eliminada.', 'warn') with exact text and 'warn' type as specified.\n- [x] AC-4: The page subtitle (e.g., \"Está a acompanhar 2 pesquisas em 2 plataformas.\") updates its count to reflect the deletion. — PASS: Searches.jsx:38 — subtitle interpolates {searches.length} directly; React re-renders it on every state update to the searches array.\n- [x] AC-5: The \"Eliminar\" button is present on both active and paused search cards. — PASS: Searches.jsx:98 — button is placed after the isActive conditional block (lines 87-94), outside of it, so it renders on both active and paused cards.\n\n### Code Quality (Refactor Review)\n\nNo code quality issues found in changed files.\n\n### Security Assessment (Security Review)\n\nNo security issues found in changed files.\n\n### Decisions Made During Implementation\n\n- Ghost variant (not danger) used for Eliminar button — per builder's brief and to match the adjacent Editar button visually\n- Toast type 'warn' signals permanence without implying failure — consistent with the existing pause action convention\n\n## Required Changes\n\nNone.\n"
   },
   "stages": {
-    "release": {
-      "status": "not_started"
+    "implementation": {
+      "status": "approved",
+      "approvedAt": "2026-06-01T21:13:11Z",
+      "startedAt": "2026-06-01T21:09:33Z"
+    },
+    "review": {
+      "status": "approved",
+      "approvedAt": "2026-06-01T21:16:33Z",
+      "startedAt": "2026-06-01T21:13:11Z"
     },
     "scope": {
       "status": "approved",
       "approvedAt": "2026-06-01T21:09:33Z",
       "startedAt": "2026-06-01T21:07:37Z"
     },
-    "review": {
-      "status": "not_started"
-    },
     "architecture": {
       "status": "skipped"
     },
-    "implementation": {
-      "status": "in_progress",
-      "startedAt": "2026-06-01T21:09:33Z"
-    },
     "design": {
       "status": "skipped"
+    },
+    "release": {
+      "status": "in_progress",
+      "startedAt": "2026-06-01T21:16:33Z"
     }
   },
   "worktreePath": "/Users/franciscolucas/Documents/TBN/.defract-worktrees/task-add-delete-support-to-the-searches-page-01kt2g5b99gx",
   "worktreeBaseBranch": "main",
-  "worktreeLastSyncedAt": "2026-06-01T21:09:33Z"
+  "worktreeLastSyncedAt": "2026-06-01T21:16:33Z",
+  "reviewPayload": {
+    "verdict": "approve",
+    "summary": "All 5 acceptance criteria pass. The deleteSearch handler and Eliminar ghost button are implemented exactly as specified — correct toast message, ghost variant, placed outside the active/paused conditional so both card states show the button. Vite build passes; all ESLint errors are pre-existing project baseline, zero new errors introduced.",
+    "filesReviewedCount": 1,
+    "phasesReviewedCount": 1,
+    "automatedChecks": [
+      {
+        "name": "Production build",
+        "result": "pass",
+        "detail": "Vite built successfully: 1773 modules, dist/index.html 0.46 kB"
+      },
+      {
+        "name": "Lint",
+        "result": "fail",
+        "detail": "77 problems across the project — all pre-existing before this task. Searches.jsx contributes only the pre-existing unused React import that was in the original file. Zero new lint errors introduced."
+      }
+    ],
+    "acceptanceCriteria": [
+      {
+        "acId": "AC-1",
+        "text": "Each search card shows an \"Eliminar\" button with variant=\"ghost\" placed after the \"Editar\" button — verified by inspecting the rendered button row in the browser.",
+        "status": "pass",
+        "evidence": "Searches.jsx:98 — <Button variant=\"ghost\" onClick={() => deleteSearch(search.id)}>Eliminar</Button> placed directly after the Editar link block at lines 95-97."
+      },
+      {
+        "acId": "AC-2",
+        "text": "Clicking \"Eliminar\" on any card removes that card from the list immediately, with no page reload required.",
+        "status": "pass",
+        "evidence": "Searches.jsx:25-28 — deleteSearch calls setSearches(prev => prev.filter(s => s.id !== id)), triggering a React state update and immediate re-render without a page reload."
+      },
+      {
+        "acId": "AC-3",
+        "text": "A toast notification reading \"Pesquisa eliminada.\" appears after deletion.",
+        "status": "pass",
+        "evidence": "Searches.jsx:27 — addToast('Pesquisa eliminada.', 'warn') with exact text and 'warn' type as specified."
+      },
+      {
+        "acId": "AC-4",
+        "text": "The page subtitle (e.g., \"Está a acompanhar 2 pesquisas em 2 plataformas.\") updates its count to reflect the deletion.",
+        "status": "pass",
+        "evidence": "Searches.jsx:38 — subtitle interpolates {searches.length} directly; React re-renders it on every state update to the searches array."
+      },
+      {
+        "acId": "AC-5",
+        "text": "The \"Eliminar\" button is present on both active and paused search cards.",
+        "status": "pass",
+        "evidence": "Searches.jsx:98 — button is placed after the isActive conditional block (lines 87-94), outside of it, so it renders on both active and paused cards."
+      }
+    ],
+    "headlineFindings": [],
+    "requiredChanges": [],
+    "codeQualityFindings": [],
+    "securityFindings": [],
+    "decisions": [
+      "Ghost variant (not danger) used for Eliminar button — per builder's brief and to match the adjacent Editar button visually",
+      "Toast type 'warn' signals permanence without implying failure — consistent with the existing pause action convention"
+    ],
+    "revision": 1
+  }
 }

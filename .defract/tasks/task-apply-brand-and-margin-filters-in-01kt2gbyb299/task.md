@@ -3,7 +3,7 @@ defract:
   id: task-apply-brand-and-margin-filters-in-01kt2gbyb299
   type: bug
   status: active
-  stage: scope
+  stage: review
   phase: 0
   total_phases: 1
   priority: normal
@@ -15,6 +15,7 @@ defract:
   assignee: null
 ---
 
+
 ## Story Brief
 
 Promoted from backlog item `bli-apply-brand-and-1`.
@@ -24,6 +25,8 @@ Promoted from backlog item `bli-apply-brand-and-1`.
 Original paste from the builder:
 
 > filterBrand and filterMargin state is declared in AlertHistory.jsx but never applied — mockAlerts is passed to .reduce() unfiltered. Wire the two selects so they actually narrow the displayed alert list.
+
+# Apply brand and margin filters in AlertHistory
 
 # Apply brand and margin filters in AlertHistory
 
@@ -38,8 +41,89 @@ The alert history page has two filter controls — one for vehicle brand and one
 - Both filters can be active at the same time, narrowing results by brand AND margin together
 - When no alerts match the active filters, the page shows a clear empty state rather than a blank area
 
+## Phase Outcomes
+
+- **Phase 1: Wire filters to the alert list** — Dealers selecting a brand or margin threshold in the history page will see the list update immediately to show only matching alerts, and will see a helpful message when no results match rather than a silent blank area.
+
 ## Out of Scope
 
 - Adding new filter options (additional brands, new margin thresholds) beyond what the selects already list
 - Persisting filter selections across page navigation or browser sessions
 - Connecting filters to a live backend or real data source
+
+## Scope Summary
+
+**Size:** 4 requirements, 5 acceptance criteria, 1 implementation phase
+**Key decisions:**
+- Brand filtering matches the filter value against `carTitle` (case-insensitive substring) because `mockAlerts` has no separate `brand` field
+- Filtering is derived inline as a variable before the `.reduce()` grouping — no new state or component needed
+**Biggest risk:** The select option values (`'bmw'`, `'mercedes'`, `'renault'`) must case-insensitively match the brand strings that appear in `carTitle`; a mismatch silently shows zero results.
+
+## Context
+
+`AlertHistory.jsx` declares `filterBrand` (default `'all'`) and `filterMargin` (default `'all'`) and binds both selects to those state variables, but `mockAlerts` is passed directly to `.reduce()` without any filtering step. The `mockAlerts` array in `src/data/mock-data.js` has no dedicated `brand` field — brand must be inferred from `carTitle` (e.g., "2021 BMW 320e Touring M-Sport"). Margin is available as the numeric `marginEst` field; the select emits numeric-string values (`'2000'`, `'3000'`, `'4000'`). The fix is entirely contained to `AlertHistory.jsx`.
+
+## Requirements
+
+### Filtering
+
+- R1: When `filterBrand` is not `'all'`, only alerts whose `carTitle` contains the brand name (case-insensitive) are shown. (Derive a `filteredAlerts` variable from `mockAlerts` before the `.reduce()` call in `AlertHistory.jsx`.)
+- R2: When `filterMargin` is not `'all'`, only alerts with `marginEst >= parseInt(filterMargin)` are shown.
+- R3: Both filters apply together — an alert must satisfy both the brand condition and the margin condition to appear.
+- R4: When the active filters produce no matching alerts, the page renders an empty state message in Portuguese (e.g., "Nenhum alerta corresponde aos filtros selecionados.") in place of the blank list area.
+
+## Acceptance Criteria
+
+- [ ] Selecting "BMW" from the brand select hides the Volvo alert (id 102) and keeps the BMW alert (id 101) visible
+- [ ] Selecting "> €3,000" from the margin select hides alerts with `marginEst` below 3000 and shows those at or above 3000
+- [ ] With brand set to "BMW" and margin set to "> €4,000", only alerts matching both conditions appear (none in the current mock data, so the empty state is shown)
+- [ ] Resetting both selects to their "all" options restores the full unfiltered list
+- [ ] When no alerts match the active filters, a non-empty Portuguese message is displayed instead of a blank area
+
+## Implementation Phases
+
+### Phase 1: Wire filters to the alert list
+**Scope:** Add a derived `filteredAlerts` variable that applies the brand and margin predicates, replace the bare `mockAlerts` reference in the `.reduce()` call with `filteredAlerts`, and render an empty state message when no groups remain.
+**Files:**
+- `src/pages/AlertHistory.jsx` — add `filteredAlerts` derivation, swap into `.reduce()`, add empty state branch
+**Verification:**
+- [ ] Selecting "BMW" shows only BMW alerts
+- [ ] Selecting "> €3,000" shows only alerts with `marginEst >= 3000`
+- [ ] Combining both filters narrows to the intersection
+- [ ] Resetting both filters to "all" restores the full list
+- [ ] A message is shown (not a blank area) when filters match nothing
+**Estimated effort:** Small
+
+## Edge Cases
+
+- **All mock alerts filtered out**: `Object.keys(groupedAlerts)` is empty — render the empty state message instead of the date-grouped list.
+- **Brand value case mismatch**: The select values (`'bmw'`, `'mercedes'`, `'renault'`) are lowercase; `carTitle` uses mixed case — the match must be case-insensitive (`carTitle.toLowerCase().includes(filterBrand)`).
+- **Margin is a string from the select**: `filterMargin` is `'2000'` / `'3000'` / `'4000'` (a string) while `marginEst` is a number — use `parseInt(filterMargin)` for the comparison.
+
+## Technical Notes
+
+The fix is a single derived variable inserted between the state declarations and the `.reduce()` call:
+
+```js
+const filteredAlerts = mockAlerts
+  .filter(a => filterBrand === 'all' || a.carTitle.toLowerCase().includes(filterBrand))
+  .filter(a => filterMargin === 'all' || a.marginEst >= parseInt(filterMargin));
+```
+
+Then replace `mockAlerts.reduce(...)` with `filteredAlerts.reduce(...)`, and wrap the date-group list in a conditional that shows the empty state when `Object.keys(groupedAlerts).length === 0`. No new components, no new state, no new files.
+
+## Implementation Notes
+
+## Phase 1: Wire filters to the alert list
+
+**Files changed:** `src/pages/AlertHistory.jsx`
+
+**What was built:**
+
+1. Added `filteredAlerts` derived variable after the state declarations — applies brand (case-insensitive `includes`) and margin (`>= parseInt(filterMargin)`) predicates against `mockAlerts` before the grouping step.
+2. Replaced `mockAlerts.reduce(...)` with `filteredAlerts.reduce(...)` so the date-grouped display reflects the filtered set.
+3. Wrapped the date-group list in a conditional: when `Object.keys(groupedAlerts).length === 0`, renders a centered Portuguese empty state message ("Nenhum alerta corresponde aos filtros selecionados.") instead of a blank area.
+
+**No deviations from plan.** The fix is exactly the three-line derived variable + `.reduce()` swap + empty state branch described in the scope.
+
+**Verification:** Vite production build passes (1773 modules, no errors). ESLint unavailable in this environment due to a pre-existing Node version incompatibility unrelated to this change.

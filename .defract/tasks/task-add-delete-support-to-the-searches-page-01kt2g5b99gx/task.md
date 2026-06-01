@@ -3,7 +3,7 @@ defract:
   id: task-add-delete-support-to-the-searches-page-01kt2g5b99gx
   type: task
   status: active
-  stage: implementation
+  stage: release
   phase: 0
   total_phases: 1
   priority: normal
@@ -14,6 +14,7 @@ defract:
   created_by: null
   assignee: null
 ---
+
 
 ## Story Brief
 
@@ -133,3 +134,45 @@ None. Implementation followed the spec exactly.
 ### Build
 
 Vite production build passed. Pre-existing ESLint warning (`React` unused import) was present before this change and was not modified.
+
+## Review
+
+## Verdict
+
+**Verdict:** APPROVE
+**Files reviewed:** 1 files changed across 1 phases
+
+All 5 acceptance criteria pass. The deleteSearch handler and Eliminar ghost button are implemented exactly as specified — correct toast message, ghost variant, placed outside the active/paused conditional so both card states show the button. Vite build passes; all ESLint errors are pre-existing project baseline, zero new errors introduced.
+
+### Automated Checks
+
+| Check | Result | Details |
+|-------|--------|---------|
+| Production build | PASS | Vite built successfully: 1773 modules, dist/index.html 0.46 kB |
+| Lint | FAIL | 77 problems across the project — all pre-existing before this task. Searches.jsx contributes only the pre-existing unused React import that was in the original file. Zero new lint errors introduced. |
+
+### Acceptance Criteria (5/5 passed)
+
+- [x] AC-1: Each search card shows an "Eliminar" button with variant="ghost" placed after the "Editar" button — verified by inspecting the rendered button row in the browser. — PASS: Searches.jsx:98 — <Button variant="ghost" onClick={() => deleteSearch(search.id)}>Eliminar</Button> placed directly after the Editar link block at lines 95-97.
+- [x] AC-2: Clicking "Eliminar" on any card removes that card from the list immediately, with no page reload required. — PASS: Searches.jsx:25-28 — deleteSearch calls setSearches(prev => prev.filter(s => s.id !== id)), triggering a React state update and immediate re-render without a page reload.
+- [x] AC-3: A toast notification reading "Pesquisa eliminada." appears after deletion. — PASS: Searches.jsx:27 — addToast('Pesquisa eliminada.', 'warn') with exact text and 'warn' type as specified.
+- [x] AC-4: The page subtitle (e.g., "Está a acompanhar 2 pesquisas em 2 plataformas.") updates its count to reflect the deletion. — PASS: Searches.jsx:38 — subtitle interpolates {searches.length} directly; React re-renders it on every state update to the searches array.
+- [x] AC-5: The "Eliminar" button is present on both active and paused search cards. — PASS: Searches.jsx:98 — button is placed after the isActive conditional block (lines 87-94), outside of it, so it renders on both active and paused cards.
+
+### Code Quality (Refactor Review)
+
+No code quality issues found in changed files.
+
+### Security Assessment (Security Review)
+
+No security issues found in changed files.
+
+### Decisions Made During Implementation
+
+- Ghost variant (not danger) used for Eliminar button — per builder's brief and to match the adjacent Editar button visually
+- Toast type 'warn' signals permanence without implying failure — consistent with the existing pause action convention
+
+## Required Changes
+
+None.
+

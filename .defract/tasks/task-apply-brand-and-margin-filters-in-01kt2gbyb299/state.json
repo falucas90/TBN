@@ -1,11 +1,11 @@
 {
   "id": "task-apply-brand-and-margin-filters-in-01kt2gbyb299",
   "status": "active",
-  "stage": "scope",
-  "phase": 0,
+  "stage": "review",
+  "phase": 1,
   "totalPhases": 1,
   "createdAt": "2026-06-01T21:10:21Z",
-  "updatedAt": "2026-06-01T21:11:11Z",
+  "updatedAt": "2026-06-01T21:16:39Z",
   "events": [
     {
       "base_branch": "main",
@@ -54,30 +54,319 @@
       "timed_out": false,
       "timestamp": "2026-06-01T21:11:11Z",
       "type": "agent_exited"
+    },
+    {
+      "change_summary": "Full scope: filtering logic, empty state, single-phase implementation detail",
+      "revision": 2,
+      "timestamp": "2026-06-01T21:13:34Z",
+      "type": "scope_update"
+    },
+    {
+      "rationale": "Wiring existing UI state to a filter step is a bug fix (declared behavior not working). No UI design decisions (selects already exist), no new system boundaries (single file change), no architecture stage needed — the fix is a derived variable and an empty state branch in one file.",
+      "stages": [
+        "scope",
+        "implementation",
+        "review",
+        "release"
+      ],
+      "template": "bug-fix",
+      "tier": "standard",
+      "timestamp": "2026-06-01T21:13:40Z",
+      "type": "workflow_classified"
+    },
+    {
+      "alternatives_considered": [
+        "Add a brand field to each mockAlerts entry and match exactly",
+        "Extract the brand by splitting carTitle on spaces and taking the second token"
+      ],
+      "decision": "Brand filtering uses case-insensitive substring match against carTitle rather than a dedicated brand field",
+      "rationale": "mockAlerts has no brand field; carTitle always includes the brand name as the first recognisable token (e.g., \"2021 BMW 320e Touring M-Sport\"). Adding a brand field to mock data is out of scope for this task.",
+      "timestamp": "2026-06-01T21:13:45Z",
+      "type": "decision"
+    },
+    {
+      "stage": "scope",
+      "summary": "Full scope written as revision 2. Single-phase bug-fix: derive filteredAlerts before the .reduce() grouping in AlertHistory.jsx, swap it in, and add a Portuguese empty state. Workflow: bug-fix, standard tier, scope → implementation → review → release.",
+      "timestamp": "2026-06-01T21:13:52Z",
+      "type": "stage_work_complete",
+      "worktree_head": "7d0a208ab6a2a0d7023192dd164baf2d50e7ad07",
+      "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "base_branch": "main",
+      "merged_commits": 1,
+      "timestamp": "2026-06-01T21:14:02Z",
+      "type": "worktree_synced"
+    },
+    {
+      "actor": null,
+      "stage": "scope",
+      "timestamp": "2026-06-01T21:14:01Z",
+      "type": "stage_approved"
+    },
+    {
+      "current_worktree_head": "6a22013c48ed9e6331c6230191e79674085c67b5",
+      "current_worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stage": "scope",
+      "stale_worktree_head": "7d0a208ab6a2a0d7023192dd164baf2d50e7ad07",
+      "stale_worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timestamp": "2026-06-01T21:14:02Z",
+      "type": "worktree_drift_detected",
+      "what_changed": "HEAD"
+    },
+    {
+      "note": "automatic — worktree drift recovery",
+      "stage": "scope",
+      "timestamp": "2026-06-01T21:14:02Z",
+      "type": "work_resumed"
+    },
+    {
+      "from": "scope",
+      "timestamp": "2026-06-01T21:14:02Z",
+      "to": "implementation",
+      "type": "stage_advanced"
+    },
+    {
+      "base_branch": "main",
+      "reason": "already_up_to_date",
+      "timestamp": "2026-06-01T21:14:02Z",
+      "type": "worktree_sync_skipped"
+    },
+    {
+      "mode": "start",
+      "session_id": "01kt2gjnf76vmw5n0xsgn14mq1",
+      "stage": "implementation",
+      "timestamp": "2026-06-01T21:14:02Z",
+      "type": "stage_agent_started"
+    },
+    {
+      "exit_code": 143,
+      "session_id": "01kt2gde5y6z119dfezhtt15c5",
+      "timed_out": false,
+      "timestamp": "2026-06-01T21:14:02Z",
+      "type": "agent_exited"
+    },
+    {
+      "action": "sweep",
+      "phase": 0,
+      "rationale": "The divergence is a single sync commit pulling in main — legitimate infrastructure work that should stay in the feature branch.",
+      "stage": "implementation",
+      "timestamp": "2026-06-01T21:14:26Z",
+      "type": "worktree_drift_resolved"
+    },
+    {
+      "note": "Starting phase 1: wire brand and margin filters in AlertHistory.jsx",
+      "phase": 0,
+      "stage": "implementation",
+      "timestamp": "2026-06-01T21:14:31Z",
+      "type": "work_resumed"
+    },
+    {
+      "description": "Starting phase 1: Wire filters to the alert list",
+      "percentage": 0,
+      "phase": 1,
+      "timestamp": "2026-06-01T21:14:37Z",
+      "type": "progress_report"
+    },
+    {
+      "description": "Implementing core changes",
+      "percentage": 20,
+      "phase": 1,
+      "timestamp": "2026-06-01T21:14:42Z",
+      "type": "progress_report"
+    },
+    {
+      "description": "Running verification checks",
+      "percentage": 60,
+      "phase": 1,
+      "timestamp": "2026-06-01T21:15:03Z",
+      "type": "progress_report"
+    },
+    {
+      "description": "Running full check suite",
+      "percentage": 80,
+      "phase": 1,
+      "timestamp": "2026-06-01T21:15:30Z",
+      "type": "progress_report"
+    },
+    {
+      "details": "No automated test suite in this project. Vite production build completed successfully (1773 modules transformed, no errors). ESLint unavailable due to pre-existing Node version mismatch (not introduced by this change).",
+      "failed": 0,
+      "passed": 0,
+      "phase": 0,
+      "skipped": 0,
+      "timestamp": "2026-06-01T21:15:34Z",
+      "type": "test_results"
+    },
+    {
+      "description": "Phase 1 implementation complete — awaiting approval",
+      "percentage": 100,
+      "phase": 1,
+      "timestamp": "2026-06-01T21:15:36Z",
+      "type": "progress_report"
+    },
+    {
+      "change_summary": "Phase 1 complete: Wire filters to the alert list",
+      "revision": 1,
+      "stage": "implementation",
+      "timestamp": "2026-06-01T21:15:45Z",
+      "type": "stage_content_updated"
+    },
+    {
+      "details": "No automated test suite. Vite production build: PASS (1773 modules transformed, no errors, no type errors). ESLint unavailable due to pre-existing Node version mismatch.",
+      "failed": 0,
+      "passed": 1,
+      "phase": 0,
+      "skipped": 0,
+      "timestamp": "2026-06-01T21:15:55Z",
+      "type": "test_results"
+    },
+    {
+      "artifacts_created": [
+        "src/pages/AlertHistory.jsx"
+      ],
+      "phase": 0,
+      "summary": "Added filteredAlerts derivation applying brand (case-insensitive includes) and margin (>= parseInt) predicates, swapped into .reduce() grouping, and added Portuguese empty state when no groups remain.",
+      "timestamp": "2026-06-01T21:15:59Z",
+      "type": "phase_completed"
+    },
+    {
+      "items": [
+        {
+          "description": "Navigate to `Histórico de Alertas`. Confirm all alerts are shown with both selects at their default values (`Todas as Marcas`, `Qualquer Margem`)."
+        },
+        {
+          "description": "Select `BMW` from the brand select. Confirm only BMW alerts remain visible and the Volvo alert (if present) disappears."
+        },
+        {
+          "description": "Reset brand to `Todas as Marcas`, then select `> €3,000` from the margin select. Confirm only alerts with margin at or above €3,000 are shown."
+        },
+        {
+          "description": "With margin still set to `> €4,000`, also set brand to `BMW`. Confirm the empty state message `Nenhum alerta corresponde aos filtros selecionados.` appears instead of a blank area."
+        },
+        {
+          "description": "Reset both selects to `Todas as Marcas` and `Qualquer Margem`. Confirm the full unfiltered alert list is restored."
+        }
+      ],
+      "phase": 0,
+      "phase_title": "Wire filters to the alert list",
+      "timestamp": "2026-06-01T21:16:06Z",
+      "type": "manual_tests"
+    },
+    {
+      "agent_phase": 1,
+      "phase_title": "Wire filters to the alert list",
+      "server_phase": 0,
+      "timestamp": "2026-06-01T21:16:10Z",
+      "type": "phase_drift_detected"
+    },
+    {
+      "phase": 0,
+      "phase_title": "Wire filters to the alert list",
+      "timestamp": "2026-06-01T21:16:10Z",
+      "type": "phase_awaiting_approval",
+      "worktree_head": "6a22013c48ed9e6331c6230191e79674085c67b5",
+      "worktree_status_digest": "dfa94509a84c890bafc663ac5468800a746cdd523668c40aaa40c3efc1d47dee"
+    },
+    {
+      "approved_by": "user",
+      "phase": 0,
+      "phase_title": "Wire filters to the alert list",
+      "timestamp": "2026-06-01T21:16:39Z",
+      "type": "phase_approved"
+    },
+    {
+      "checked_indices": [],
+      "phase": 0,
+      "timestamp": "2026-06-01T21:16:39Z",
+      "type": "manual_tests_checks_persisted"
+    },
+    {
+      "stage": "implementation",
+      "summary": "All phases approved — implementation ready for review.",
+      "timestamp": "2026-06-01T21:16:39Z",
+      "type": "stage_work_complete",
+      "worktree_head": "99d46fed8b8928bc6da8a6ac150969a3fb3b5525",
+      "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "base_branch": "main",
+      "reason": "already_up_to_date",
+      "timestamp": "2026-06-01T21:16:39Z",
+      "type": "worktree_sync_skipped"
+    },
+    {
+      "actor": null,
+      "stage": "implementation",
+      "timestamp": "2026-06-01T21:16:39Z",
+      "type": "stage_approved"
+    },
+    {
+      "from": "implementation",
+      "timestamp": "2026-06-01T21:16:39Z",
+      "to": "review",
+      "type": "stage_advanced"
+    },
+    {
+      "base_branch": "main",
+      "reason": "already_up_to_date",
+      "timestamp": "2026-06-01T21:16:39Z",
+      "type": "worktree_sync_skipped"
+    },
+    {
+      "exit_code": 143,
+      "session_id": "01kt2gjnf76vmw5n0xsgn14mq1",
+      "timed_out": false,
+      "timestamp": "2026-06-01T21:16:39Z",
+      "type": "agent_exited"
     }
   ],
+  "needsArchitecture": false,
+  "needsDesign": false,
+  "workflow": {
+    "tier": "standard",
+    "template": "bug-fix",
+    "stages": [
+      "scope",
+      "implementation",
+      "review",
+      "release"
+    ],
+    "classifiedBy": "scope-agent",
+    "rationale": "Wiring existing UI state to a filter step is a bug fix (declared behavior not working). No UI design decisions (selects already exist), no new system boundaries (single file change), no architecture stage needed — the fix is a derived variable and an empty state branch in one file."
+  },
+  "stageApprovals": {
+    "scope": "2026-06-01T21:14:01Z",
+    "implementation": "2026-06-01T21:16:39Z"
+  },
+  "stageContent": {
+    "implementation": "## Phase 1: Wire filters to the alert list\n\n**Files changed:** `src/pages/AlertHistory.jsx`\n\n**What was built:**\n\n1. Added `filteredAlerts` derived variable after the state declarations — applies brand (case-insensitive `includes`) and margin (`>= parseInt(filterMargin)`) predicates against `mockAlerts` before the grouping step.\n2. Replaced `mockAlerts.reduce(...)` with `filteredAlerts.reduce(...)` so the date-grouped display reflects the filtered set.\n3. Wrapped the date-group list in a conditional: when `Object.keys(groupedAlerts).length === 0`, renders a centered Portuguese empty state message (\"Nenhum alerta corresponde aos filtros selecionados.\") instead of a blank area.\n\n**No deviations from plan.** The fix is exactly the three-line derived variable + `.reduce()` swap + empty state branch described in the scope.\n\n**Verification:** Vite production build passes (1773 modules, no errors). ESLint unavailable in this environment due to a pre-existing Node version incompatibility unrelated to this change."
+  },
   "stages": {
-    "scope": {
-      "status": "in_progress",
-      "startedAt": "2026-06-01T21:11:10Z"
-    },
-    "design": {
-      "status": "not_started"
-    },
-    "implementation": {
-      "status": "not_started"
-    },
     "release": {
       "status": "not_started"
+    },
+    "architecture": {
+      "status": "skipped"
     },
     "review": {
       "status": "not_started"
     },
-    "architecture": {
-      "status": "not_started"
+    "implementation": {
+      "status": "approved",
+      "approvedAt": "2026-06-01T21:16:39Z",
+      "startedAt": "2026-06-01T21:14:02Z"
+    },
+    "scope": {
+      "status": "approved",
+      "approvedAt": "2026-06-01T21:14:01Z",
+      "startedAt": "2026-06-01T21:11:10Z"
+    },
+    "design": {
+      "status": "skipped"
     }
   },
   "worktreePath": "/Users/franciscolucas/Documents/TBN/.defract-worktrees/task-apply-brand-and-margin-filters-in-01kt2gbyb299",
   "worktreeBaseBranch": "main",
-  "worktreeLastSyncedAt": "2026-06-01T21:11:10Z"
+  "worktreeLastSyncedAt": "2026-06-01T21:16:39Z"
 }
