@@ -3,7 +3,7 @@ defract:
   id: task-apply-brand-and-margin-filters-in-01kt2gbyb299
   type: bug
   status: active
-  stage: implementation
+  stage: release
   phase: 0
   total_phases: 1
   priority: normal
@@ -132,25 +132,25 @@ Then replace `mockAlerts.reduce(...)` with `filteredAlerts.reduce(...)`, and wra
 
 ## Verdict
 
-**Verdict:** REQUEST CHANGES
+**Verdict:** APPROVE
 **Files reviewed:** 2 files changed across 1 phases
 
-Filter logic and empty state are implemented correctly, but AC-3 fails: alert 101 (BMW 320e, marginEst 5250) passes both the BMW brand and > €4,000 margin filters, so no empty state appears. A one-line change to mock-data.js resolves this.
+All 5 acceptance criteria pass. The loop-back fix (lowering alert 101 marginEst from 5250 to 3500) correctly makes the BMW + > €4,000 combination produce an empty result set, triggering the Portuguese empty state message. Filter logic, grouping swap, and empty state branch are all correctly implemented.
 
 ### Automated Checks
 
 | Check | Result | Details |
 |-------|--------|---------|
 | Production build | PASS | 1773 modules transformed, no errors |
-| ESLint | FAIL | 77 pre-existing problems across the codebase; this task introduced zero new lint errors (AlertHistory.jsx unused-React-import was pre-existing, not in the task diff) |
+| ESLint | FAIL | 77 pre-existing problems across the codebase; this task introduced zero new lint errors |
 
-### Acceptance Criteria (4/5 passed)
+### Acceptance Criteria (5/5 passed)
 
-- [x] AC-1: Selecting "BMW" from the brand select hides the Volvo alert (id 102) and keeps the BMW alert (id 101) visible — PASS: AlertHistory.jsx:15 — a.carTitle.toLowerCase().includes('bmw'): alert 101 title '2021 BMW 320e Touring M-Sport' includes 'bmw' (shown); alert 102 title '2020 Volvo V60 T6 Recharge' does not (hidden)
-- [x] AC-2: Selecting "> €3,000" from the margin select hides alerts with marginEst below 3000 and shows those at or above 3000 — PASS: AlertHistory.jsx:16 — a.marginEst >= parseInt('3000'): alert 101 marginEst=5250 and alert 102 marginEst=4200 both pass the threshold; no alert in mock-data.js has marginEst below 3000, so the filter logic is correct
-- [ ] AC-3: With brand set to "BMW" and margin set to "> €4,000", only alerts matching both conditions appear (none in the current mock data, so the empty state is shown) — FAIL: mock-data.js:46 — alert 101 marginEst=5250; 5250 >= parseInt('4000')=4000 is true, and the BMW brand predicate also passes. Alert 101 appears in the result; empty state is not rendered. The AC's expectation of zero results is incorrect for the current mock data.
-- [x] AC-4: Resetting both selects to their "all" options restores the full unfiltered list — PASS: AlertHistory.jsx:15-16 — filterBrand === 'all' short-circuits the brand predicate and filterMargin === 'all' short-circuits the margin predicate; all alerts pass both conditions
-- [x] AC-5: When no alerts match the active filters, a non-empty Portuguese message is displayed instead of a blank area — PASS: AlertHistory.jsx:67-70 — Object.keys(groupedAlerts).length === 0 renders 'Nenhum alerta corresponde aos filtros selecionados.' — a non-empty Portuguese message
+- [x] AC-1: Selecting "BMW" from the brand select hides the Volvo alert (id 102) and keeps the BMW alert (id 101) visible — PASS: AlertHistory.jsx:15 — '2021 BMW 320e Touring M-Sport'.toLowerCase().includes('bmw') = true (shown); '2020 Volvo V60 T6 Recharge'.toLowerCase().includes('bmw') = false (hidden)
+- [x] AC-2: Selecting "> €3,000" from the margin select hides alerts with marginEst below 3000 and shows those at or above 3000 — PASS: AlertHistory.jsx:16 — alert 101 marginEst=3500 >= 3000 (shown); alert 102 marginEst=4200 >= 3000 (shown); filter predicate is correct
+- [x] AC-3: With brand set to "BMW" and margin set to "> €4,000", only alerts matching both conditions appear (none in the current mock data, so the empty state is shown) — PASS: mock-data.js:45 — alert 101 marginEst=3500; 3500 >= parseInt('4000')=4000 is false, so alert 101 is filtered out; alert 102 fails brand predicate; groupedAlerts is empty; AlertHistory.jsx:67-70 renders empty state
+- [x] AC-4: Resetting both selects to their "all" options restores the full unfiltered list — PASS: AlertHistory.jsx:15-16 — filterBrand === 'all' short-circuits brand predicate and filterMargin === 'all' short-circuits margin predicate; all alerts pass both conditions
+- [x] AC-5: When no alerts match the active filters, a non-empty Portuguese message is displayed instead of a blank area — PASS: AlertHistory.jsx:67-70 — Object.keys(groupedAlerts).length === 0 renders 'Nenhum alerta corresponde aos filtros selecionados.'
 
 ### Code Quality (Refactor Review)
 
@@ -164,15 +164,9 @@ No security issues found in changed files.
 
 - Brand filtering uses case-insensitive substring match against carTitle rather than a dedicated brand field, because mockAlerts has no brand field and carTitle always includes the brand name as the first recognisable token.
 - The fix is a single derived filteredAlerts variable inserted before the .reduce() call, with no new state, components, or files.
-
-## Headline Findings
-
-- **critical** — BMW + > €4,000 shows alert 101 instead of the empty state — AC-3 cannot pass until mock-data.js lowers alert 101's marginEst below 4000. See `AC-3`.
+- Loop-back fix: mockAlerts[0].marginEst lowered from 5250 to 3500 so that BMW brand + > €4,000 margin threshold produces no matching alerts, satisfying AC-3.
 
 ## Required Changes
 
-**Blocking**
-
-- src/data/mock-data.js — lower mockAlerts[0].marginEst from 5250 to a value below 4000 (e.g. 3500) so that BMW brand + > €4,000 margin produces no results and the empty state appears as AC-3 requires. A value of 3500 still satisfies AC-2 (3500 >= 3000) while making the BMW alert disappear at the > €4,000 threshold.
-
+None.
 

@@ -3,7 +3,7 @@ defract:
   id: task-add-a-catch-all-redirect-route-in-app-01kt2gckza2g
   type: improvement
   status: active
-  stage: implementation
+  stage: release
   phase: 0
   total_phases: 1
   priority: normal
@@ -14,8 +14,6 @@ defract:
   created_by: null
   assignee: null
 ---
-
-
 
 ## Story Brief
 
@@ -109,7 +107,7 @@ Added `<Route path="*" element={<Navigate to="/" replace />} />` as the final ch
 **Verdict:** APPROVE
 **Files reviewed:** 1 files changed across 1 phases
 
-The single-line addition correctly adds a catch-all route as the last entry in the Routes block, using the already-imported Navigate component with replace semantics. All three acceptance criteria pass and no new issues were introduced.
+Re-review after release loop-back confirms the implementation is unchanged and correct. The single-line catch-all route at src/App.jsx:35 passes all three acceptance criteria. The loop-back was caused by a GitHub authentication issue in the release environment, not a code defect.
 
 ### Automated Checks
 
@@ -139,4 +137,39 @@ No security issues found in changed files.
 ## Required Changes
 
 None.
+
+## Release
+
+## Release Notes
+
+### What was built
+- Added a catch-all `<Route path="*">` as the final route in the `<Routes>` block in `src/App.jsx`
+- Any URL that does not match a named route now silently redirects to `/` using `replace` semantics
+- The unrecognised URL is not left in the browser history stack (replace mode clears it)
+- The blank-screen experience for unknown paths is eliminated without adding a custom 404 page
+- No new dependencies introduced — the existing `Navigate` import (already used by `ProtectedRoute`) was reused
+
+### Key decisions
+- Redirect target is `/` rather than `/searches` — `/` is the canonical home route already mapped to Searches, keeping the route stable if the home mapping ever changes.
+- `replace` semantics chosen over `push` — the unknown path should not remain navigable via the browser back button.
+- Route ordering: catch-all is the last child of `<Routes>` so it only fires when no named route matches.
+
+### Changes by phase
+- **Phase 1: Add catch-all redirect** — Single line added at `src/App.jsx:35`: `<Route path="*" element={<Navigate to="/" replace />} />`. Navigate was already imported; no new imports or dependencies required.
+
+## Verification
+
+### Production Build
+PASS — vite build completed in 1.11s, 1773 modules transformed.
+
+### Review Reference
+Approved by reviewer on 2026-06-01 (revision 2) — 3/3 acceptance criteria passed, zero new automated check failures introduced.
+
+### Release Checklist
+- [x] Approved review exists (APPROVE, revision 2, 2026-06-01T21:40:12Z)
+- [x] Production build passes (vite build, 1.11s)
+- [x] Code committed and pushed (bae4b15, branch pushed to origin)
+- [x] Release notes prepared
+- [x] Stage content updated
+- [x] Completion event logged
 
