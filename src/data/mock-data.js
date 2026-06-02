@@ -38,6 +38,10 @@ export const mockAlerts = [
     carTitle: '2021 BMW 320e Touring M-Sport',
     platform: 'Mobile.de',
     priceOriginal: 26500,
+    cc: 1998,
+    co2: 43,
+    fuelType: 'Petrol',
+    ageYears: 5,
     isvEst: 450,
     transportEst: 800,
     totalCost: 27750,
@@ -51,6 +55,10 @@ export const mockAlerts = [
     carTitle: '2020 Volvo V60 T6 Recharge',
     platform: 'AutoScout24',
     priceOriginal: 28900,
+    cc: 1969,
+    co2: 35,
+    fuelType: 'Petrol',
+    ageYears: 6,
     isvEst: 600,
     transportEst: 800,
     totalCost: 30300,
@@ -60,10 +68,27 @@ export const mockAlerts = [
   }
 ];
 
-export const mockUser = {
-  name: 'Francisco Lucas',
-  company: 'FL Motors',
-  email: 'francisco@flmotors.pt',
-  plan: 'Pro Sourcing',
-  defaultTransportCost: 800
-};
+export const mockUsers = [
+  {
+    id: 1,
+    name: 'Francisco Lucas',
+    company: 'FL Motors',
+    email: 'francisco@flmotors.pt',
+    password: 'dealer123',
+    role: 'dealer',
+    status: 'active',
+    plan: 'Pro Sourcing',
+    defaultTransportCost: 800
+  },
+  {
+    id: 2,
+    name: 'Admin Crivo',
+    company: 'Crivo',
+    email: 'admin@crivo.pt',
+    password: 'admin123',
+    role: 'admin',
+    status: 'active',
+    plan: 'Admin',
+    defaultTransportCost: 0
+  }
+];

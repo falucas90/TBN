@@ -1,30 +1,37 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '../components/ui';
 import { FormField } from '../components/forms';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
   const handleLogin = (e) => {
     e.preventDefault();
-    login();
-    navigate('/searches');
+    const success = login(email, password);
+    if (success) {
+      navigate('/searches');
+    } else {
+      setError('Credenciais inválidas');
+    }
   };
 
   return (
     <div style={{ display: 'flex', height: '100vh', backgroundColor: '#fff', color: '#111' }}>
       {/* Left Pane (Beige/Brand) */}
-      <div style={{ 
-        flex: 1, backgroundColor: '#F6F5F2', padding: '4rem', 
+      <div style={{
+        flex: 1, backgroundColor: '#F6F5F2', padding: '4rem',
         display: 'flex', flexDirection: 'column', justifyContent: 'space-between'
       }}>
         <div>
-          <div style={{ 
-            border: '1px solid #D6D5D1', padding: '0.6rem 2rem', 
-            borderRadius: '6px', display: 'inline-block', fontWeight: '700', 
+          <div style={{
+            border: '1px solid #D6D5D1', padding: '0.6rem 2rem',
+            borderRadius: '6px', display: 'inline-block', fontWeight: '700',
             fontSize: '1rem', backgroundColor: '#fff', marginBottom: '4rem'
           }}>
             CRIVO
@@ -60,21 +67,37 @@ export default function Login() {
           <div style={{ width: '100%', maxWidth: '380px' }}>
             <h2 style={{ fontSize: '1.75rem', fontWeight: '700', marginBottom: '0.5rem' }}>Bem-vindo de volta</h2>
             <p style={{ color: 'var(--color-text-secondary)', marginBottom: '2.5rem' }}>Aceda à sua conta</p>
-            
+
             <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <FormField label="Email" required>
-                <input type="email" placeholder="stand@exemplo.pt" style={{ padding: '0.75rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }} />
+                <input
+                  type="email"
+                  placeholder="stand@exemplo.pt"
+                  value={email}
+                  onChange={(e) => { setEmail(e.target.value); setError(''); }}
+                  style={{ padding: '0.75rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none', width: '100%' }}
+                />
               </FormField>
               <FormField label="Palavra-passe" required>
                 <div style={{ position: 'relative' }}>
-                  <input type="password" placeholder="••••••••" style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }} />
+                  <input
+                    type="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => { setPassword(e.target.value); setError(''); }}
+                    style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }}
+                  />
                   <span style={{ position: 'absolute', right: '12px', top: '12px', fontSize: '0.875rem', color: '#666', cursor: 'pointer' }}>show</span>
                 </div>
                 <div style={{ textAlign: 'right', marginTop: '0.5rem' }}>
                   <a href="#" style={{ color: '#0066FF', fontSize: '0.875rem', textDecoration: 'none' }}>Esqueceu-se da palavra-passe?</a>
                 </div>
               </FormField>
-              
+
+              {error && (
+                <p style={{ color: 'var(--color-danger-text)', fontSize: '0.875rem', margin: 0 }}>{error}</p>
+              )}
+
               <div style={{ marginTop: '0.5rem' }}>
                 <Button type="submit" fullWidth style={{ padding: '0.875rem', backgroundColor: '#E9F5E3', color: '#2B5B2E', border: '1px solid #C4E2BE' }}>Entrar</Button>
               </div>
@@ -89,9 +112,9 @@ export default function Login() {
                 Continuar com o Google
               </Button>
             </form>
-            
+
             <div style={{ marginTop: '2.5rem', textAlign: 'center', fontSize: '0.9rem', color: '#555' }}>
-              Não tem uma conta? <a href="/signup" style={{ color: '#0066FF', fontWeight: '500', textDecoration: 'none' }}>Registe-se</a>
+              Não tem uma conta? <Link to="/signup" style={{ color: '#0066FF', fontWeight: '500', textDecoration: 'none' }}>Registe-se</Link>
             </div>
           </div>
         </div>

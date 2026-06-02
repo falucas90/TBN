@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Card, Button, StepIndicator } from '../components/ui';
 import { FormField } from '../components/forms';
+import { Link } from 'react-router-dom';
 
 export default function Signup() {
   const [step, setStep] = useState(1);
@@ -56,13 +57,13 @@ export default function Signup() {
             <div style={{ textAlign: 'center' }}>
               <div style={{ width: '48px', height: '48px', backgroundColor: 'var(--color-success-bg)', color: 'var(--color-success-text)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem', fontSize:'1.5rem' }}>✓</div>
               <p style={{ color: 'var(--color-text-secondary)', marginBottom: '2rem' }}>A redirecionar para o painel principal...</p>
-              <a href="/login"><Button>Ir para o Login</Button></a>
+              <Link to="/login"><Button>Ir para o Login</Button></Link>
             </div>
           )}
           
           {step === 1 && (
             <div style={{ marginTop: '2rem', textAlign: 'center', fontSize: '0.875rem' }}>
-              <a href="/login" style={{ color: 'var(--color-text-secondary)' }}>Já tem uma conta? <span style={{ color: 'var(--color-primary-teal)', fontWeight: '600' }}>Entrar</span></a>
+              <Link to="/login" style={{ color: 'var(--color-text-secondary)', textDecoration: 'none' }}>Já tem uma conta? <span style={{ color: 'var(--color-primary-teal)', fontWeight: '600' }}>Entrar</span></Link>
             </div>
           )}
         </Card>
