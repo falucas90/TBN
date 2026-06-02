@@ -1,11 +1,11 @@
 {
   "id": "task-audit-codebase-for-needed-improvements-01kt545bmfg1",
-  "status": "active",
+  "status": "completed",
   "stage": "release",
   "phase": 1,
   "totalPhases": 1,
   "createdAt": "2026-06-02T21:34:46Z",
-  "updatedAt": "2026-06-02T21:50:38Z",
+  "updatedAt": "2026-06-02T21:52:17Z",
   "events": [
     {
       "base_branch": "main",
@@ -429,6 +429,52 @@
       "timed_out": false,
       "timestamp": "2026-06-02T21:50:38Z",
       "type": "agent_exited"
+    },
+    {
+      "note": "Release stage: probing git auth, running production build, then committing and pushing",
+      "phase": 1,
+      "stage": "release",
+      "timestamp": "2026-06-02T21:50:59Z",
+      "type": "work_resumed"
+    },
+    {
+      "change_summary": "Release validated — build passes, code pushed",
+      "revision": 1,
+      "stage": "release",
+      "timestamp": "2026-06-02T21:51:39Z",
+      "type": "stage_content_updated"
+    },
+    {
+      "alternatives_considered": [],
+      "decision": "Release complete — task done",
+      "rationale": "Production build passes (vite build, 1774 modules transformed, zero errors), review approved on 2026-06-02 (8/8 acceptance criteria), code committed in phase 1 and pushed to origin/feature/task-audit-codebase-for-needed-improvements-01kt545bmfg1",
+      "timestamp": "2026-06-02T21:51:45Z",
+      "type": "decision"
+    },
+    {
+      "stage": "release",
+      "summary": "Production build passes, SSH auth verified, branch pushed to origin. Review approved 2026-06-02 (8/8 acceptance criteria). Release notes and completion event recorded.",
+      "timestamp": "2026-06-02T21:51:54Z",
+      "type": "stage_work_complete",
+      "worktree_head": "9c588e8594502e0916614ce8d1f192b9e8616e64",
+      "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "base_branch": "main",
+      "files_changed": 5,
+      "lines_added": 49,
+      "lines_removed": 18,
+      "timestamp": "2026-06-02T21:52:16Z",
+      "type": "worktree_merged"
+    },
+    {
+      "timestamp": "2026-06-02T21:52:17Z",
+      "type": "worktree_removed"
+    },
+    {
+      "actor": null,
+      "timestamp": "2026-06-02T21:52:17Z",
+      "type": "task_completed"
     }
   ],
   "needsArchitecture": false,
@@ -446,15 +492,21 @@
     "rationale": "All changes are fixes to existing broken or stub behavior across 5 files — no new UI patterns (skip design) and no new system boundaries (skip architecture). Single well-contained implementation phase."
   },
   "stageApprovals": {
-    "implementation": "2026-06-02T21:46:55Z",
     "scope": "2026-06-02T21:42:12Z",
-    "review": "2026-06-02T21:50:38Z"
+    "review": "2026-06-02T21:50:38Z",
+    "implementation": "2026-06-02T21:46:55Z"
   },
+  "completedAt": "2026-06-02T21:52:17Z",
   "stageContent": {
     "review": "## Verdict\n\n**Verdict:** APPROVE\n**Files reviewed:** 5 files changed across 1 phases\n\nAll 8 acceptance criteria pass with concrete evidence at the source level. The ISV calculator is correctly wired and produces values that differ from the former hardcoded placeholders (€1,069 vs €450 for the BMW; €882 vs €600 for the Volvo). Text search, derived stats, and SPA navigation links are all correctly implemented.\n\n### Automated Checks\n\n| Check | Result | Details |\n|-------|--------|---------|\n| Production build | PASS | vite build succeeded, 1774 modules transformed, zero errors |\n| Lint | PASS | 77 pre-existing errors (react/prop-types, unused React imports); zero new errors introduced by this task |\n| ISV calculator verification | PASS | Alert 101 isvPayable=1069 (≠450), Alert 102 isvPayable=882 (≠600) — confirmed via node ESM execution |\n\n### Acceptance Criteria (8/8 passed)\n\n- [x] AC-1: Each entry in `mockAlerts` has `cc`, `co2`, `fuelType`, and `ageYears` fields; both PHEV-flagged entries have co2 ≤ 50 to qualify for the PHEV exemption — PASS: mock-data.js:41-44 Alert 101 (cc=1998, co2=43, fuelType='Petrol', ageYears=5); mock-data.js:58-62 Alert 102 (cc=1969, co2=35, fuelType='Petrol', ageYears=6). Both PHEV-flagged, both co2 ≤ 50.\n- [x] AC-2: AlertHistory imports `calculateISV` and calls it per alert; the ISV values shown differ from the former hardcoded 450 / 600 figures — PASS: AlertHistory.jsx:5 imports calculateISV; AlertHistory.jsx:17 calls it in alertsWithISV.map(). Verified isvPayable values: Alert 101 = €1,069 (≠450), Alert 102 = €882 (≠600).\n- [x] AC-3: For each alert card, `totalCost` equals `priceOriginal + computedIsv + transportEst` and `marginEst` equals `marketPrice − totalCost` — PASS: AlertHistory.jsx:18 `const totalCost = alert.priceOriginal + isvPayable + alert.transportEst`; AlertHistory.jsx:19 `const marginEst = alert.marketPrice - totalCost`. Computed values verified: Alert 101 totalCost=28369, marginEst=4631; Alert 102 totalCost=30582, marginEst=3918.\n- [x] AC-4: Typing a substring into the AlertHistory text search narrows the visible cards to those whose title matches — PASS: AlertHistory.jsx:14 `const [searchText, setSearchText] = useState('')`; AlertHistory.jsx:50-51 input bound with `value={searchText}` and `onChange={e => setSearchText(e.target.value)}`; AlertHistory.jsx:26 `.filter(a => !searchText || a.carTitle.toLowerCase().includes(searchText.toLowerCase()))` applied in filteredAlerts pipeline.\n- [x] AC-5: All three active-search-based stats (\"Matches Hoje\", \"Alta Margem\", \"Margem Média\") update reactively when a search is paused, resumed, or deleted in the Searches page — PASS: Searches.jsx:30-35 — activeSearches, matchesToday, highMarginCount, avgMarginValue all derived from `searches` state; `searches` is updated by toggleSearchStatus (line 14) and deleteSearch (line 25), both calling setSearches.\n- [x] AC-6: \"Margem Média\" shows \"€0\" (not NaN) when all searches are paused or deleted — PASS: Searches.jsx:33-35 guards against zero-length: `activeSearches.length > 0 ? Math.round(...) : 0`. Displayed as `€${avgMarginValue.toLocaleString()}` at line 58, so yields \"€0\" when no active searches.\n- [x] AC-7: The Searches subtitle platform count is a computed value — it changes if a search with a new platform source were added to mock data — PASS: Searches.jsx:36 `const platformCount = new Set(searches.flatMap(s => s.sources)).size` — derived from searches state via Set/flatMap. Used in subtitle at Searches.jsx:46, not hardcoded.\n- [x] AC-8: No internal navigation link in Login or Signup uses a bare `<a href>` element; all use `<Link to>` — PASS: Login.jsx:5 imports Link; Login.jsx:94 uses `<Link to=\"/signup\">`. Signup.jsx:4 imports Link; Signup.jsx:60 `<Link to=\"/login\">` (step 3 button); Signup.jsx:66 `<Link to=\"/login\">` (step 1 return link). Remaining `<a href=\"#\">` elements in Login are external/placeholder links (forgot password, terms, privacy, support), not internal app routes.\n\n### Code Quality (Refactor Review)\n\nNo code quality issues found in changed files.\n\n### Security Assessment (Security Review)\n\nNo security issues found in changed files.\n\n### Decisions Made During Implementation\n\n- ISV, totalCost, and marginEst are computed at render time in AlertHistory rather than updating mock data fields — avoids mutating the mock data shape beyond adding the required vehicle spec inputs and ensures displayed values automatically reflect spec data changes.\n- ISV computation pre-calculated into alertsWithISV array before the filter pipeline so that the margin filter also uses the derived marginEst rather than the stale mock value — consistent filtering and display.\n- Two items from the original intent check (brand/margin filters, catch-all route) were already correctly implemented in the codebase; scope was refocused on the four remaining genuine fixes.\n\n## Required Changes\n\nNone.\n",
-    "implementation": "## Phase 1: Fix all stubbed and inconsistent behaviors\n\nAll five files modified as specified. Build passes cleanly.\n\n### Changes made\n\n**src/data/mock-data.js** — Added `cc`, `co2`, `fuelType`, `ageYears` to both mockAlerts entries. Both PHEV entries have co2 ≤ 50 (43 and 35 respectively), satisfying the PHEV exemption constraint.\n\n**src/pages/AlertHistory.jsx** — Imported `calculateISV`; added `searchText` state; pre-computed ISV and derived fields in an `alertsWithISV` mapping before the filter pipeline (so margin filter uses computed marginEst, not stale mock value); composed text search as a third filter using case-insensitive carTitle match; display uses `isvPayable`, `totalCost`, and `marginEst` from computed values (rounded).\n\n**src/pages/Searches.jsx** — Derived `activeSearches`, `matchesToday`, `highMarginCount`, `avgMarginValue` (guarded against zero-length), and `platformCount` (via Set/flatMap) from `searches` state. All four stat card values now update reactively on toggle/delete.\n\n**src/pages/Login.jsx** — Imported `Link` from react-router-dom; replaced `<a href=\"/signup\">` with `<Link to=\"/signup\">`.\n\n**src/pages/Signup.jsx** — Imported `Link`; replaced both `<a href=\"/login\">` occurrences with `<Link to=\"/login\">`.\n\n### Verification\n\n- ISV computed at runtime: Alert 101 €1069 (was hardcoded €450), Alert 102 €882 (was hardcoded €600)\n- No `alert.isvEst` reference remains in display logic\n- Text search input bound to state; filter applied in pipeline\n- Stat values are expressions over `searches` state\n- No bare `<a href>` for internal routes in Login or Signup"
+    "implementation": "## Phase 1: Fix all stubbed and inconsistent behaviors\n\nAll five files modified as specified. Build passes cleanly.\n\n### Changes made\n\n**src/data/mock-data.js** — Added `cc`, `co2`, `fuelType`, `ageYears` to both mockAlerts entries. Both PHEV entries have co2 ≤ 50 (43 and 35 respectively), satisfying the PHEV exemption constraint.\n\n**src/pages/AlertHistory.jsx** — Imported `calculateISV`; added `searchText` state; pre-computed ISV and derived fields in an `alertsWithISV` mapping before the filter pipeline (so margin filter uses computed marginEst, not stale mock value); composed text search as a third filter using case-insensitive carTitle match; display uses `isvPayable`, `totalCost`, and `marginEst` from computed values (rounded).\n\n**src/pages/Searches.jsx** — Derived `activeSearches`, `matchesToday`, `highMarginCount`, `avgMarginValue` (guarded against zero-length), and `platformCount` (via Set/flatMap) from `searches` state. All four stat card values now update reactively on toggle/delete.\n\n**src/pages/Login.jsx** — Imported `Link` from react-router-dom; replaced `<a href=\"/signup\">` with `<Link to=\"/signup\">`.\n\n**src/pages/Signup.jsx** — Imported `Link`; replaced both `<a href=\"/login\">` occurrences with `<Link to=\"/login\">`.\n\n### Verification\n\n- ISV computed at runtime: Alert 101 €1069 (was hardcoded €450), Alert 102 €882 (was hardcoded €600)\n- No `alert.isvEst` reference remains in display logic\n- Text search input bound to state; filter applied in pipeline\n- Stat values are expressions over `searches` state\n- No bare `<a href>` for internal routes in Login or Signup",
+    "release": "## Release Notes\n\n### What was built\n- Wired the ISV calculator (`calculateISV`) to alert cards in AlertHistory — ISV is now computed at render time from vehicle spec fields rather than using hardcoded placeholder values (€450/€600)\n- Connected the text search input in AlertHistory to component state, composing with existing brand and margin filters so all three narrow the displayed alert list with AND logic\n- Derived all active-search-based stats on the Searches dashboard (Matches Hoje, Alta Margem, Margem Média) from the `searches` state array so they update reactively on pause, resume, or delete\n- Computed platform count for the Searches subtitle from the unique set of sources across all searches rather than a hardcoded literal\n- Replaced bare `<a href>` navigation links in Login and Signup with `<Link to>` from react-router-dom for SPA-safe navigation\n\n### Key decisions\n- ISV, totalCost, and marginEst are computed at render time in AlertHistory rather than updating mock data fields — avoids mutating the mock data shape beyond the required vehicle spec inputs and ensures displayed values reflect spec data changes automatically\n- ISV computation pre-calculated into `alertsWithISV` array before the filter pipeline so the margin filter also uses the derived marginEst rather than the stale mock value — consistent filtering and display\n- Two items from the original intent check (brand/margin filters, catch-all route) were already correctly implemented in the codebase; scope was refocused on the four remaining genuine fixes\n\n### Changes by phase\n- **Phase 1: Fix all stubbed and inconsistent behaviors** — All five files modified (mock-data.js, AlertHistory.jsx, Searches.jsx, Login.jsx, Signup.jsx). ISV calculator wired; text search connected; dashboard stats made reactive; SPA navigation links corrected. Build passed cleanly with 1774 modules transformed.\n\n## Verification\n\n- Production build: PASS (vite build, 1774 modules transformed, zero errors)\n- SSH authentication to GitHub: verified before push\n- Push to remote: PASS (branch pushed to origin)\n- Review approval: APPROVE (2026-06-02, 8/8 acceptance criteria)\n"
   },
   "stages": {
+    "release": {
+      "status": "awaiting_approval",
+      "startedAt": "2026-06-02T21:50:38Z"
+    },
     "architecture": {
       "status": "skipped"
     },
@@ -475,14 +527,8 @@
     },
     "design": {
       "status": "skipped"
-    },
-    "release": {
-      "status": "in_progress",
-      "startedAt": "2026-06-02T21:50:38Z"
     }
   },
-  "worktreePath": "/Users/franciscolucas/Documents/TBN/.defract-worktrees/task-audit-codebase-for-needed-improvements-01kt545bmfg1",
-  "worktreeBaseBranch": "main",
   "worktreeLastSyncedAt": "2026-06-02T21:50:38Z",
   "reviewPayload": {
     "verdict": "approve",

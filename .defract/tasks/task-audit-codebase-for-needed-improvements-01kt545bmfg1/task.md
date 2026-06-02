@@ -15,7 +15,6 @@ defract:
   assignee: falucas90
 ---
 
-
 ## Story Brief
 
 Promoted from backlog item `bli-i-want-to-4`.
@@ -212,4 +211,30 @@ No security issues found in changed files.
 ## Required Changes
 
 None.
+
+## Release
+
+## Release Notes
+
+### What was built
+- Wired the ISV calculator (`calculateISV`) to alert cards in AlertHistory — ISV is now computed at render time from vehicle spec fields rather than using hardcoded placeholder values (€450/€600)
+- Connected the text search input in AlertHistory to component state, composing with existing brand and margin filters so all three narrow the displayed alert list with AND logic
+- Derived all active-search-based stats on the Searches dashboard (Matches Hoje, Alta Margem, Margem Média) from the `searches` state array so they update reactively on pause, resume, or delete
+- Computed platform count for the Searches subtitle from the unique set of sources across all searches rather than a hardcoded literal
+- Replaced bare `<a href>` navigation links in Login and Signup with `<Link to>` from react-router-dom for SPA-safe navigation
+
+### Key decisions
+- ISV, totalCost, and marginEst are computed at render time in AlertHistory rather than updating mock data fields — avoids mutating the mock data shape beyond the required vehicle spec inputs and ensures displayed values reflect spec data changes automatically
+- ISV computation pre-calculated into `alertsWithISV` array before the filter pipeline so the margin filter also uses the derived marginEst rather than the stale mock value — consistent filtering and display
+- Two items from the original intent check (brand/margin filters, catch-all route) were already correctly implemented in the codebase; scope was refocused on the four remaining genuine fixes
+
+### Changes by phase
+- **Phase 1: Fix all stubbed and inconsistent behaviors** — All five files modified (mock-data.js, AlertHistory.jsx, Searches.jsx, Login.jsx, Signup.jsx). ISV calculator wired; text search connected; dashboard stats made reactive; SPA navigation links corrected. Build passed cleanly with 1774 modules transformed.
+
+## Verification
+
+- Production build: PASS (vite build, 1774 modules transformed, zero errors)
+- SSH authentication to GitHub: verified before push
+- Push to remote: PASS (branch pushed to origin)
+- Review approval: APPROVE (2026-06-02, 8/8 acceptance criteria)
 
