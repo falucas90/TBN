@@ -1,11 +1,10 @@
 # Builder Preferences
 
-Last updated: (auto)
+## Preferences
 
-## Scope Style
+- [01KT54Y9HD0YWCFK94E4PMSZPF] **Use ghost variant (not danger) for destructive action buttons when placed in a row alongside other ghost buttons** -- Builder explicitly requested ghost variant for the "Eliminar" delete button rather than the danger variant, even though Button already has a danger variant. The goal is visual consistency with the adjacent "Editar" ghost button — using danger would create asymmetry in the button row and draw more attention than desired for an immediate-with-no-confirm action. **Why:** Builder's brief stated "ghost-variant button alongside the existing Editar button" — confirmed by the scope decision and no pushback during review. **How to apply:** When adding a destructive action (delete, remove, archive) to a card or row that already contains ghost-variant action buttons, default to ghost rather than danger unless the builder specifically asks for a visual warning signal. [source: task-add-delete-support-to-the-searches-page-01kt2g5b99gx, importance: 0.7]. [source: task-add-delete-support-to-the-searches-page-01kt2g5b99gx, importance: 0.7]
 
-## Architecture Style
+## Corrections
 
-## Review Preferences
+- [01KT54Y14XT5R0E4WYSPTC5CBT] **Release stage must verify GitHub push authentication before attempting git push** -- The release agent attempted `git push` twice and failed both times (HTTPS osxkeychain not configured; SSH key not present), causing two `stage_looped_back` events back to implementation and wasting two full review cycles. Before pushing, check that either SSH auth works (`ssh -T git@github.com`) or HTTPS credentials are stored. If auth is missing, surface a clear remediation message and halt rather than attempting the push. **Why:** Two consecutive loop-backs from release → implementation on this project due to missing git credentials — each loop-back triggered a fresh review cycle, burning time. **How to apply:** At release stage start, run a lightweight auth probe (e.g. `ssh -T git@github.com 2>&1`) before the push attempt. If it fails, emit a blocked message listing the three remediation options (HTTPS token, SSH key, gh CLI) and do not attempt the push. [source: task-add-delete-support-to-the-searches-page-01kt2g5b99gx, importance: 0.9]. [source: task-add-delete-support-to-the-searches-page-01kt2g5b99gx, importance: 0.9]
 
-## Communication Style

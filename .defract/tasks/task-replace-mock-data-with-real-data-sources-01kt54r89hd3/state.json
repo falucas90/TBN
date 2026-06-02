@@ -5,7 +5,7 @@
   "phase": 0,
   "totalPhases": 1,
   "createdAt": "2026-06-02T21:45:06Z",
-  "updatedAt": "2026-06-02T21:45:06Z",
+  "updatedAt": "2026-06-02T21:45:49Z",
   "events": [
     {
       "base_branch": "main",
@@ -20,24 +20,38 @@
       "stage": "scope",
       "timestamp": "2026-06-02T21:45:06Z",
       "type": "stage_agent_started"
+    },
+    {
+      "change_summary": "Intent check: replace mock data with real data sources",
+      "revision": 1,
+      "timestamp": "2026-06-02T21:45:44Z",
+      "type": "scope_update"
+    },
+    {
+      "stage": "scope",
+      "summary": "Intent check written for replacing mock data with a real data layer. Open question flagged: what backend/data source will power the app (custom API, BaaS, marketplace APIs)?",
+      "timestamp": "2026-06-02T21:45:49Z",
+      "type": "stage_work_complete",
+      "worktree_head": "ce1565c74d4994331e7f28062169872e0adba1bb",
+      "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     }
   ],
   "stages": {
-    "architecture": {
-      "status": "not_started"
-    },
     "review": {
       "status": "not_started"
-    },
-    "scope": {
-      "status": "in_progress",
-      "startedAt": "2026-06-02T21:45:06Z"
     },
     "design": {
       "status": "not_started"
     },
+    "architecture": {
+      "status": "not_started"
+    },
     "implementation": {
       "status": "not_started"
+    },
+    "scope": {
+      "status": "awaiting_approval",
+      "startedAt": "2026-06-02T21:45:06Z"
     },
     "release": {
       "status": "not_started"

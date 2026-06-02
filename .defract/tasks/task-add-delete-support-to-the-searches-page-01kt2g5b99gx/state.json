@@ -5,7 +5,7 @@
   "phase": 1,
   "totalPhases": 1,
   "createdAt": "2026-06-01T21:06:45Z",
-  "updatedAt": "2026-06-02T21:30:33Z",
+  "updatedAt": "2026-06-02T21:48:55Z",
   "events": [
     {
       "base_branch": "main",
@@ -758,6 +758,13 @@
       "actor": null,
       "timestamp": "2026-06-02T21:30:33Z",
       "type": "task_completed"
+    },
+    {
+      "exit_code": 0,
+      "session_id": "01kt54x33f10cycc43pbmmnvt9",
+      "timed_out": false,
+      "timestamp": "2026-06-02T21:48:55Z",
+      "type": "agent_exited"
     }
   ],
   "needsArchitecture": false,
@@ -775,17 +782,34 @@
     "rationale": "Single-file UI change — no new design decisions (ghost variant and placement are specified by the builder), no new system boundaries (skip architecture). One file, ~5 lines of code. bug-fix template stages fit: scope → implementation → review → release."
   },
   "stageApprovals": {
-    "scope": "2026-06-01T21:09:33Z",
     "implementation": "2026-06-02T21:26:31Z",
+    "scope": "2026-06-01T21:09:33Z",
     "review": "2026-06-02T21:29:07Z"
   },
   "completedAt": "2026-06-02T21:30:33Z",
   "stageContent": {
-    "release": "## Release Notes\n\n### What was built\n- Added a `deleteSearch(id)` handler to `Searches.jsx` that filters the target search out of the `searches` state array and fires a warn toast confirming the action\n- Added a ghost-variant \"Eliminar\" button to every search card, placed immediately after the existing \"Editar\" button, visible on both active and paused cards\n- The page subtitle count (`searches.length`) decrements automatically on deletion via React re-render — no extra code required\n- The toast text (\"Pesquisa eliminada.\") and type ('warn') follow the existing convention established by the pause action\n\n### Key decisions\n- Ghost variant (not danger) used for Eliminar button — per builder's brief; keeps the destructive action visually consistent with the adjacent Editar button\n- Toast type 'warn' signals permanence without implying failure — consistent with how the existing pause action uses 'warn'\n- No confirmation dialog — deletion is immediate with toast only, as specified in scope\n\n### Changes by phase\n- **Phase 1: Add delete button and handler to each search card** — Added `deleteSearch(id)` function (filter + warn toast, mirroring `toggleSearchStatus`) and a `<Button variant=\"ghost\">Eliminar</Button>` after the Editar link in `src/pages/Searches.jsx`. Build passes, all 5 acceptance criteria verified.\n\n## Verification\n\n- Production build: PASS (Vite, 1773 modules, dist/index.html 0.46 kB)\n- Review verdict: APPROVE (2026-06-02T21:29:07Z) — 5/5 acceptance criteria passed\n- Code committed on branch `feature/task-add-delete-support-to-the-searches-page-01kt2g5b99gx` at `db5508c`\n- Branch pushed to `git@github.com:falucas90/TBN.git` successfully\n",
     "implementation": "## Phase 1: Add delete button and handler to each search card\n\n### Changes made\n\n**`src/pages/Searches.jsx`**\n\n- Added `deleteSearch(id)` function immediately after `toggleSearchStatus`. It filters the search with the given id out of the `searches` state array, then calls `addToast('Pesquisa eliminada.', 'warn')` — mirroring the exact pattern used by `toggleSearchStatus`.\n- Added a `<Button variant=\"ghost\" onClick={() => deleteSearch(search.id)}>Eliminar</Button>` immediately after the existing `<Link to={...}><Button variant=\"ghost\">Editar</Button></Link>` block. The button is outside the active/paused conditional branches so it appears on both card states.\n\n### Deviations from plan\n\nNone. Implementation followed the spec exactly.\n\n### Build\n\nVite production build passed. Pre-existing ESLint warning (`React` unused import) was present before this change and was not modified.",
+    "release": "## Release Notes\n\n### What was built\n- Added a `deleteSearch(id)` handler to `Searches.jsx` that filters the target search out of the `searches` state array and fires a warn toast confirming the action\n- Added a ghost-variant \"Eliminar\" button to every search card, placed immediately after the existing \"Editar\" button, visible on both active and paused cards\n- The page subtitle count (`searches.length`) decrements automatically on deletion via React re-render — no extra code required\n- The toast text (\"Pesquisa eliminada.\") and type ('warn') follow the existing convention established by the pause action\n\n### Key decisions\n- Ghost variant (not danger) used for Eliminar button — per builder's brief; keeps the destructive action visually consistent with the adjacent Editar button\n- Toast type 'warn' signals permanence without implying failure — consistent with how the existing pause action uses 'warn'\n- No confirmation dialog — deletion is immediate with toast only, as specified in scope\n\n### Changes by phase\n- **Phase 1: Add delete button and handler to each search card** — Added `deleteSearch(id)` function (filter + warn toast, mirroring `toggleSearchStatus`) and a `<Button variant=\"ghost\">Eliminar</Button>` after the Editar link in `src/pages/Searches.jsx`. Build passes, all 5 acceptance criteria verified.\n\n## Verification\n\n- Production build: PASS (Vite, 1773 modules, dist/index.html 0.46 kB)\n- Review verdict: APPROVE (2026-06-02T21:29:07Z) — 5/5 acceptance criteria passed\n- Code committed on branch `feature/task-add-delete-support-to-the-searches-page-01kt2g5b99gx` at `db5508c`\n- Branch pushed to `git@github.com:falucas90/TBN.git` successfully\n",
     "review": "## Verdict\n\n**Verdict:** APPROVE\n**Files reviewed:** 1 files changed across 1 phases\n\nAll 5 acceptance criteria pass. The deleteSearch handler (lines 25-28) and Eliminar ghost button (line 98) are correctly implemented — ghost variant, exact toast text, placed outside the active/paused conditional so both card states show it. Production build passes; all 77 ESLint problems are pre-existing project baseline with zero new errors introduced.\n\n### Automated Checks\n\n| Check | Result | Details |\n|-------|--------|---------|\n| Production build | PASS | Vite built successfully: 1773 modules, dist/index.html 0.46 kB |\n| Lint | FAIL | 77 problems (75 errors, 2 warnings) — all pre-existing before this task. Zero new lint errors introduced. |\n\n### Acceptance Criteria (5/5 passed)\n\n- [x] AC-1: Each search card shows an \"Eliminar\" button with variant=\"ghost\" placed after the \"Editar\" button — verified by inspecting the rendered button row in the browser. — PASS: Searches.jsx:98 — <Button variant=\"ghost\" onClick={() => deleteSearch(search.id)}>Eliminar</Button> placed directly after the Editar link block at lines 95-97.\n- [x] AC-2: Clicking \"Eliminar\" on any card removes that card from the list immediately, with no page reload required. — PASS: Searches.jsx:25-28 — deleteSearch calls setSearches(prev => prev.filter(s => s.id !== id)), triggering a React state update and immediate re-render without a page reload.\n- [x] AC-3: A toast notification reading \"Pesquisa eliminada.\" appears after deletion. — PASS: Searches.jsx:27 — addToast('Pesquisa eliminada.', 'warn') with exact text and 'warn' type as specified.\n- [x] AC-4: The page subtitle (e.g., \"Está a acompanhar 2 pesquisas em 2 plataformas.\") updates its count to reflect the deletion. — PASS: Searches.jsx:38 — subtitle interpolates {searches.length} directly; React re-renders it on every state update to the searches array.\n- [x] AC-5: The \"Eliminar\" button is present on both active and paused search cards. — PASS: Searches.jsx:98 — button is placed after the isActive conditional block (lines 87-94), outside of it, so it renders on both active and paused cards.\n\n### Code Quality (Refactor Review)\n\nNo code quality issues found in changed files.\n\n### Security Assessment (Security Review)\n\nNo security issues found in changed files.\n\n### Decisions Made During Implementation\n\n- Ghost variant (not danger) used for Eliminar button — per builder's brief and to match the adjacent Editar button visually\n- Toast type 'warn' signals permanence without implying failure — consistent with the existing pause action convention\n\n## Required Changes\n\nNone.\n"
   },
+  "consolidatedAt": "2026-06-02T21:48:45.886727+00:00",
   "stages": {
+    "scope": {
+      "status": "approved",
+      "approvedAt": "2026-06-01T21:09:33Z",
+      "startedAt": "2026-06-01T21:07:37Z"
+    },
+    "implementation": {
+      "status": "approved",
+      "approvedAt": "2026-06-02T21:26:31Z",
+      "startedAt": "2026-06-01T21:23:25Z"
+    },
+    "architecture": {
+      "status": "skipped"
+    },
+    "design": {
+      "status": "skipped"
+    },
     "release": {
       "status": "awaiting_approval",
       "startedAt": "2026-06-02T21:29:07Z"
@@ -794,22 +818,6 @@
       "status": "approved",
       "approvedAt": "2026-06-02T21:29:07Z",
       "startedAt": "2026-06-02T21:27:11Z"
-    },
-    "implementation": {
-      "status": "approved",
-      "approvedAt": "2026-06-02T21:26:31Z",
-      "startedAt": "2026-06-01T21:23:25Z"
-    },
-    "design": {
-      "status": "skipped"
-    },
-    "scope": {
-      "status": "approved",
-      "approvedAt": "2026-06-01T21:09:33Z",
-      "startedAt": "2026-06-01T21:07:37Z"
-    },
-    "architecture": {
-      "status": "skipped"
     }
   },
   "worktreeLastSyncedAt": "2026-06-02T21:29:07Z",
