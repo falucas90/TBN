@@ -29,10 +29,14 @@ export function SieveMark({ size = 22, color = "currentColor", strokeWidth = 2.5
 
 /* ——————————————————————————— Wordmark ——————————————————————————— */
 export function Wordmark({ size = 22, color = "var(--bone)" }) {
+  const s = Number(size);
+  const dotSize = s * 0.1;
+  const gap = s * 0.06;
+  const w = dotSize * 3 + gap * 2;
   return (
     <span style={{
       fontFamily: "var(--font-display)",
-      fontSize: size,
+      fontSize: s,
       fontWeight: 600,
       letterSpacing: "0.05em",
       color,
@@ -42,17 +46,19 @@ export function Wordmark({ size = 22, color = "var(--bone)" }) {
     }}>
       CRIV<span style={{ position: "relative", display: "inline-block" }}>
         O
-        <span style={{
-          position: "absolute",
-          left: "50%", top: "50%",
-          transform: "translate(-50%, -50%)",
-          display: "flex", gap: size * 0.05,
-          pointerEvents: "none",
-        }}>
-          <span style={{ width: size * 0.06, height: size * 0.06, borderRadius: "50%", background: "var(--emerald)" }} />
-          <span style={{ width: size * 0.06, height: size * 0.06, borderRadius: "50%", background: color, opacity: 0.5 }} />
-          <span style={{ width: size * 0.06, height: size * 0.06, borderRadius: "50%", background: color, opacity: 0.5 }} />
-        </span>
+        <svg 
+          width={w} height={dotSize} viewBox={`0 0 ${w} ${dotSize}`}
+          style={{
+            position: "absolute",
+            left: "50%", top: "50%",
+            transform: "translate(-50%, -50%)",
+            pointerEvents: "none"
+          }}
+        >
+          <circle cx={dotSize/2} cy={dotSize/2} r={dotSize/2} fill="var(--emerald)" />
+          <circle cx={dotSize*1.5 + gap} cy={dotSize/2} r={dotSize/2} fill={color} opacity="0.5" />
+          <circle cx={dotSize*2.5 + gap*2} cy={dotSize/2} r={dotSize/2} fill={color} opacity="0.5" />
+        </svg>
       </span>
     </span>
   );
