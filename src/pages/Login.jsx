@@ -1,109 +1,90 @@
-import React from 'react';
-import { Button } from '../components/ui';
-import { FormField } from '../components/forms';
+import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { Wordmark, SieveMark, Btn, Icon } from '../components/ui/Primitives';
 
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [showPass, setShowPass] = useState(false);
 
-  const handleLogin = (e) => {
+  const handleLogin = e => {
     e.preventDefault();
     login();
     navigate('/searches');
   };
 
   return (
-    <div style={{ display: 'flex', height: '100vh', backgroundColor: '#fff', color: '#111' }}>
-      {/* Left Pane (Beige/Brand) */}
-      <div style={{ 
-        flex: 1, backgroundColor: '#F6F5F2', padding: '4rem', 
-        display: 'flex', flexDirection: 'column', justifyContent: 'space-between'
-      }}>
+    <div className="login-shell">
+      <div className="login-left">
         <div>
-          <div style={{ 
-            border: '1px solid #D6D5D1', padding: '0.6rem 2rem', 
-            borderRadius: '6px', display: 'inline-block', fontWeight: '700', 
-            fontSize: '1rem', backgroundColor: '#fff', marginBottom: '4rem'
-          }}>
-            CRIVO
+          <div className="login__brand" style={{ alignItems: 'flex-start' }}>
+            <Wordmark size={28} />
           </div>
-
-          <h1 style={{ fontSize: '2.5rem', fontWeight: '700', marginBottom: '1.25rem', maxWidth: '460px', lineHeight: '1.2' }}>
-            Inteligência de sourcing para stands portugueses
+          <h1 style={{ fontSize: '32px', letterSpacing: '-0.03em', lineHeight: 1.15, marginTop: '40px', marginBottom: '24px', maxWidth: '400px' }}>
+            Inteligência de sourcing para stands portugueses.
           </h1>
-          <p style={{ fontSize: '1.25rem', color: '#444', maxWidth: '400px', lineHeight: '1.6' }}>
+          <p style={{ fontSize: '15px', color: 'var(--ash)', lineHeight: 1.6, maxWidth: '360px' }}>
             Monitorize anúncios europeus. Obtenha cálculos de ISV automáticos. Receba alertas pelo WhatsApp quando a rentabilidade for certa.
           </p>
         </div>
-
-        <div style={{ display: 'flex', gap: '2.5rem', marginTop: '2rem' }}>
-          <div>
-            <div style={{ fontSize: '1.75rem', fontWeight: '700', marginBottom: '0.25rem' }}>110k+</div>
-            <div style={{ color: '#555', fontSize: '0.9rem', lineHeight: '1.3' }}>carros<br/>importados/ano</div>
+        
+        <div style={{ display: 'flex', gap: '40px' }}>
+          <div className="stack gap-1">
+            <span style={{ fontSize: '24px', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--bone)' }}>110k+</span>
+            <span style={{ fontSize: '12px', color: 'var(--dust)' }}>carros<br/>importados/ano</span>
           </div>
-          <div>
-            <div style={{ fontSize: '1.75rem', fontWeight: '700', marginBottom: '0.25rem' }}>±5%</div>
-            <div style={{ color: '#555', fontSize: '0.9rem', lineHeight: '1.3' }}>precisão<br/>de ISV</div>
+          <div className="stack gap-1">
+            <span style={{ fontSize: '24px', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--bone)' }}>±5%</span>
+            <span style={{ fontSize: '12px', color: 'var(--dust)' }}>precisão<br/>de ISV</span>
           </div>
-          <div>
-            <div style={{ fontSize: '1.75rem', fontWeight: '700', marginBottom: '0.25rem' }}>€99</div>
-            <div style={{ color: '#555', fontSize: '0.9rem', lineHeight: '1.3' }}>/mês, cancele<br/>quando quiser</div>
+          <div className="stack gap-1">
+            <span style={{ fontSize: '24px', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--bone)' }}>€99</span>
+            <span style={{ fontSize: '12px', color: 'var(--dust)' }}>/mês, cancele<br/>quando quiser</span>
           </div>
         </div>
       </div>
-
-      {/* Right Pane (Form) */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
-          <div style={{ width: '100%', maxWidth: '380px' }}>
-            <h2 style={{ fontSize: '1.75rem', fontWeight: '700', marginBottom: '0.5rem' }}>Bem-vindo de volta</h2>
-            <p style={{ color: 'var(--color-text-secondary)', marginBottom: '2.5rem' }}>Aceda à sua conta</p>
-            
-            <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              <FormField label="Email" required>
-                <input type="email" placeholder="stand@exemplo.pt" style={{ padding: '0.75rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }} />
-              </FormField>
-              <FormField label="Palavra-passe" required>
-                <div style={{ position: 'relative' }}>
-                  <input type="password" placeholder="••••••••" style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }} />
-                  <span style={{ position: 'absolute', right: '12px', top: '12px', fontSize: '0.875rem', color: '#666', cursor: 'pointer' }}>show</span>
-                </div>
-                <div style={{ textAlign: 'right', marginTop: '0.5rem' }}>
-                  <a href="#" style={{ color: '#0066FF', fontSize: '0.875rem', textDecoration: 'none' }}>Esqueceu-se da palavra-passe?</a>
-                </div>
-              </FormField>
-              
-              <div style={{ marginTop: '0.5rem' }}>
-                <Button type="submit" fullWidth style={{ padding: '0.875rem', backgroundColor: '#E9F5E3', color: '#2B5B2E', border: '1px solid #C4E2BE' }}>Entrar</Button>
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', margin: '1rem 0', color: '#999' }}>
-                <div style={{ flex: 1, height: '1px', backgroundColor: '#eee' }}></div>
-                <span style={{ padding: '0 1rem', fontSize: '0.875rem' }}>ou</span>
-                <div style={{ flex: 1, height: '1px', backgroundColor: '#eee' }}></div>
-              </div>
-
-              <Button type="button" variant="secondary" fullWidth style={{ padding: '0.875rem', display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
-                Continuar com o Google
-              </Button>
-            </form>
-            
-            <div style={{ marginTop: '2.5rem', textAlign: 'center', fontSize: '0.9rem', color: '#555' }}>
-              Não tem uma conta? <a href="/signup" style={{ color: '#0066FF', fontWeight: '500', textDecoration: 'none' }}>Registe-se</a>
+      
+      <div className="login-right">
+        <div className="login__card">
+          <div style={{ textAlign: 'center', marginBottom: '8px' }}>
+            <h2 className="login__word">Bem-vindo de volta</h2>
+            <p className="login__tag">Aceda à sua conta Crivo</p>
+          </div>
+          
+          <form onSubmit={handleLogin} className="stack gap-4">
+            <div className="field">
+              <label className="field__label">Email</label>
+              <input type="email" className="input" placeholder="stand@exemplo.pt" />
             </div>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div style={{ padding: '1.5rem', display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', color: '#666', borderTop: '1px solid #eee' }}>
-          <div>© 2026 Crivo</div>
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>Termos</a>
-            <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>Privacidade</a>
-            <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>Suporte</a>
-          </div>
+            
+            <div className="field">
+              <div className="row" style={{ justifyContent: 'space-between' }}>
+                <label className="field__label">Palavra-passe</label>
+                <a href="#" style={{ fontSize: '11px', color: 'var(--emerald)' }}>Esqueceu-se?</a>
+              </div>
+              <div className="input-group">
+                <input type={showPass ? 'text' : 'password'} className="input" placeholder="••••••••" style={{ paddingLeft: '12px', paddingRight: '36px' }} />
+                <button type="button" onClick={() => setShowPass(!showPass)} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ash)' }}>
+                  {showPass ? 'Ocultar' : 'Mostrar'}
+                </button>
+              </div>
+            </div>
+            
+            <Btn variant="primary" size="lg" style={{ width: '100%', marginTop: '8px' }}>
+              Entrar <Icon name="arrow" size={14} color="#FFF" />
+            </Btn>
+            
+            <div className="login__divider">ou</div>
+            
+            <Btn variant="ghost" size="lg" style={{ width: '100%', background: 'var(--graphite)', border: '1px solid var(--hairline)' }}>
+              Continuar com o Google
+            </Btn>
+          </form>
+          
+          <p style={{ textAlign: 'center', fontSize: '13px', color: 'var(--ash)', marginTop: '24px' }}>
+            Não tem conta? <a href="/signup" style={{ color: 'var(--bone)', fontWeight: 500, borderBottom: '1px solid var(--hairline)' }}>Registe-se</a>
+          </p>
         </div>
       </div>
     </div>

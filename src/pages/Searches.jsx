@@ -1,115 +1,77 @@
 import React from 'react';
-import AppLayout from '../components/layout/AppLayout';
-import { Card, Button, Badge, StatCard } from '../components/ui';
-import { mockSearches as initialMockSearches } from '../data/mock-data';
-import { Search, TrendingUp, Bell, Plus, Play, Pause, ExternalLink } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { useToast } from '../context/ToastContext';
-import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { SieveMark, Btn, Icon, Pill, Dot } from '../components/ui/Primitives';
+
+const mockSearches = [
+  { id: 1, name: 'Volvo XC90 PHEV', status: 'active', found: 12, new: 3, budget: '€45k - €55k', isvStr: '€2.1k - €3.5k', since: 'Há 2 dias' },
+  { id: 2, name: 'BMW 330e Touring', status: 'active', found: 45, new: 12, budget: '€30k - €40k', isvStr: '€1.8k - €2.5k', since: 'Há 1 sem' },
+  { id: 3, name: 'Tesla Model 3 LR', status: 'paused', found: 89, new: 0, budget: 'Até €35k', isvStr: 'Isento', since: 'Há 2 sem' }
+];
 
 export default function Searches() {
-  const { addToast } = useToast();
-  const [searches, setSearches] = useState(initialMockSearches);
-
-  const toggleSearchStatus = (id) => {
-    setSearches(prev => prev.map(s => {
-      if (s.id === id) {
-        const isPausing = s.status === 'active';
-        addToast(isPausing ? 'Pesquisa pausada.' : 'Pesquisa retomada com sucesso.', isPausing ? 'warn' : 'success');
-        return { ...s, status: isPausing ? 'paused' : 'active' };
-      }
-      return s;
-    }));
-  };
+  const navigate = useNavigate();
 
   return (
-    <AppLayout>
-      <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
-        
-        {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-          <div>
-            <h1 style={{ fontSize: '1.875rem', fontWeight: '700', marginBottom: '0.25rem' }}>Pesquisas Ativas</h1>
-            <p style={{ color: 'var(--color-text-secondary)' }}>Está a acompanhar {searches.length} pesquisas em 2 plataformas.</p>
-          </div>
-          <Link to="/searches/new">
-            <Button><Plus size={18} /> Nova pesquisa</Button>
-          </Link>
+    <div className="page">
+      <div className="page__top">
+        <div>
+          <h1 className="page__title">Pesquisas Ativas</h1>
+          <p className="page__sub">Monitorizar plataformas europeias</p>
         </div>
-
-        {/* Stats Row */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '3rem' }}>
-          <StatCard label="Matches Hoje" value="3" trend="+1" trendLabel="vs ontem" icon={Search} />
-          <StatCard label="Alta Margem" value="1" trend="↑" trendLabel="top tier" icon={TrendingUp} />
-          <StatCard label="Alertas (7d)" value="12" trend="-2%" trendLabel="vs semana passada" icon={Bell} />
-          <StatCard label="Margem Média" value="€2,650" trend="+€120" trendLabel="vs mês passado" icon={TrendingUp} />
-        </div>
-
-        {/* Searches List */}
-        <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1.5rem' }}>As suas Pesquisas</h2>
-        
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {searches.map(search => {
-            const isActive = search.status === 'active';
-            
-            return (
-              <Card key={search.id} style={{ opacity: isActive ? 1 : 0.6, transition: 'opacity 0.2s' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  
-                  {/* Left info */}
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-                      <h3 style={{ fontSize: '1.125rem', fontWeight: '600' }}>{search.title}</h3>
-                      <Badge variant={isActive ? 'success' : 'warn'}>
-                        {isActive ? 'Ativo' : 'Pausado'}
-                      </Badge>
-                      {search.matchesToday > 0 && isActive && (
-                        <Badge variant="primary">{search.matchesToday} novos hoje</Badge>
-                      )}
-                    </div>
-                    
-                    <div style={{ 
-                      fontSize: '0.875rem', color: 'var(--color-text-secondary)', 
-                      display: 'flex', gap: '1rem', marginBottom: '1.5rem' 
-                    }}>
-                      <span>Ano Mín: {search.criteria.minYear}</span>
-                      <span>KMs Máx: {search.criteria.maxMileage.toLocaleString()} km</span>
-                      <span>Combustível: {search.criteria.fuel}</span>
-                      <span>Plataformas: {search.sources.join(', ')}</span>
-                    </div>
-
-                    <div style={{ display: 'flex', gap: '0.75rem' }}>
-                      {isActive ? (
-                        <>
-                          <Button variant="secondary" onClick={() => addToast('A abrir resultados...', 'info')}><ExternalLink size={16} /> Ver Resultados</Button>
-                          <Button variant="ghost" onClick={() => toggleSearchStatus(search.id)}><Pause size={16} /> Pausar</Button>
-                        </>
-                      ) : (
-                        <Button variant="secondary" onClick={() => toggleSearchStatus(search.id)}><Play size={16} /> Retomar</Button>
-                      )}
-                      <Link to={`/searches/${search.id}/edit`}>
-                        <Button variant="ghost">Editar</Button>
-                      </Link>
-                    </div>
-                  </div>
-
-                  {/* Right abstract stats */}
-                  <div style={{ 
-                    textAlign: 'right', display: 'flex', flexDirection: 'column', 
-                    alignItems: 'flex-end', gap: '0.25rem' 
-                  }}>
-                    <span style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>Margem Média Est.</span>
-                    <span style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--color-success-text)' }}>
-                      €{search.avgMargin.toLocaleString()}
-                    </span>
-                  </div>
-
-                </div>
-              </Card>
-            );
-          })}
-        </div>
+        <Btn variant="primary" onClick={() => navigate('/searches/new')} icon="plus">
+          Nova Pesquisa
+        </Btn>
       </div>
-    </AppLayout>
+
+      <div className="page__body">
+        {mockSearches.length > 0 ? (
+          <div className="searches-grid">
+            {mockSearches.map(s => (
+              <div key={s.id} className="search-card" onClick={() => navigate(`/searches/${s.id}`)}>
+                <div className="search-card__head">
+                  <div>
+                    <h3 className="search-card__name">{s.name}</h3>
+                    <p style={{ fontSize: '12px', color: 'var(--dust)', marginTop: '4px' }}>
+                      {s.budget} · {s.since}
+                    </p>
+                  </div>
+                  {s.status === 'active' ? (
+                    <Pill tone="emerald"><Dot tone="emerald" /> Ativa</Pill>
+                  ) : (
+                    <Pill><Dot /> Pausada</Pill>
+                  )}
+                </div>
+                
+                <div className="search-card__stats">
+                  <div className="num-pair">
+                    <span className="num-pair__label">Total</span>
+                    <span className="num-pair__value">{s.found}</span>
+                  </div>
+                  <div className="num-pair">
+                    <span className="num-pair__label">Novos</span>
+                    <span className={`num-pair__value ${s.new > 0 ? 'emerald' : ''}`}>{s.new > 0 ? `+${s.new}` : '0'}</span>
+                  </div>
+                  <div className="num-pair">
+                    <span className="num-pair__label">Est. ISV</span>
+                    <span className="num-pair__value" style={{ fontSize: '13px' }}>{s.isvStr}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div style={{ textAlign: 'center', padding: '64px 20px', background: 'var(--graphite)', border: '1px dashed var(--hairline-strong)', borderRadius: 'var(--r-lg)' }}>
+            <SieveMark size={40} color="var(--hairline-strong)" />
+            <h3 style={{ fontSize: '16px', color: 'var(--bone)', marginTop: '16px', marginBottom: '8px' }}>Nenhuma pesquisa ativa</h3>
+            <p style={{ fontSize: '13px', color: 'var(--ash)', maxWidth: '300px', margin: '0 auto 24px' }}>
+              Crie a sua primeira pesquisa para começar a receber veículos importáveis com margem calculada.
+            </p>
+            <Btn variant="primary" onClick={() => navigate('/searches/new')} icon="plus">
+              Nova Pesquisa
+            </Btn>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
