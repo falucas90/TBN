@@ -3,7 +3,7 @@ defract:
   id: task-audit-codebase-for-needed-improvements-01kt545bmfg1
   type: task
   status: active
-  stage: implementation
+  stage: release
   phase: 0
   total_phases: 1
   priority: normal
@@ -140,3 +140,76 @@ The existing `isvEst`, `totalCost`, and `marginEst` fields in `mockAlerts` remai
 ### Dependencies
 
 None — all changes are self-contained within the existing source files.
+
+## Implementation Notes
+
+## Phase 1: Fix all stubbed and inconsistent behaviors
+
+All five files modified as specified. Build passes cleanly.
+
+### Changes made
+
+**src/data/mock-data.js** — Added `cc`, `co2`, `fuelType`, `ageYears` to both mockAlerts entries. Both PHEV entries have co2 ≤ 50 (43 and 35 respectively), satisfying the PHEV exemption constraint.
+
+**src/pages/AlertHistory.jsx** — Imported `calculateISV`; added `searchText` state; pre-computed ISV and derived fields in an `alertsWithISV` mapping before the filter pipeline (so margin filter uses computed marginEst, not stale mock value); composed text search as a third filter using case-insensitive carTitle match; display uses `isvPayable`, `totalCost`, and `marginEst` from computed values (rounded).
+
+**src/pages/Searches.jsx** — Derived `activeSearches`, `matchesToday`, `highMarginCount`, `avgMarginValue` (guarded against zero-length), and `platformCount` (via Set/flatMap) from `searches` state. All four stat card values now update reactively on toggle/delete.
+
+**src/pages/Login.jsx** — Imported `Link` from react-router-dom; replaced `<a href="/signup">` with `<Link to="/signup">`.
+
+**src/pages/Signup.jsx** — Imported `Link`; replaced both `<a href="/login">` occurrences with `<Link to="/login">`.
+
+### Verification
+
+- ISV computed at runtime: Alert 101 €1069 (was hardcoded €450), Alert 102 €882 (was hardcoded €600)
+- No `alert.isvEst` reference remains in display logic
+- Text search input bound to state; filter applied in pipeline
+- Stat values are expressions over `searches` state
+- No bare `<a href>` for internal routes in Login or Signup
+
+## Review
+
+## Verdict
+
+**Verdict:** APPROVE
+**Files reviewed:** 5 files changed across 1 phases
+
+All 8 acceptance criteria pass with concrete evidence at the source level. The ISV calculator is correctly wired and produces values that differ from the former hardcoded placeholders (€1,069 vs €450 for the BMW; €882 vs €600 for the Volvo). Text search, derived stats, and SPA navigation links are all correctly implemented.
+
+### Automated Checks
+
+| Check | Result | Details |
+|-------|--------|---------|
+| Production build | PASS | vite build succeeded, 1774 modules transformed, zero errors |
+| Lint | PASS | 77 pre-existing errors (react/prop-types, unused React imports); zero new errors introduced by this task |
+| ISV calculator verification | PASS | Alert 101 isvPayable=1069 (≠450), Alert 102 isvPayable=882 (≠600) — confirmed via node ESM execution |
+
+### Acceptance Criteria (8/8 passed)
+
+- [x] AC-1: Each entry in `mockAlerts` has `cc`, `co2`, `fuelType`, and `ageYears` fields; both PHEV-flagged entries have co2 ≤ 50 to qualify for the PHEV exemption — PASS: mock-data.js:41-44 Alert 101 (cc=1998, co2=43, fuelType='Petrol', ageYears=5); mock-data.js:58-62 Alert 102 (cc=1969, co2=35, fuelType='Petrol', ageYears=6). Both PHEV-flagged, both co2 ≤ 50.
+- [x] AC-2: AlertHistory imports `calculateISV` and calls it per alert; the ISV values shown differ from the former hardcoded 450 / 600 figures — PASS: AlertHistory.jsx:5 imports calculateISV; AlertHistory.jsx:17 calls it in alertsWithISV.map(). Verified isvPayable values: Alert 101 = €1,069 (≠450), Alert 102 = €882 (≠600).
+- [x] AC-3: For each alert card, `totalCost` equals `priceOriginal + computedIsv + transportEst` and `marginEst` equals `marketPrice − totalCost` — PASS: AlertHistory.jsx:18 `const totalCost = alert.priceOriginal + isvPayable + alert.transportEst`; AlertHistory.jsx:19 `const marginEst = alert.marketPrice - totalCost`. Computed values verified: Alert 101 totalCost=28369, marginEst=4631; Alert 102 totalCost=30582, marginEst=3918.
+- [x] AC-4: Typing a substring into the AlertHistory text search narrows the visible cards to those whose title matches — PASS: AlertHistory.jsx:14 `const [searchText, setSearchText] = useState('')`; AlertHistory.jsx:50-51 input bound with `value={searchText}` and `onChange={e => setSearchText(e.target.value)}`; AlertHistory.jsx:26 `.filter(a => !searchText || a.carTitle.toLowerCase().includes(searchText.toLowerCase()))` applied in filteredAlerts pipeline.
+- [x] AC-5: All three active-search-based stats ("Matches Hoje", "Alta Margem", "Margem Média") update reactively when a search is paused, resumed, or deleted in the Searches page — PASS: Searches.jsx:30-35 — activeSearches, matchesToday, highMarginCount, avgMarginValue all derived from `searches` state; `searches` is updated by toggleSearchStatus (line 14) and deleteSearch (line 25), both calling setSearches.
+- [x] AC-6: "Margem Média" shows "€0" (not NaN) when all searches are paused or deleted — PASS: Searches.jsx:33-35 guards against zero-length: `activeSearches.length > 0 ? Math.round(...) : 0`. Displayed as `€${avgMarginValue.toLocaleString()}` at line 58, so yields "€0" when no active searches.
+- [x] AC-7: The Searches subtitle platform count is a computed value — it changes if a search with a new platform source were added to mock data — PASS: Searches.jsx:36 `const platformCount = new Set(searches.flatMap(s => s.sources)).size` — derived from searches state via Set/flatMap. Used in subtitle at Searches.jsx:46, not hardcoded.
+- [x] AC-8: No internal navigation link in Login or Signup uses a bare `<a href>` element; all use `<Link to>` — PASS: Login.jsx:5 imports Link; Login.jsx:94 uses `<Link to="/signup">`. Signup.jsx:4 imports Link; Signup.jsx:60 `<Link to="/login">` (step 3 button); Signup.jsx:66 `<Link to="/login">` (step 1 return link). Remaining `<a href="#">` elements in Login are external/placeholder links (forgot password, terms, privacy, support), not internal app routes.
+
+### Code Quality (Refactor Review)
+
+No code quality issues found in changed files.
+
+### Security Assessment (Security Review)
+
+No security issues found in changed files.
+
+### Decisions Made During Implementation
+
+- ISV, totalCost, and marginEst are computed at render time in AlertHistory rather than updating mock data fields — avoids mutating the mock data shape beyond adding the required vehicle spec inputs and ensures displayed values automatically reflect spec data changes.
+- ISV computation pre-calculated into alertsWithISV array before the filter pipeline so that the margin filter also uses the derived marginEst rather than the stale mock value — consistent filtering and display.
+- Two items from the original intent check (brand/margin filters, catch-all route) were already correctly implemented in the codebase; scope was refocused on the four remaining genuine fixes.
+
+## Required Changes
+
+None.
+

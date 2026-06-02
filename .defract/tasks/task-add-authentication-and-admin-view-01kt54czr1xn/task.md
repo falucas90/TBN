@@ -3,7 +3,7 @@ defract:
   id: task-add-authentication-and-admin-view-01kt54czr1xn
   type: task
   status: active
-  stage: implementation
+  stage: review
   phase: 0
   total_phases: 1
   priority: normal
@@ -14,7 +14,6 @@ defract:
   created_by: falucas90
   assignee: falucas90
 ---
-
 
 ## Story Brief
 
@@ -136,3 +135,77 @@ The `mockUsers` array should include the existing `mockUser` data (Francisco Luc
 For the Admin page layout, follow the existing page structure used in `AlertHistory.jsx` (padded container, heading, content area). A simple list or card-per-user layout using existing `Card` component from `src/components/ui/` is sufficient.
 
 The `Settings.jsx` page likely reads `mockUser` directly from `mock-data.js`. After the mock data refactor, update it to read from `currentUser` via `useAuth()` instead — this is the correct long-term pattern.
+
+## Implementation Notes
+
+## Phase 1: Credential login, logout enforcement, and admin panel
+
+### Files Changed
+
+- **`src/data/mock-data.js`** — Replaced `mockUser` (single object) with `mockUsers` array containing two accounts: Francisco Lucas (dealer, `francisco@flmotors.pt` / `dealer123`) and Admin Crivo (admin, `admin@crivo.pt` / `admin123`), each with `role`, `status`, `plan`, `password` fields.
+
+- **`src/context/AuthContext.jsx`** — Changed initial state to `isAuthenticated: false`, `currentUser: null`. `login(email, password)` now validates against `mockUsers`, returns `true`/`false`, and sets `currentUser` on success. `logout()` clears both. Exposes `currentUser` in context value.
+
+- **`src/pages/Login.jsx`** — Converted to controlled inputs with `email`, `password`, and `error` state. `handleLogin` calls `login(email, password)`, navigates to `/searches` on success, shows "Credenciais inválidas" on failure. Error clears when either field is edited.
+
+- **`src/components/layout/Sidebar.jsx`** — Reads `currentUser` from auth context; conditionally appends Admin nav item (icon: `Shield`, route: `/admin`) when `currentUser?.role === 'admin'`.
+
+- **`src/pages/Admin.jsx`** (new) — Admin panel listing all `mockUsers` in a table inside a `Card`, showing name, email, plan, and status columns. Follows existing page structure (AppLayout, padded container, heading).
+
+- **`src/App.jsx`** — Added `AdminRoute` guard (checks `isAuthenticated` then `currentUser?.role === 'admin'`, redirecting to `/login` or `/searches` respectively). Registered `/admin` route using `AdminRoute`.
+
+- **`src/pages/Settings.jsx`** — Replaced `mockUser` import with `useAuth()` hook; all references updated to `currentUser?.{field}`.
+
+### Deviations
+
+None — implementation follows the phase spec exactly.
+
+### Build Status
+
+Production build passes (`vite build`). ESLint reports 79 issues — all pre-existing across the codebase (unused React imports, missing prop-types); my changes introduce 2 additional issues of the identical type.
+
+## Review
+
+## Verdict
+
+**Verdict:** APPROVE
+**Files reviewed:** 7 files changed across 1 phases
+
+All 8 acceptance criteria pass. Authentication is correctly enforced from first load, credential validation works against mock data, the login error state clears on edit, and the admin role gate functions correctly for both the sidebar item and the /admin route. Production build passes.
+
+### Automated Checks
+
+| Check | Result | Details |
+|-------|--------|---------|
+| Production build | PASS | vite build completes cleanly; 233 kB JS bundle |
+| Lint | FAIL | 79 issues (77 errors, 2 warnings) — all pre-existing codebase patterns (unused React imports, missing prop-types). Implementation adds 2 issues of the identical type. Build is unaffected. |
+
+### Acceptance Criteria (8/8 passed)
+
+- [x] AC-1: Loading the app with no session redirects to `/login` (the dashboard is not visible) — PASS: AuthContext.jsx:7 — useState(false); App.jsx:16 — ProtectedRoute returns <Navigate to='/login' replace /> when !isAuthenticated
+- [x] AC-2: Submitting the login form with an unrecognised email/password shows an error message on the page without navigating away — PASS: Login.jsx:20 — setError('Credenciais inválidas') on login() returning false; Login.jsx:97-99 — error paragraph rendered below form fields; no navigate() call on failure path
+- [x] AC-3: Submitting the login form with valid mock credentials navigates to `/searches` and shows the authenticated dashboard — PASS: Login.jsx:17-18 — navigate('/searches') on success; AuthContext.jsx:11-16 — mockUsers.find() sets currentUser and isAuthenticated:true on match
+- [x] AC-4: Clicking "Sair" in the sidebar signs the user out and redirects to `/login`; navigating to `/searches` directly afterwards redirects back to `/login` — PASS: Sidebar.jsx:88 — logout button calls logout(); AuthContext.jsx:20-23 — logout() sets isAuthenticated:false and currentUser:null; ProtectedRoute re-renders on state change and redirects to /login
+- [x] AC-5: Signing in as the standard dealer user: the sidebar shows Pesquisas, Alertas, Definições — no Admin item visible — PASS: Sidebar.jsx:14 — Admin item only spread-appended when currentUser?.role === 'admin'; mock-data.js:70 — dealer user has role:'dealer'
+- [x] AC-6: Signing in as the admin user: the sidebar shows Pesquisas, Alertas, Definições, and Admin — PASS: Sidebar.jsx:14 — conditional spread adds { to:'/admin', icon:Shield, label:'Admin' }; mock-data.js:80 — admin user has role:'admin'
+- [x] AC-7: Navigating to `/admin` as the admin user shows a list of mock dealer accounts with name, email, plan, and status columns — PASS: Admin.jsx:20-23 — thead has Nome, Email, Plano, Estado columns; Admin.jsx:27 — tbody iterates mockUsers; App.jsx:43 — /admin route wrapped in AdminRoute which allows admin users
+- [x] AC-8: Navigating to `/admin` as a non-admin authenticated user redirects to `/searches` — PASS: App.jsx:23 — AdminRoute: if currentUser?.role !== 'admin' return <Navigate to='/searches' replace />; optional chaining ensures null currentUser also redirects
+
+### Code Quality (Refactor Review)
+
+No code quality issues found in changed files.
+
+### Security Assessment (Security Review)
+
+No security issues found in changed files.
+
+### Decisions Made During Implementation
+
+- Auth context starts unauthenticated (useState(false)); login() validates credentials against mockUsers array — minimum change to enforce login gate without touching ProtectedRoute
+- AdminRoute is a separate guard from ProtectedRoute — checks isAuthenticated first, then role — keeping single-responsibility and avoiding a prop on every non-admin ProtectedRoute call
+- Settings.jsx migrated from direct mockUser import to currentUser via useAuth() — correct long-term pattern for a protected-route page
+
+## Required Changes
+
+None.
+

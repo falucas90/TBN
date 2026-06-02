@@ -1,11 +1,11 @@
 {
   "id": "task-add-authentication-and-admin-view-01kt54czr1xn",
   "status": "active",
-  "stage": "implementation",
-  "phase": 0,
+  "stage": "review",
+  "phase": 1,
   "totalPhases": 1,
   "createdAt": "2026-06-02T21:38:56Z",
-  "updatedAt": "2026-06-02T21:44:56Z",
+  "updatedAt": "2026-06-02T21:49:43Z",
   "events": [
     {
       "base_branch": "main",
@@ -185,6 +185,205 @@
       "phase": 1,
       "timestamp": "2026-06-02T21:44:56Z",
       "type": "progress_report"
+    },
+    {
+      "description": "Running full check suite — build verification",
+      "percentage": 80,
+      "phase": 1,
+      "timestamp": "2026-06-02T21:45:46Z",
+      "type": "progress_report"
+    },
+    {
+      "alternatives_considered": [],
+      "decision": "Implementation: Settings.jsx updated to read from currentUser via useAuth() instead of mockUser import",
+      "phase": 1,
+      "rationale": "mockUser was renamed to mockUsers (array) in mock-data.js; Settings now reads from the auth context which is always populated for authenticated users on a protected route.",
+      "timestamp": "2026-06-02T21:45:54Z",
+      "type": "decision"
+    },
+    {
+      "details": "Production build succeeds. No test suite in this project. ESLint reports 79 issues — all pre-existing patterns (unused React imports, missing prop-types) present throughout the codebase before this task. My changes introduce 2 additional issues of the same type.",
+      "failed": 0,
+      "passed": 1,
+      "phase": 0,
+      "skipped": 0,
+      "timestamp": "2026-06-02T21:45:56Z",
+      "type": "test_results"
+    },
+    {
+      "description": "Phase 1 implementation complete — awaiting approval",
+      "percentage": 100,
+      "phase": 1,
+      "timestamp": "2026-06-02T21:46:00Z",
+      "type": "progress_report"
+    },
+    {
+      "change_summary": "Phase 1 complete: credential auth, admin panel, role-aware sidebar",
+      "revision": 1,
+      "stage": "implementation",
+      "timestamp": "2026-06-02T21:46:15Z",
+      "type": "stage_content_updated"
+    },
+    {
+      "artifacts_created": [
+        "src/pages/Admin.jsx",
+        "src/context/AuthContext.jsx",
+        "src/data/mock-data.js",
+        "src/pages/Login.jsx",
+        "src/components/layout/Sidebar.jsx",
+        "src/App.jsx",
+        "src/pages/Settings.jsx"
+      ],
+      "phase": 0,
+      "summary": "Credential login enforcement, role-aware sidebar, and admin panel are all implemented. AuthContext starts unauthenticated; login validates against mockUsers; AdminRoute guards /admin for admin-only access; Settings migrated from mockUser import to currentUser from auth context.",
+      "timestamp": "2026-06-02T21:46:20Z",
+      "type": "phase_completed"
+    },
+    {
+      "items": [
+        {
+          "description": "Start the dev server with `npm run dev` and open the app in a browser — confirm you are redirected to `/login` instead of the dashboard."
+        },
+        {
+          "description": "On the login page, submit with an unrecognised email/password (e.g. `wrong@test.com` / `wrong`) and confirm the error message 'Credenciais inválidas' appears below the form fields without navigating away."
+        },
+        {
+          "description": "Edit either field after the error appears and confirm the error message clears immediately."
+        },
+        {
+          "description": "Log in with `francisco@flmotors.pt` / `dealer123` — confirm redirect to `/searches`, and check the sidebar does NOT show an Admin nav item."
+        },
+        {
+          "description": "While logged in as the dealer user, navigate directly to `/admin` in the browser address bar and confirm you are redirected to `/searches`."
+        },
+        {
+          "description": "Click 'Sair' in the sidebar — confirm redirect to `/login`. Then navigate to `/searches` directly and confirm redirect back to `/login`."
+        },
+        {
+          "description": "Log in with `admin@crivo.pt` / `admin123` — confirm the sidebar shows a 'Admin' item below 'Definições'."
+        },
+        {
+          "description": "Click the Admin nav item (or navigate to `/admin`) as the admin user — confirm a table listing both dealer accounts with Name, Email, Plan, and Status columns renders correctly."
+        }
+      ],
+      "phase": 0,
+      "phase_title": "Credential login, logout enforcement, and admin panel",
+      "timestamp": "2026-06-02T21:46:30Z",
+      "type": "manual_tests"
+    },
+    {
+      "agent_phase": 1,
+      "phase_title": "Credential login, logout enforcement, and admin panel",
+      "server_phase": 0,
+      "timestamp": "2026-06-02T21:46:35Z",
+      "type": "phase_drift_detected"
+    },
+    {
+      "phase": 0,
+      "phase_title": "Credential login, logout enforcement, and admin panel",
+      "timestamp": "2026-06-02T21:46:35Z",
+      "type": "phase_awaiting_approval",
+      "worktree_head": "7c3c7de0edd8018aabc6b08b9ecd38a386881528",
+      "worktree_status_digest": "5a516e1f0db33aff1044e772dc72ff94821825d025116d2e80bbb5e22c77e7c6"
+    },
+    {
+      "approved_by": "user",
+      "phase": 0,
+      "phase_title": "Credential login, logout enforcement, and admin panel",
+      "timestamp": "2026-06-02T21:46:45Z",
+      "type": "phase_approved"
+    },
+    {
+      "checked_indices": [],
+      "phase": 0,
+      "timestamp": "2026-06-02T21:46:45Z",
+      "type": "manual_tests_checks_persisted"
+    },
+    {
+      "stage": "implementation",
+      "summary": "All phases approved — implementation ready for review.",
+      "timestamp": "2026-06-02T21:46:45Z",
+      "type": "stage_work_complete",
+      "worktree_head": "7defde3de60fb592b0a4e3568246afe848d21802",
+      "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "base_branch": "main",
+      "merged_commits": 1,
+      "timestamp": "2026-06-02T21:46:47Z",
+      "type": "worktree_synced"
+    },
+    {
+      "actor": null,
+      "stage": "implementation",
+      "timestamp": "2026-06-02T21:46:45Z",
+      "type": "stage_approved"
+    },
+    {
+      "current_worktree_head": "fcd1cf6620d725cca25bcd66a54c884a9893c292",
+      "current_worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stage": "implementation",
+      "stale_worktree_head": "7defde3de60fb592b0a4e3568246afe848d21802",
+      "stale_worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timestamp": "2026-06-02T21:46:47Z",
+      "type": "worktree_drift_detected",
+      "what_changed": "HEAD"
+    },
+    {
+      "note": "automatic — worktree drift recovery",
+      "stage": "implementation",
+      "timestamp": "2026-06-02T21:46:47Z",
+      "type": "work_resumed"
+    },
+    {
+      "from": "implementation",
+      "timestamp": "2026-06-02T21:46:47Z",
+      "to": "review",
+      "type": "stage_advanced"
+    },
+    {
+      "base_branch": "main",
+      "reason": "already_up_to_date",
+      "timestamp": "2026-06-02T21:46:48Z",
+      "type": "worktree_sync_skipped"
+    },
+    {
+      "mode": "start",
+      "session_id": "01kt54vcasc6yafdndp0s7g2xh",
+      "stage": "review",
+      "timestamp": "2026-06-02T21:46:48Z",
+      "type": "stage_agent_started"
+    },
+    {
+      "details": "Production build passes. No test suite in project. ESLint reports 79 issues (all pre-existing codebase patterns — unused React imports, missing prop-types); implementation introduces 2 additional issues of the same type.",
+      "failed": 0,
+      "passed": 1,
+      "phase": 1,
+      "skipped": 0,
+      "timestamp": "2026-06-02T21:49:06Z",
+      "type": "test_results"
+    },
+    {
+      "change_summary": "APPROVE: All 8 acceptance criteria pass. Authentication is correctly enforced from first load, credential validation works against mock data, the login error state clears on edit, and the admin role gate functions correctly for both the sidebar item and the /admin route. Production build passes.",
+      "revision": 1,
+      "stage": "review",
+      "timestamp": "2026-06-02T21:49:31Z",
+      "type": "stage_content_updated"
+    },
+    {
+      "alternatives_considered": [],
+      "decision": "Review verdict: APPROVE",
+      "rationale": "8/8 acceptance criteria passed, 1/2 automated checks passed (build passes; lint fails on pre-existing issues only). No security vulnerabilities, no convention violations beyond pre-existing codebase baseline. All auth flows verified by code inspection: unauthenticated redirect, credential validation, error state clearing, logout enforcement, role-based nav item, AdminRoute guard.",
+      "timestamp": "2026-06-02T21:49:37Z",
+      "type": "decision"
+    },
+    {
+      "stage": "review",
+      "summary": "APPROVE — all 8 acceptance criteria pass, production build clean. Ready to advance to release.",
+      "timestamp": "2026-06-02T21:49:43Z",
+      "type": "stage_work_complete",
+      "worktree_head": "fcd1cf6620d725cca25bcd66a54c884a9893c292",
+      "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     }
   ],
   "needsArchitecture": false,
@@ -202,9 +401,17 @@
     "rationale": "New user-visible functionality (admin panel, credential login) skips design because all UI patterns are already established in existing pages — Admin panel follows AlertHistory layout, no novel components needed. Skips architecture because the auth pattern is already in place (ProtectedRoute exists), admin is a straightforward role check on the existing context, and all changes are confined to 6 files in a single subsystem."
   },
   "stageApprovals": {
-    "scope": "2026-06-02T21:42:30Z"
+    "scope": "2026-06-02T21:42:30Z",
+    "implementation": "2026-06-02T21:46:45Z"
+  },
+  "stageContent": {
+    "implementation": "## Phase 1: Credential login, logout enforcement, and admin panel\n\n### Files Changed\n\n- **`src/data/mock-data.js`** — Replaced `mockUser` (single object) with `mockUsers` array containing two accounts: Francisco Lucas (dealer, `francisco@flmotors.pt` / `dealer123`) and Admin Crivo (admin, `admin@crivo.pt` / `admin123`), each with `role`, `status`, `plan`, `password` fields.\n\n- **`src/context/AuthContext.jsx`** — Changed initial state to `isAuthenticated: false`, `currentUser: null`. `login(email, password)` now validates against `mockUsers`, returns `true`/`false`, and sets `currentUser` on success. `logout()` clears both. Exposes `currentUser` in context value.\n\n- **`src/pages/Login.jsx`** — Converted to controlled inputs with `email`, `password`, and `error` state. `handleLogin` calls `login(email, password)`, navigates to `/searches` on success, shows \"Credenciais inválidas\" on failure. Error clears when either field is edited.\n\n- **`src/components/layout/Sidebar.jsx`** — Reads `currentUser` from auth context; conditionally appends Admin nav item (icon: `Shield`, route: `/admin`) when `currentUser?.role === 'admin'`.\n\n- **`src/pages/Admin.jsx`** (new) — Admin panel listing all `mockUsers` in a table inside a `Card`, showing name, email, plan, and status columns. Follows existing page structure (AppLayout, padded container, heading).\n\n- **`src/App.jsx`** — Added `AdminRoute` guard (checks `isAuthenticated` then `currentUser?.role === 'admin'`, redirecting to `/login` or `/searches` respectively). Registered `/admin` route using `AdminRoute`.\n\n- **`src/pages/Settings.jsx`** — Replaced `mockUser` import with `useAuth()` hook; all references updated to `currentUser?.{field}`.\n\n### Deviations\n\nNone — implementation follows the phase spec exactly.\n\n### Build Status\n\nProduction build passes (`vite build`). ESLint reports 79 issues — all pre-existing across the codebase (unused React imports, missing prop-types); my changes introduce 2 additional issues of the identical type.",
+    "review": "## Verdict\n\n**Verdict:** APPROVE\n**Files reviewed:** 7 files changed across 1 phases\n\nAll 8 acceptance criteria pass. Authentication is correctly enforced from first load, credential validation works against mock data, the login error state clears on edit, and the admin role gate functions correctly for both the sidebar item and the /admin route. Production build passes.\n\n### Automated Checks\n\n| Check | Result | Details |\n|-------|--------|---------|\n| Production build | PASS | vite build completes cleanly; 233 kB JS bundle |\n| Lint | FAIL | 79 issues (77 errors, 2 warnings) — all pre-existing codebase patterns (unused React imports, missing prop-types). Implementation adds 2 issues of the identical type. Build is unaffected. |\n\n### Acceptance Criteria (8/8 passed)\n\n- [x] AC-1: Loading the app with no session redirects to `/login` (the dashboard is not visible) — PASS: AuthContext.jsx:7 — useState(false); App.jsx:16 — ProtectedRoute returns <Navigate to='/login' replace /> when !isAuthenticated\n- [x] AC-2: Submitting the login form with an unrecognised email/password shows an error message on the page without navigating away — PASS: Login.jsx:20 — setError('Credenciais inválidas') on login() returning false; Login.jsx:97-99 — error paragraph rendered below form fields; no navigate() call on failure path\n- [x] AC-3: Submitting the login form with valid mock credentials navigates to `/searches` and shows the authenticated dashboard — PASS: Login.jsx:17-18 — navigate('/searches') on success; AuthContext.jsx:11-16 — mockUsers.find() sets currentUser and isAuthenticated:true on match\n- [x] AC-4: Clicking \"Sair\" in the sidebar signs the user out and redirects to `/login`; navigating to `/searches` directly afterwards redirects back to `/login` — PASS: Sidebar.jsx:88 — logout button calls logout(); AuthContext.jsx:20-23 — logout() sets isAuthenticated:false and currentUser:null; ProtectedRoute re-renders on state change and redirects to /login\n- [x] AC-5: Signing in as the standard dealer user: the sidebar shows Pesquisas, Alertas, Definições — no Admin item visible — PASS: Sidebar.jsx:14 — Admin item only spread-appended when currentUser?.role === 'admin'; mock-data.js:70 — dealer user has role:'dealer'\n- [x] AC-6: Signing in as the admin user: the sidebar shows Pesquisas, Alertas, Definições, and Admin — PASS: Sidebar.jsx:14 — conditional spread adds { to:'/admin', icon:Shield, label:'Admin' }; mock-data.js:80 — admin user has role:'admin'\n- [x] AC-7: Navigating to `/admin` as the admin user shows a list of mock dealer accounts with name, email, plan, and status columns — PASS: Admin.jsx:20-23 — thead has Nome, Email, Plano, Estado columns; Admin.jsx:27 — tbody iterates mockUsers; App.jsx:43 — /admin route wrapped in AdminRoute which allows admin users\n- [x] AC-8: Navigating to `/admin` as a non-admin authenticated user redirects to `/searches` — PASS: App.jsx:23 — AdminRoute: if currentUser?.role !== 'admin' return <Navigate to='/searches' replace />; optional chaining ensures null currentUser also redirects\n\n### Code Quality (Refactor Review)\n\nNo code quality issues found in changed files.\n\n### Security Assessment (Security Review)\n\nNo security issues found in changed files.\n\n### Decisions Made During Implementation\n\n- Auth context starts unauthenticated (useState(false)); login() validates credentials against mockUsers array — minimum change to enforce login gate without touching ProtectedRoute\n- AdminRoute is a separate guard from ProtectedRoute — checks isAuthenticated first, then role — keeping single-responsibility and avoiding a prop on every non-admin ProtectedRoute call\n- Settings.jsx migrated from direct mockUser import to currentUser via useAuth() — correct long-term pattern for a protected-route page\n\n## Required Changes\n\nNone.\n"
   },
   "stages": {
+    "release": {
+      "status": "not_started"
+    },
     "scope": {
       "status": "approved",
       "approvedAt": "2026-06-02T21:42:30Z",
@@ -213,21 +420,98 @@
     "design": {
       "status": "skipped"
     },
-    "release": {
-      "status": "not_started"
-    },
     "implementation": {
-      "status": "in_progress",
+      "status": "approved",
+      "approvedAt": "2026-06-02T21:46:45Z",
       "startedAt": "2026-06-02T21:42:33Z"
+    },
+    "review": {
+      "status": "awaiting_approval",
+      "startedAt": "2026-06-02T21:46:48Z"
     },
     "architecture": {
       "status": "skipped"
-    },
-    "review": {
-      "status": "not_started"
     }
   },
   "worktreePath": "/Users/franciscolucas/Documents/TBN/.defract-worktrees/task-add-authentication-and-admin-view-01kt54czr1xn",
   "worktreeBaseBranch": "main",
-  "worktreeLastSyncedAt": "2026-06-02T21:42:33Z"
+  "worktreeLastSyncedAt": "2026-06-02T21:46:48Z",
+  "reviewPayload": {
+    "verdict": "approve",
+    "summary": "All 8 acceptance criteria pass. Authentication is correctly enforced from first load, credential validation works against mock data, the login error state clears on edit, and the admin role gate functions correctly for both the sidebar item and the /admin route. Production build passes.",
+    "filesReviewedCount": 7,
+    "phasesReviewedCount": 1,
+    "automatedChecks": [
+      {
+        "name": "Production build",
+        "result": "pass",
+        "detail": "vite build completes cleanly; 233 kB JS bundle"
+      },
+      {
+        "name": "Lint",
+        "result": "fail",
+        "detail": "79 issues (77 errors, 2 warnings) — all pre-existing codebase patterns (unused React imports, missing prop-types). Implementation adds 2 issues of the identical type. Build is unaffected."
+      }
+    ],
+    "acceptanceCriteria": [
+      {
+        "acId": "AC-1",
+        "text": "Loading the app with no session redirects to `/login` (the dashboard is not visible)",
+        "status": "pass",
+        "evidence": "AuthContext.jsx:7 — useState(false); App.jsx:16 — ProtectedRoute returns <Navigate to='/login' replace /> when !isAuthenticated"
+      },
+      {
+        "acId": "AC-2",
+        "text": "Submitting the login form with an unrecognised email/password shows an error message on the page without navigating away",
+        "status": "pass",
+        "evidence": "Login.jsx:20 — setError('Credenciais inválidas') on login() returning false; Login.jsx:97-99 — error paragraph rendered below form fields; no navigate() call on failure path"
+      },
+      {
+        "acId": "AC-3",
+        "text": "Submitting the login form with valid mock credentials navigates to `/searches` and shows the authenticated dashboard",
+        "status": "pass",
+        "evidence": "Login.jsx:17-18 — navigate('/searches') on success; AuthContext.jsx:11-16 — mockUsers.find() sets currentUser and isAuthenticated:true on match"
+      },
+      {
+        "acId": "AC-4",
+        "text": "Clicking \"Sair\" in the sidebar signs the user out and redirects to `/login`; navigating to `/searches` directly afterwards redirects back to `/login`",
+        "status": "pass",
+        "evidence": "Sidebar.jsx:88 — logout button calls logout(); AuthContext.jsx:20-23 — logout() sets isAuthenticated:false and currentUser:null; ProtectedRoute re-renders on state change and redirects to /login"
+      },
+      {
+        "acId": "AC-5",
+        "text": "Signing in as the standard dealer user: the sidebar shows Pesquisas, Alertas, Definições — no Admin item visible",
+        "status": "pass",
+        "evidence": "Sidebar.jsx:14 — Admin item only spread-appended when currentUser?.role === 'admin'; mock-data.js:70 — dealer user has role:'dealer'"
+      },
+      {
+        "acId": "AC-6",
+        "text": "Signing in as the admin user: the sidebar shows Pesquisas, Alertas, Definições, and Admin",
+        "status": "pass",
+        "evidence": "Sidebar.jsx:14 — conditional spread adds { to:'/admin', icon:Shield, label:'Admin' }; mock-data.js:80 — admin user has role:'admin'"
+      },
+      {
+        "acId": "AC-7",
+        "text": "Navigating to `/admin` as the admin user shows a list of mock dealer accounts with name, email, plan, and status columns",
+        "status": "pass",
+        "evidence": "Admin.jsx:20-23 — thead has Nome, Email, Plano, Estado columns; Admin.jsx:27 — tbody iterates mockUsers; App.jsx:43 — /admin route wrapped in AdminRoute which allows admin users"
+      },
+      {
+        "acId": "AC-8",
+        "text": "Navigating to `/admin` as a non-admin authenticated user redirects to `/searches`",
+        "status": "pass",
+        "evidence": "App.jsx:23 — AdminRoute: if currentUser?.role !== 'admin' return <Navigate to='/searches' replace />; optional chaining ensures null currentUser also redirects"
+      }
+    ],
+    "headlineFindings": [],
+    "requiredChanges": [],
+    "codeQualityFindings": [],
+    "securityFindings": [],
+    "decisions": [
+      "Auth context starts unauthenticated (useState(false)); login() validates credentials against mockUsers array — minimum change to enforce login gate without touching ProtectedRoute",
+      "AdminRoute is a separate guard from ProtectedRoute — checks isAuthenticated first, then role — keeping single-responsibility and avoiding a prop on every non-admin ProtectedRoute call",
+      "Settings.jsx migrated from direct mockUser import to currentUser via useAuth() — correct long-term pattern for a protected-route page"
+    ],
+    "revision": 1
+  }
 }

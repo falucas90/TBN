@@ -1,11 +1,11 @@
 {
   "id": "task-audit-codebase-for-needed-improvements-01kt545bmfg1",
   "status": "active",
-  "stage": "implementation",
-  "phase": 0,
+  "stage": "release",
+  "phase": 1,
   "totalPhases": 1,
   "createdAt": "2026-06-02T21:34:46Z",
-  "updatedAt": "2026-06-02T21:44:54Z",
+  "updatedAt": "2026-06-02T21:50:38Z",
   "events": [
     {
       "base_branch": "main",
@@ -185,6 +185,250 @@
       "phase": 1,
       "timestamp": "2026-06-02T21:44:54Z",
       "type": "progress_report"
+    },
+    {
+      "description": "Running full check suite",
+      "percentage": 80,
+      "phase": 1,
+      "timestamp": "2026-06-02T21:45:52Z",
+      "type": "progress_report"
+    },
+    {
+      "details": "No automated test suite in this project. Build passes cleanly (vite build, 1774 modules transformed). Lint baseline unchanged — 77 pre-existing errors (react/prop-types and unused React imports); no new errors introduced. ISV values computed at runtime: Alert 101 €1069 (was €450), Alert 102 €882 (was €600).",
+      "failed": 0,
+      "passed": 0,
+      "phase": 0,
+      "skipped": 0,
+      "timestamp": "2026-06-02T21:45:56Z",
+      "type": "test_results"
+    },
+    {
+      "alternatives_considered": [],
+      "decision": "Implementation: ISV computation pre-calculated into alertsWithISV array before the filter pipeline, so margin filter also uses the derived marginEst rather than the stale mock value.",
+      "phase": 1,
+      "rationale": "Filtering on derived marginEst is consistent with what is displayed; filtering on mock data's marginEst would mean an alert could pass the \">€3000\" filter while displaying a lower computed margin.",
+      "timestamp": "2026-06-02T21:46:02Z",
+      "type": "decision"
+    },
+    {
+      "description": "Phase 1 implementation complete — awaiting approval",
+      "percentage": 100,
+      "phase": 1,
+      "timestamp": "2026-06-02T21:46:04Z",
+      "type": "progress_report"
+    },
+    {
+      "change_summary": "Phase 1 complete: Fix all stubbed and inconsistent behaviors",
+      "revision": 1,
+      "stage": "implementation",
+      "timestamp": "2026-06-02T21:46:17Z",
+      "type": "stage_content_updated"
+    },
+    {
+      "details": "No automated test suite exists in this project. Build verification passed: vite build succeeded with 1774 modules transformed, zero errors. ISV calculator verified via direct node execution: Alert 101 isvPayable=1069 (≠450), Alert 102 isvPayable=882 (≠600). All acceptance criteria verified manually against source code.",
+      "failed": 0,
+      "passed": 1,
+      "phase": 0,
+      "skipped": 0,
+      "timestamp": "2026-06-02T21:46:26Z",
+      "type": "test_results"
+    },
+    {
+      "artifacts_created": [
+        "src/data/mock-data.js",
+        "src/pages/AlertHistory.jsx",
+        "src/pages/Searches.jsx",
+        "src/pages/Login.jsx",
+        "src/pages/Signup.jsx"
+      ],
+      "phase": 0,
+      "summary": "All four stubbed behaviors fixed: ISV calculator wired to alert cards via computed alertsWithISV mapping; text search input connected to state and composing with existing filters; Searches dashboard stats derived from searches state (reactive to toggle/delete); Login and Signup navigation links replaced with SPA-safe Link components.",
+      "timestamp": "2026-06-02T21:46:31Z",
+      "type": "phase_completed"
+    },
+    {
+      "items": [
+        {
+          "description": "Open the app at `http://localhost:5173` (run `npm run dev` if not already started) and navigate to `/alerts` — confirm the ISV column on each alert card shows a value other than the old hardcoded €450 / €600 (expect ~€1,069 for the BMW and ~€882 for the Volvo)."
+        },
+        {
+          "description": "On the Alert History page, type `bmw` into the search box — confirm only the BMW alert card remains visible; clear the input and confirm both cards return."
+        },
+        {
+          "description": "On the Alert History page, select `> €4,000` in the margin dropdown — confirm only the Volvo card (computed margin > €4,000) remains; select `Qualquer Margem` to reset."
+        },
+        {
+          "description": "Navigate to `/searches` and note the four stat values. Pause the BMW search by clicking `Pausar` — confirm `Matches Hoje` drops to 0, `Alta Margem` drops to 0, and `Margem Média` changes to `€0` (no active searches with avgMargin data)."
+        },
+        {
+          "description": "On the Searches page, delete all searches — confirm `Margem Média` shows `€0` and not `NaN` or an empty string."
+        },
+        {
+          "description": "On the Searches page, confirm the subtitle reads `Está a acompanhar 2 pesquisas em 2 plataformas` (platform count is computed from search sources, not hardcoded)."
+        },
+        {
+          "description": "On the Login page (`/login`), click `Registe-se` — confirm the browser navigates to `/signup` without a full page reload (URL changes but no network request for `index.html`)."
+        },
+        {
+          "description": "On the Signup page (`/signup`), click `Já tem uma conta? Entrar` — confirm the browser navigates to `/login` as a SPA transition; also complete step 2 to reach step 3 and click `Ir para o Login` to confirm the same SPA navigation."
+        }
+      ],
+      "phase": 0,
+      "phase_title": "Fix all stubbed and inconsistent behaviors",
+      "timestamp": "2026-06-02T21:46:45Z",
+      "type": "manual_tests"
+    },
+    {
+      "agent_phase": 1,
+      "phase_title": "Fix all stubbed and inconsistent behaviors",
+      "server_phase": 0,
+      "timestamp": "2026-06-02T21:46:50Z",
+      "type": "phase_drift_detected"
+    },
+    {
+      "phase": 0,
+      "phase_title": "Fix all stubbed and inconsistent behaviors",
+      "timestamp": "2026-06-02T21:46:50Z",
+      "type": "phase_awaiting_approval",
+      "worktree_head": "c2160a319cc1f47d682ac26cea71870f96af51b3",
+      "worktree_status_digest": "78517b35cff1cf1d2757f68e443d739a659c4f32378430ffd757ee611671038a"
+    },
+    {
+      "approved_by": "user",
+      "phase": 0,
+      "phase_title": "Fix all stubbed and inconsistent behaviors",
+      "timestamp": "2026-06-02T21:46:55Z",
+      "type": "phase_approved"
+    },
+    {
+      "checked_indices": [],
+      "phase": 0,
+      "timestamp": "2026-06-02T21:46:55Z",
+      "type": "manual_tests_checks_persisted"
+    },
+    {
+      "stage": "implementation",
+      "summary": "All phases approved — implementation ready for review.",
+      "timestamp": "2026-06-02T21:46:55Z",
+      "type": "stage_work_complete",
+      "worktree_head": "d1b70cc6f07ab0150a4d229cd97de5685461ed16",
+      "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "base_branch": "main",
+      "merged_commits": 1,
+      "timestamp": "2026-06-02T21:46:57Z",
+      "type": "worktree_synced"
+    },
+    {
+      "actor": null,
+      "stage": "implementation",
+      "timestamp": "2026-06-02T21:46:55Z",
+      "type": "stage_approved"
+    },
+    {
+      "current_worktree_head": "9c588e8594502e0916614ce8d1f192b9e8616e64",
+      "current_worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stage": "implementation",
+      "stale_worktree_head": "d1b70cc6f07ab0150a4d229cd97de5685461ed16",
+      "stale_worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timestamp": "2026-06-02T21:46:57Z",
+      "type": "worktree_drift_detected",
+      "what_changed": "HEAD"
+    },
+    {
+      "note": "automatic — worktree drift recovery",
+      "stage": "implementation",
+      "timestamp": "2026-06-02T21:46:57Z",
+      "type": "work_resumed"
+    },
+    {
+      "from": "implementation",
+      "timestamp": "2026-06-02T21:46:57Z",
+      "to": "review",
+      "type": "stage_advanced"
+    },
+    {
+      "base_branch": "main",
+      "reason": "already_up_to_date",
+      "timestamp": "2026-06-02T21:46:57Z",
+      "type": "worktree_sync_skipped"
+    },
+    {
+      "mode": "start",
+      "session_id": "01kt54vnnbsw8rvzb576gqhw0k",
+      "stage": "review",
+      "timestamp": "2026-06-02T21:46:57Z",
+      "type": "stage_agent_started"
+    },
+    {
+      "details": "No automated test suite in this project. Build verification passed: vite build succeeded with 1774 modules transformed, zero errors. ISV calculator verified via node ESM execution: Alert 101 isvPayable=1069 (≠450), Alert 102 isvPayable=882 (≠600). Lint baseline unchanged at 77 pre-existing errors (react/prop-types and unused React imports); no new errors introduced by this task.",
+      "failed": 0,
+      "passed": 2,
+      "phase": 1,
+      "skipped": 0,
+      "timestamp": "2026-06-02T21:48:30Z",
+      "type": "test_results"
+    },
+    {
+      "change_summary": "APPROVE: All 8 acceptance criteria pass with concrete evidence at the source level. The ISV calculator is correctly wired and produces values that differ from the former hardcoded placeholders (€1,069 vs €450 for the BMW; €882 vs €600 for the Volvo). Text search, derived stats, and SPA navigation links are all correctly implemented.",
+      "revision": 1,
+      "stage": "review",
+      "timestamp": "2026-06-02T21:49:03Z",
+      "type": "stage_content_updated"
+    },
+    {
+      "alternatives_considered": [],
+      "decision": "Review verdict: APPROVE",
+      "rationale": "8/8 acceptance criteria passed, 3/3 automated checks passed (build, lint baseline, ISV verification). No security issues, no code quality violations in changed files. All stubbed behaviors are correctly resolved: ISV wired at render time with correct PHEV exemption logic, text search connected to state and composing with existing filters, dashboard stats derived reactively from searches state with NaN guard, and SPA navigation links correctly use Link from react-router-dom.",
+      "timestamp": "2026-06-02T21:49:08Z",
+      "type": "decision"
+    },
+    {
+      "stage": "review",
+      "summary": "APPROVE — all 8 acceptance criteria pass. ISV calculator correctly wired (€1,069 and €882, replacing hardcoded €450/€600), text search connected to state, Searches dashboard stats derived reactively from searches state with NaN guard, and Login/Signup navigation links use Link from react-router-dom. Build passes cleanly.",
+      "timestamp": "2026-06-02T21:49:15Z",
+      "type": "stage_work_complete",
+      "worktree_head": "9c588e8594502e0916614ce8d1f192b9e8616e64",
+      "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "base_branch": "main",
+      "reason": "already_up_to_date",
+      "timestamp": "2026-06-02T21:50:38Z",
+      "type": "worktree_sync_skipped"
+    },
+    {
+      "actor": null,
+      "stage": "review",
+      "timestamp": "2026-06-02T21:50:38Z",
+      "type": "stage_approved"
+    },
+    {
+      "from": "review",
+      "timestamp": "2026-06-02T21:50:38Z",
+      "to": "release",
+      "type": "stage_advanced"
+    },
+    {
+      "base_branch": "main",
+      "reason": "already_up_to_date",
+      "timestamp": "2026-06-02T21:50:38Z",
+      "type": "worktree_sync_skipped"
+    },
+    {
+      "mode": "start",
+      "session_id": "01kt552dgnc0jj0vmtnhgfyhgg",
+      "stage": "release",
+      "timestamp": "2026-06-02T21:50:38Z",
+      "type": "stage_agent_started"
+    },
+    {
+      "exit_code": 143,
+      "session_id": "01kt54vnnbsw8rvzb576gqhw0k",
+      "timed_out": false,
+      "timestamp": "2026-06-02T21:50:38Z",
+      "type": "agent_exited"
     }
   ],
   "needsArchitecture": false,
@@ -202,32 +446,125 @@
     "rationale": "All changes are fixes to existing broken or stub behavior across 5 files — no new UI patterns (skip design) and no new system boundaries (skip architecture). Single well-contained implementation phase."
   },
   "stageApprovals": {
-    "scope": "2026-06-02T21:42:12Z"
+    "implementation": "2026-06-02T21:46:55Z",
+    "scope": "2026-06-02T21:42:12Z",
+    "review": "2026-06-02T21:50:38Z"
+  },
+  "stageContent": {
+    "review": "## Verdict\n\n**Verdict:** APPROVE\n**Files reviewed:** 5 files changed across 1 phases\n\nAll 8 acceptance criteria pass with concrete evidence at the source level. The ISV calculator is correctly wired and produces values that differ from the former hardcoded placeholders (€1,069 vs €450 for the BMW; €882 vs €600 for the Volvo). Text search, derived stats, and SPA navigation links are all correctly implemented.\n\n### Automated Checks\n\n| Check | Result | Details |\n|-------|--------|---------|\n| Production build | PASS | vite build succeeded, 1774 modules transformed, zero errors |\n| Lint | PASS | 77 pre-existing errors (react/prop-types, unused React imports); zero new errors introduced by this task |\n| ISV calculator verification | PASS | Alert 101 isvPayable=1069 (≠450), Alert 102 isvPayable=882 (≠600) — confirmed via node ESM execution |\n\n### Acceptance Criteria (8/8 passed)\n\n- [x] AC-1: Each entry in `mockAlerts` has `cc`, `co2`, `fuelType`, and `ageYears` fields; both PHEV-flagged entries have co2 ≤ 50 to qualify for the PHEV exemption — PASS: mock-data.js:41-44 Alert 101 (cc=1998, co2=43, fuelType='Petrol', ageYears=5); mock-data.js:58-62 Alert 102 (cc=1969, co2=35, fuelType='Petrol', ageYears=6). Both PHEV-flagged, both co2 ≤ 50.\n- [x] AC-2: AlertHistory imports `calculateISV` and calls it per alert; the ISV values shown differ from the former hardcoded 450 / 600 figures — PASS: AlertHistory.jsx:5 imports calculateISV; AlertHistory.jsx:17 calls it in alertsWithISV.map(). Verified isvPayable values: Alert 101 = €1,069 (≠450), Alert 102 = €882 (≠600).\n- [x] AC-3: For each alert card, `totalCost` equals `priceOriginal + computedIsv + transportEst` and `marginEst` equals `marketPrice − totalCost` — PASS: AlertHistory.jsx:18 `const totalCost = alert.priceOriginal + isvPayable + alert.transportEst`; AlertHistory.jsx:19 `const marginEst = alert.marketPrice - totalCost`. Computed values verified: Alert 101 totalCost=28369, marginEst=4631; Alert 102 totalCost=30582, marginEst=3918.\n- [x] AC-4: Typing a substring into the AlertHistory text search narrows the visible cards to those whose title matches — PASS: AlertHistory.jsx:14 `const [searchText, setSearchText] = useState('')`; AlertHistory.jsx:50-51 input bound with `value={searchText}` and `onChange={e => setSearchText(e.target.value)}`; AlertHistory.jsx:26 `.filter(a => !searchText || a.carTitle.toLowerCase().includes(searchText.toLowerCase()))` applied in filteredAlerts pipeline.\n- [x] AC-5: All three active-search-based stats (\"Matches Hoje\", \"Alta Margem\", \"Margem Média\") update reactively when a search is paused, resumed, or deleted in the Searches page — PASS: Searches.jsx:30-35 — activeSearches, matchesToday, highMarginCount, avgMarginValue all derived from `searches` state; `searches` is updated by toggleSearchStatus (line 14) and deleteSearch (line 25), both calling setSearches.\n- [x] AC-6: \"Margem Média\" shows \"€0\" (not NaN) when all searches are paused or deleted — PASS: Searches.jsx:33-35 guards against zero-length: `activeSearches.length > 0 ? Math.round(...) : 0`. Displayed as `€${avgMarginValue.toLocaleString()}` at line 58, so yields \"€0\" when no active searches.\n- [x] AC-7: The Searches subtitle platform count is a computed value — it changes if a search with a new platform source were added to mock data — PASS: Searches.jsx:36 `const platformCount = new Set(searches.flatMap(s => s.sources)).size` — derived from searches state via Set/flatMap. Used in subtitle at Searches.jsx:46, not hardcoded.\n- [x] AC-8: No internal navigation link in Login or Signup uses a bare `<a href>` element; all use `<Link to>` — PASS: Login.jsx:5 imports Link; Login.jsx:94 uses `<Link to=\"/signup\">`. Signup.jsx:4 imports Link; Signup.jsx:60 `<Link to=\"/login\">` (step 3 button); Signup.jsx:66 `<Link to=\"/login\">` (step 1 return link). Remaining `<a href=\"#\">` elements in Login are external/placeholder links (forgot password, terms, privacy, support), not internal app routes.\n\n### Code Quality (Refactor Review)\n\nNo code quality issues found in changed files.\n\n### Security Assessment (Security Review)\n\nNo security issues found in changed files.\n\n### Decisions Made During Implementation\n\n- ISV, totalCost, and marginEst are computed at render time in AlertHistory rather than updating mock data fields — avoids mutating the mock data shape beyond adding the required vehicle spec inputs and ensures displayed values automatically reflect spec data changes.\n- ISV computation pre-calculated into alertsWithISV array before the filter pipeline so that the margin filter also uses the derived marginEst rather than the stale mock value — consistent filtering and display.\n- Two items from the original intent check (brand/margin filters, catch-all route) were already correctly implemented in the codebase; scope was refocused on the four remaining genuine fixes.\n\n## Required Changes\n\nNone.\n",
+    "implementation": "## Phase 1: Fix all stubbed and inconsistent behaviors\n\nAll five files modified as specified. Build passes cleanly.\n\n### Changes made\n\n**src/data/mock-data.js** — Added `cc`, `co2`, `fuelType`, `ageYears` to both mockAlerts entries. Both PHEV entries have co2 ≤ 50 (43 and 35 respectively), satisfying the PHEV exemption constraint.\n\n**src/pages/AlertHistory.jsx** — Imported `calculateISV`; added `searchText` state; pre-computed ISV and derived fields in an `alertsWithISV` mapping before the filter pipeline (so margin filter uses computed marginEst, not stale mock value); composed text search as a third filter using case-insensitive carTitle match; display uses `isvPayable`, `totalCost`, and `marginEst` from computed values (rounded).\n\n**src/pages/Searches.jsx** — Derived `activeSearches`, `matchesToday`, `highMarginCount`, `avgMarginValue` (guarded against zero-length), and `platformCount` (via Set/flatMap) from `searches` state. All four stat card values now update reactively on toggle/delete.\n\n**src/pages/Login.jsx** — Imported `Link` from react-router-dom; replaced `<a href=\"/signup\">` with `<Link to=\"/signup\">`.\n\n**src/pages/Signup.jsx** — Imported `Link`; replaced both `<a href=\"/login\">` occurrences with `<Link to=\"/login\">`.\n\n### Verification\n\n- ISV computed at runtime: Alert 101 €1069 (was hardcoded €450), Alert 102 €882 (was hardcoded €600)\n- No `alert.isvEst` reference remains in display logic\n- Text search input bound to state; filter applied in pipeline\n- Stat values are expressions over `searches` state\n- No bare `<a href>` for internal routes in Login or Signup"
   },
   "stages": {
+    "architecture": {
+      "status": "skipped"
+    },
     "scope": {
       "status": "approved",
       "approvedAt": "2026-06-02T21:42:12Z",
       "startedAt": "2026-06-02T21:36:38Z"
     },
     "implementation": {
-      "status": "in_progress",
+      "status": "approved",
+      "approvedAt": "2026-06-02T21:46:55Z",
       "startedAt": "2026-06-02T21:42:14Z"
     },
-    "architecture": {
-      "status": "skipped"
-    },
     "review": {
-      "status": "not_started"
-    },
-    "release": {
-      "status": "not_started"
+      "status": "approved",
+      "approvedAt": "2026-06-02T21:50:38Z",
+      "startedAt": "2026-06-02T21:46:57Z"
     },
     "design": {
       "status": "skipped"
+    },
+    "release": {
+      "status": "in_progress",
+      "startedAt": "2026-06-02T21:50:38Z"
     }
   },
   "worktreePath": "/Users/franciscolucas/Documents/TBN/.defract-worktrees/task-audit-codebase-for-needed-improvements-01kt545bmfg1",
   "worktreeBaseBranch": "main",
-  "worktreeLastSyncedAt": "2026-06-02T21:42:14Z"
+  "worktreeLastSyncedAt": "2026-06-02T21:50:38Z",
+  "reviewPayload": {
+    "verdict": "approve",
+    "summary": "All 8 acceptance criteria pass with concrete evidence at the source level. The ISV calculator is correctly wired and produces values that differ from the former hardcoded placeholders (€1,069 vs €450 for the BMW; €882 vs €600 for the Volvo). Text search, derived stats, and SPA navigation links are all correctly implemented.",
+    "filesReviewedCount": 5,
+    "phasesReviewedCount": 1,
+    "automatedChecks": [
+      {
+        "name": "Production build",
+        "result": "pass",
+        "detail": "vite build succeeded, 1774 modules transformed, zero errors"
+      },
+      {
+        "name": "Lint",
+        "result": "pass",
+        "detail": "77 pre-existing errors (react/prop-types, unused React imports); zero new errors introduced by this task"
+      },
+      {
+        "name": "ISV calculator verification",
+        "result": "pass",
+        "detail": "Alert 101 isvPayable=1069 (≠450), Alert 102 isvPayable=882 (≠600) — confirmed via node ESM execution"
+      }
+    ],
+    "acceptanceCriteria": [
+      {
+        "acId": "AC-1",
+        "text": "Each entry in `mockAlerts` has `cc`, `co2`, `fuelType`, and `ageYears` fields; both PHEV-flagged entries have co2 ≤ 50 to qualify for the PHEV exemption",
+        "status": "pass",
+        "evidence": "mock-data.js:41-44 Alert 101 (cc=1998, co2=43, fuelType='Petrol', ageYears=5); mock-data.js:58-62 Alert 102 (cc=1969, co2=35, fuelType='Petrol', ageYears=6). Both PHEV-flagged, both co2 ≤ 50."
+      },
+      {
+        "acId": "AC-2",
+        "text": "AlertHistory imports `calculateISV` and calls it per alert; the ISV values shown differ from the former hardcoded 450 / 600 figures",
+        "status": "pass",
+        "evidence": "AlertHistory.jsx:5 imports calculateISV; AlertHistory.jsx:17 calls it in alertsWithISV.map(). Verified isvPayable values: Alert 101 = €1,069 (≠450), Alert 102 = €882 (≠600)."
+      },
+      {
+        "acId": "AC-3",
+        "text": "For each alert card, `totalCost` equals `priceOriginal + computedIsv + transportEst` and `marginEst` equals `marketPrice − totalCost`",
+        "status": "pass",
+        "evidence": "AlertHistory.jsx:18 `const totalCost = alert.priceOriginal + isvPayable + alert.transportEst`; AlertHistory.jsx:19 `const marginEst = alert.marketPrice - totalCost`. Computed values verified: Alert 101 totalCost=28369, marginEst=4631; Alert 102 totalCost=30582, marginEst=3918."
+      },
+      {
+        "acId": "AC-4",
+        "text": "Typing a substring into the AlertHistory text search narrows the visible cards to those whose title matches",
+        "status": "pass",
+        "evidence": "AlertHistory.jsx:14 `const [searchText, setSearchText] = useState('')`; AlertHistory.jsx:50-51 input bound with `value={searchText}` and `onChange={e => setSearchText(e.target.value)}`; AlertHistory.jsx:26 `.filter(a => !searchText || a.carTitle.toLowerCase().includes(searchText.toLowerCase()))` applied in filteredAlerts pipeline."
+      },
+      {
+        "acId": "AC-5",
+        "text": "All three active-search-based stats (\"Matches Hoje\", \"Alta Margem\", \"Margem Média\") update reactively when a search is paused, resumed, or deleted in the Searches page",
+        "status": "pass",
+        "evidence": "Searches.jsx:30-35 — activeSearches, matchesToday, highMarginCount, avgMarginValue all derived from `searches` state; `searches` is updated by toggleSearchStatus (line 14) and deleteSearch (line 25), both calling setSearches."
+      },
+      {
+        "acId": "AC-6",
+        "text": "\"Margem Média\" shows \"€0\" (not NaN) when all searches are paused or deleted",
+        "status": "pass",
+        "evidence": "Searches.jsx:33-35 guards against zero-length: `activeSearches.length > 0 ? Math.round(...) : 0`. Displayed as `€${avgMarginValue.toLocaleString()}` at line 58, so yields \"€0\" when no active searches."
+      },
+      {
+        "acId": "AC-7",
+        "text": "The Searches subtitle platform count is a computed value — it changes if a search with a new platform source were added to mock data",
+        "status": "pass",
+        "evidence": "Searches.jsx:36 `const platformCount = new Set(searches.flatMap(s => s.sources)).size` — derived from searches state via Set/flatMap. Used in subtitle at Searches.jsx:46, not hardcoded."
+      },
+      {
+        "acId": "AC-8",
+        "text": "No internal navigation link in Login or Signup uses a bare `<a href>` element; all use `<Link to>`",
+        "status": "pass",
+        "evidence": "Login.jsx:5 imports Link; Login.jsx:94 uses `<Link to=\"/signup\">`. Signup.jsx:4 imports Link; Signup.jsx:60 `<Link to=\"/login\">` (step 3 button); Signup.jsx:66 `<Link to=\"/login\">` (step 1 return link). Remaining `<a href=\"#\">` elements in Login are external/placeholder links (forgot password, terms, privacy, support), not internal app routes."
+      }
+    ],
+    "headlineFindings": [],
+    "requiredChanges": [],
+    "codeQualityFindings": [],
+    "securityFindings": [],
+    "decisions": [
+      "ISV, totalCost, and marginEst are computed at render time in AlertHistory rather than updating mock data fields — avoids mutating the mock data shape beyond adding the required vehicle spec inputs and ensures displayed values automatically reflect spec data changes.",
+      "ISV computation pre-calculated into alertsWithISV array before the filter pipeline so that the margin filter also uses the derived marginEst rather than the stale mock value — consistent filtering and display.",
+      "Two items from the original intent check (brand/margin filters, catch-all route) were already correctly implemented in the codebase; scope was refocused on the four remaining genuine fixes."
+    ],
+    "revision": 1
+  }
 }
