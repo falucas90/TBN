@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { Card, Button } from '../components/ui';
 import { FormField, CurrencyInput } from '../components/forms';
-import { mockUser } from '../data/mock-data';
 import { Save, Download, Trash2, Mail, Building } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
 
 export default function Settings() {
   const { addToast } = useToast();
-  const [transportCost, setTransportCost] = useState(mockUser.defaultTransportCost);
+  const { currentUser } = useAuth();
+  const [transportCost, setTransportCost] = useState(currentUser?.defaultTransportCost ?? 800);
   const [minMargin, setMinMargin] = useState(2000);
 
   return (
@@ -22,20 +23,20 @@ export default function Settings() {
             <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1.5rem' }}>Perfil da Conta</h2>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
               <FormField label="Nome Completo">
-                <input type="text" defaultValue={mockUser.name} style={{
+                <input type="text" defaultValue={currentUser?.name} style={{
                   padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', fontSize: '0.875rem', fontFamily: 'inherit', outline: 'none'
                 }} />
               </FormField>
               <FormField label="Nome da Empresa">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.625rem 0' }}>
                   <Building size={18} style={{ color: 'var(--color-text-secondary)' }} />
-                  <span style={{ fontWeight: '500' }}>{mockUser.company}</span>
+                  <span style={{ fontWeight: '500' }}>{currentUser?.company}</span>
                 </div>
               </FormField>
               <FormField label="Endereço de Email">
                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.625rem 0' }}>
                   <Mail size={18} style={{ color: 'var(--color-text-secondary)' }} />
-                  <span style={{ fontWeight: '500' }}>{mockUser.email}</span>
+                  <span style={{ fontWeight: '500' }}>{currentUser?.email}</span>
                 </div>
               </FormField>
               <FormField label="Telefone / WhatsApp">

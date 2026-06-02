@@ -1,16 +1,17 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Search, Bell, Settings, LogOut, Car, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Bell, Settings, LogOut, Car, ChevronLeft, ChevronRight, Shield } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export default function Sidebar({ isCollapsed, setIsCollapsed }) {
-  const { logout } = useAuth();
+  const { logout, currentUser } = useAuth();
   const width = isCollapsed ? '80px' : '240px';
 
   const navItems = [
     { to: '/searches', icon: Search, label: 'Pesquisas' },
     { to: '/alerts', icon: Bell, label: 'Alertas' },
     { to: '/settings', icon: Settings, label: 'Definições' },
+    ...(currentUser?.role === 'admin' ? [{ to: '/admin', icon: Shield, label: 'Admin' }] : []),
   ];
 
   return (
