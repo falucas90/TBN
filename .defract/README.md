@@ -6,7 +6,10 @@ This project uses [defract](https://defract.dev) for structured AI-assisted deve
 
 | Task | Stage | Status |
 |------|-------|--------|
-| Audit codebase for needed improvements and fixes | scope | active |
+| Add authentication and admin view | implementation | active |
+| Audit codebase for needed improvements and fixes | implementation | active |
+| Replace mock data with real data sources | scope | active |
+| Wire up real auth backend, self-service flows, and role management | scope | active |
 | Add a catch-all redirect route in App.jsx | release | completed |
 | Add delete support to the Searches page | release | completed |
 | Apply brand and margin filters in AlertHistory | release | completed |

@@ -1,11 +1,11 @@
 {
   "id": "task-add-authentication-and-admin-view-01kt54czr1xn",
   "status": "active",
-  "stage": "scope",
+  "stage": "implementation",
   "phase": 0,
   "totalPhases": 1,
   "createdAt": "2026-06-02T21:38:56Z",
-  "updatedAt": "2026-06-02T21:40:02Z",
+  "updatedAt": "2026-06-02T21:44:56Z",
   "events": [
     {
       "base_branch": "main",
@@ -54,30 +54,180 @@
       "timed_out": false,
       "timestamp": "2026-06-02T21:40:02Z",
       "type": "agent_exited"
+    },
+    {
+      "change_summary": "Full scope: credential auth, user roles, and admin panel in one implementation phase",
+      "revision": 2,
+      "timestamp": "2026-06-02T21:41:39Z",
+      "type": "scope_update"
+    },
+    {
+      "rationale": "New user-visible functionality (admin panel, credential login) skips design because all UI patterns are already established in existing pages — Admin panel follows AlertHistory layout, no novel components needed. Skips architecture because the auth pattern is already in place (ProtectedRoute exists), admin is a straightforward role check on the existing context, and all changes are confined to 6 files in a single subsystem.",
+      "stages": [
+        "scope",
+        "implementation",
+        "review",
+        "release"
+      ],
+      "template": "full-feature",
+      "tier": "standard",
+      "timestamp": "2026-06-02T21:41:49Z",
+      "type": "workflow_classified"
+    },
+    {
+      "alternatives_considered": [],
+      "decision": "Auth context starts unauthenticated (useState(false)) and login() validates credentials against a mockUsers array",
+      "rationale": "The current useState(true) stub exists only to unblock UI development. Making it false is the minimum change to enforce the login gate without touching any other route logic — ProtectedRoute already does the right thing once the initial state is correct.",
+      "timestamp": "2026-06-02T21:41:55Z",
+      "type": "decision"
+    },
+    {
+      "alternatives_considered": [],
+      "decision": "Admin protection is a new AdminRoute guard in App.jsx, not an extension of ProtectedRoute",
+      "rationale": "ProtectedRoute only checks isAuthenticated. Admin protection additionally checks currentUser.role. Keeping them separate preserves the single-responsibility principle and avoids adding a prop to every non-admin ProtectedRoute call.",
+      "timestamp": "2026-06-02T21:42:00Z",
+      "type": "decision"
+    },
+    {
+      "stage": "scope",
+      "summary": "Full scope written as revision 2. Single implementation phase covering: AuthContext fix (start unauthenticated, add credential validation), mockUsers array with dealer + admin accounts, Login form with controlled inputs and error state, conditional Admin nav item in Sidebar, new Admin page listing dealer accounts, and AdminRoute guard in App.jsx. Workflow: scope → implementation → review → release (design and architecture skipped — existing UI patterns cover the admin panel, auth pattern already established).",
+      "timestamp": "2026-06-02T21:42:07Z",
+      "type": "stage_work_complete",
+      "worktree_head": "6ad013df1fac916b1fc0633da3f56d001f3ba49a",
+      "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "base_branch": "main",
+      "merged_commits": 1,
+      "timestamp": "2026-06-02T21:42:33Z",
+      "type": "worktree_synced"
+    },
+    {
+      "actor": null,
+      "stage": "scope",
+      "timestamp": "2026-06-02T21:42:30Z",
+      "type": "stage_approved"
+    },
+    {
+      "current_worktree_head": "7c3c7de0edd8018aabc6b08b9ecd38a386881528",
+      "current_worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stage": "scope",
+      "stale_worktree_head": "6ad013df1fac916b1fc0633da3f56d001f3ba49a",
+      "stale_worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timestamp": "2026-06-02T21:42:33Z",
+      "type": "worktree_drift_detected",
+      "what_changed": "HEAD"
+    },
+    {
+      "note": "automatic — worktree drift recovery",
+      "stage": "scope",
+      "timestamp": "2026-06-02T21:42:33Z",
+      "type": "work_resumed"
+    },
+    {
+      "from": "scope",
+      "timestamp": "2026-06-02T21:42:33Z",
+      "to": "implementation",
+      "type": "stage_advanced"
+    },
+    {
+      "base_branch": "main",
+      "reason": "already_up_to_date",
+      "timestamp": "2026-06-02T21:42:33Z",
+      "type": "worktree_sync_skipped"
+    },
+    {
+      "mode": "start",
+      "session_id": "01kt54kkhksnypq4xt80nxbs37",
+      "stage": "implementation",
+      "timestamp": "2026-06-02T21:42:33Z",
+      "type": "stage_agent_started"
+    },
+    {
+      "exit_code": 143,
+      "session_id": "01kt54f0fahg6qqhyx6fr4veq4",
+      "timed_out": false,
+      "timestamp": "2026-06-02T21:42:33Z",
+      "type": "agent_exited"
+    },
+    {
+      "action": "sweep",
+      "phase": 0,
+      "rationale": "Divergence is a sync commit pulling in main — legitimate baseline update that should land with the implementation stage.",
+      "stage": "implementation",
+      "timestamp": "2026-06-02T21:42:52Z",
+      "type": "worktree_drift_resolved"
+    },
+    {
+      "note": "Starting phase 1: credential auth, logout enforcement, admin panel",
+      "phase": 0,
+      "stage": "implementation",
+      "timestamp": "2026-06-02T21:42:58Z",
+      "type": "work_resumed"
+    },
+    {
+      "description": "Starting phase 1: Credential login, logout enforcement, and admin panel",
+      "percentage": 0,
+      "phase": 1,
+      "timestamp": "2026-06-02T21:43:02Z",
+      "type": "progress_report"
+    },
+    {
+      "description": "Implementing core changes across all 6 files",
+      "percentage": 20,
+      "phase": 1,
+      "timestamp": "2026-06-02T21:43:25Z",
+      "type": "progress_report"
+    },
+    {
+      "description": "Running verification checks",
+      "percentage": 60,
+      "phase": 1,
+      "timestamp": "2026-06-02T21:44:56Z",
+      "type": "progress_report"
     }
   ],
+  "needsArchitecture": false,
+  "needsDesign": false,
+  "workflow": {
+    "tier": "standard",
+    "template": "full-feature",
+    "stages": [
+      "scope",
+      "implementation",
+      "review",
+      "release"
+    ],
+    "classifiedBy": "scope-agent",
+    "rationale": "New user-visible functionality (admin panel, credential login) skips design because all UI patterns are already established in existing pages — Admin panel follows AlertHistory layout, no novel components needed. Skips architecture because the auth pattern is already in place (ProtectedRoute exists), admin is a straightforward role check on the existing context, and all changes are confined to 6 files in a single subsystem."
+  },
+  "stageApprovals": {
+    "scope": "2026-06-02T21:42:30Z"
+  },
   "stages": {
+    "scope": {
+      "status": "approved",
+      "approvedAt": "2026-06-02T21:42:30Z",
+      "startedAt": "2026-06-02T21:40:02Z"
+    },
+    "design": {
+      "status": "skipped"
+    },
     "release": {
       "status": "not_started"
     },
-    "review": {
-      "status": "not_started"
-    },
-    "design": {
-      "status": "not_started"
-    },
     "implementation": {
-      "status": "not_started"
+      "status": "in_progress",
+      "startedAt": "2026-06-02T21:42:33Z"
     },
     "architecture": {
-      "status": "not_started"
+      "status": "skipped"
     },
-    "scope": {
-      "status": "in_progress",
-      "startedAt": "2026-06-02T21:40:02Z"
+    "review": {
+      "status": "not_started"
     }
   },
   "worktreePath": "/Users/franciscolucas/Documents/TBN/.defract-worktrees/task-add-authentication-and-admin-view-01kt54czr1xn",
   "worktreeBaseBranch": "main",
-  "worktreeLastSyncedAt": "2026-06-02T21:40:02Z"
+  "worktreeLastSyncedAt": "2026-06-02T21:42:33Z"
 }

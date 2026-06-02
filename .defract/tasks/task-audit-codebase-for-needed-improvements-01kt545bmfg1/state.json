@@ -1,11 +1,11 @@
 {
   "id": "task-audit-codebase-for-needed-improvements-01kt545bmfg1",
   "status": "active",
-  "stage": "scope",
+  "stage": "implementation",
   "phase": 0,
   "totalPhases": 1,
   "createdAt": "2026-06-02T21:34:46Z",
-  "updatedAt": "2026-06-02T21:34:46Z",
+  "updatedAt": "2026-06-02T21:44:54Z",
   "events": [
     {
       "base_branch": "main",
@@ -20,18 +20,202 @@
       "stage": "scope",
       "timestamp": "2026-06-02T21:34:46Z",
       "type": "stage_agent_started"
+    },
+    {
+      "change_summary": "Intent check: fix alert filters, wire ISV calculator, add catch-all route",
+      "revision": 1,
+      "timestamp": "2026-06-02T21:35:21Z",
+      "type": "scope_update"
+    },
+    {
+      "stage": "scope",
+      "summary": "Intent check pushed: three known broken behaviors targeted — non-functional alert filters, hardcoded ISV values, and missing catch-all route. Review and approve in the UI to continue, or reply here with changes.",
+      "timestamp": "2026-06-02T21:35:26Z",
+      "type": "stage_work_complete",
+      "worktree_head": "08e27d9a83441a689306a4a5384f25f80c7d236a",
+      "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "base_branch": "main",
+      "merged_commits": 1,
+      "timestamp": "2026-06-02T21:36:38Z",
+      "type": "worktree_synced"
+    },
+    {
+      "mode": "approve_initial",
+      "session_id": "01kt548rt5rj4a92rct51r2bp6",
+      "stage": "scope",
+      "timestamp": "2026-06-02T21:36:38Z",
+      "type": "stage_agent_started"
+    },
+    {
+      "note": "Writing full scope (revision 2) after codebase audit in approve_initial mode",
+      "phase": 0,
+      "stage": "scope",
+      "timestamp": "2026-06-02T21:40:29Z",
+      "type": "work_resumed"
+    },
+    {
+      "change_summary": "Full scope written after codebase audit — 4 real fixes identified (ISV wiring, text search, dashboard stats, href→Link); 2 items from intent check already implemented",
+      "revision": 2,
+      "timestamp": "2026-06-02T21:41:28Z",
+      "type": "scope_update"
+    },
+    {
+      "rationale": "All changes are fixes to existing broken or stub behavior across 5 files — no new UI patterns (skip design) and no new system boundaries (skip architecture). Single well-contained implementation phase.",
+      "stages": [
+        "scope",
+        "implementation",
+        "review",
+        "release"
+      ],
+      "template": "bug-fix",
+      "tier": "standard",
+      "timestamp": "2026-06-02T21:41:36Z",
+      "type": "workflow_classified"
+    },
+    {
+      "alternatives_considered": [],
+      "decision": "Two items from the intent check (brand/margin filters, catch-all route) were already correctly implemented in the codebase. The scope was refocused on the four remaining issues found during audit: ISV calculator not wired, text search input unconnected, Searches stats hardcoded, and bare href navigation links.",
+      "rationale": "The project profile used to generate the intent check was out of date. A live read of AlertHistory.jsx (lines 14-16) and App.jsx (line 35) confirmed both items were already in place. Scoping to already-done work would have produced a no-op implementation phase.",
+      "timestamp": "2026-06-02T21:41:44Z",
+      "type": "decision"
+    },
+    {
+      "alternatives_considered": [],
+      "decision": "ISV, totalCost, and marginEst are computed at render time in AlertHistory rather than updating the mock data fields. The existing hardcoded fields in mockAlerts remain in place for reference.",
+      "rationale": "Computing at render time avoids mutating the mock data shape beyond adding the required vehicle spec inputs (cc, co2, fuelType, ageYears). It also means the displayed values automatically reflect spec data changes without additional sync logic.",
+      "timestamp": "2026-06-02T21:41:52Z",
+      "type": "decision"
+    },
+    {
+      "stage": "scope",
+      "summary": "Full scope written as revision 2. Audit found 2 of 4 intent-check items already implemented; scope covers the 4 real remaining fixes: wire calculateISV to alert cards (requires adding cc/co2/fuelType/ageYears to mockAlerts), connect text search filter, derive Searches stats from component state, and replace href navigation with Link. Single bug-fix phase, 5 files, no architecture or design stages needed.",
+      "timestamp": "2026-06-02T21:41:59Z",
+      "type": "stage_work_complete",
+      "worktree_head": "a3ee9f9bd21d65045102d24daf7af22e9c76685a",
+      "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "base_branch": "main",
+      "merged_commits": 1,
+      "timestamp": "2026-06-02T21:42:14Z",
+      "type": "worktree_synced"
+    },
+    {
+      "actor": null,
+      "stage": "scope",
+      "timestamp": "2026-06-02T21:42:12Z",
+      "type": "stage_approved"
+    },
+    {
+      "current_worktree_head": "c2160a319cc1f47d682ac26cea71870f96af51b3",
+      "current_worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stage": "scope",
+      "stale_worktree_head": "a3ee9f9bd21d65045102d24daf7af22e9c76685a",
+      "stale_worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timestamp": "2026-06-02T21:42:14Z",
+      "type": "worktree_drift_detected",
+      "what_changed": "HEAD"
+    },
+    {
+      "note": "automatic — worktree drift recovery",
+      "stage": "scope",
+      "timestamp": "2026-06-02T21:42:14Z",
+      "type": "work_resumed"
+    },
+    {
+      "from": "scope",
+      "timestamp": "2026-06-02T21:42:14Z",
+      "to": "implementation",
+      "type": "stage_advanced"
+    },
+    {
+      "base_branch": "main",
+      "reason": "already_up_to_date",
+      "timestamp": "2026-06-02T21:42:14Z",
+      "type": "worktree_sync_skipped"
+    },
+    {
+      "mode": "start",
+      "session_id": "01kt54k12t9b83fahmw9rghwm9",
+      "stage": "implementation",
+      "timestamp": "2026-06-02T21:42:14Z",
+      "type": "stage_agent_started"
+    },
+    {
+      "exit_code": 143,
+      "session_id": "01kt548rt5rj4a92rct51r2bp6",
+      "timed_out": false,
+      "timestamp": "2026-06-02T21:42:14Z",
+      "type": "agent_exited"
+    },
+    {
+      "action": "sweep",
+      "phase": 0,
+      "rationale": "The divergence is a single automatic sync commit (c2160a3) that pulled main into the feature branch — legitimate orchestrator work, nothing to discard",
+      "stage": "implementation",
+      "timestamp": "2026-06-02T21:42:31Z",
+      "type": "worktree_drift_resolved"
+    },
+    {
+      "description": "Starting phase 1: Fix all stubbed and inconsistent behaviors",
+      "percentage": 0,
+      "phase": 1,
+      "timestamp": "2026-06-02T21:42:37Z",
+      "type": "progress_report"
+    },
+    {
+      "note": "Starting phase 1 implementation: wire ISV calculator, connect text search, derive stats, fix navigation links",
+      "phase": 0,
+      "stage": "implementation",
+      "timestamp": "2026-06-02T21:43:40Z",
+      "type": "work_resumed"
+    },
+    {
+      "description": "Implementing core changes across 5 files",
+      "percentage": 20,
+      "phase": 1,
+      "timestamp": "2026-06-02T21:43:43Z",
+      "type": "progress_report"
+    },
+    {
+      "description": "Running verification checks",
+      "percentage": 60,
+      "phase": 1,
+      "timestamp": "2026-06-02T21:44:54Z",
+      "type": "progress_report"
     }
   ],
+  "needsArchitecture": false,
+  "needsDesign": false,
+  "workflow": {
+    "tier": "standard",
+    "template": "bug-fix",
+    "stages": [
+      "scope",
+      "implementation",
+      "review",
+      "release"
+    ],
+    "classifiedBy": "scope-agent",
+    "rationale": "All changes are fixes to existing broken or stub behavior across 5 files — no new UI patterns (skip design) and no new system boundaries (skip architecture). Single well-contained implementation phase."
+  },
+  "stageApprovals": {
+    "scope": "2026-06-02T21:42:12Z"
+  },
   "stages": {
-    "implementation": {
-      "status": "not_started"
-    },
-    "design": {
-      "status": "not_started"
-    },
     "scope": {
+      "status": "approved",
+      "approvedAt": "2026-06-02T21:42:12Z",
+      "startedAt": "2026-06-02T21:36:38Z"
+    },
+    "implementation": {
       "status": "in_progress",
-      "startedAt": "2026-06-02T21:34:46Z"
+      "startedAt": "2026-06-02T21:42:14Z"
+    },
+    "architecture": {
+      "status": "skipped"
     },
     "review": {
       "status": "not_started"
@@ -39,10 +223,11 @@
     "release": {
       "status": "not_started"
     },
-    "architecture": {
-      "status": "not_started"
+    "design": {
+      "status": "skipped"
     }
   },
   "worktreePath": "/Users/franciscolucas/Documents/TBN/.defract-worktrees/task-audit-codebase-for-needed-improvements-01kt545bmfg1",
-  "worktreeBaseBranch": "main"
+  "worktreeBaseBranch": "main",
+  "worktreeLastSyncedAt": "2026-06-02T21:42:14Z"
 }
