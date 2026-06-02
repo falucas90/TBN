@@ -1,11 +1,11 @@
 {
   "id": "task-wire-up-real-auth-backend-self-service-01kt54r3w2d4",
   "status": "active",
-  "stage": "scope",
+  "stage": "design",
   "phase": 0,
-  "totalPhases": 1,
+  "totalPhases": 3,
   "createdAt": "2026-06-02T21:45:00Z",
-  "updatedAt": "2026-06-02T21:45:26Z",
+  "updatedAt": "2026-06-02T21:57:49Z",
   "events": [
     {
       "base_branch": "main",
@@ -34,29 +34,145 @@
       "type": "stage_work_complete",
       "worktree_head": "ce1565c74d4994331e7f28062169872e0adba1bb",
       "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "base_branch": "main",
+      "merged_commits": 15,
+      "timestamp": "2026-06-02T21:53:45Z",
+      "type": "worktree_synced"
+    },
+    {
+      "mode": "approve_initial",
+      "session_id": "01kt55848v9d7dws17mzxv7qmp",
+      "stage": "scope",
+      "timestamp": "2026-06-02T21:53:45Z",
+      "type": "stage_agent_started"
+    },
+    {
+      "change_summary": "Full scope: 14 requirements, 12 acceptance criteria, 3 phases — core auth wire-up, self-service flows, admin role management",
+      "revision": 2,
+      "timestamp": "2026-06-02T21:56:24Z",
+      "type": "scope_update"
+    },
+    {
+      "rationale": "New UI pages required (forgot-password, reset-password, verify-email) → include design. Touches 4+ subsystems (AuthContext, Login, Signup, Admin, Settings, new routes) and introduces a new external dependency (auth provider SDK) with security implications → include architecture. Cross-cutting changes to 7+ files with no existing backend integration pattern to follow. Tier is full: new subsystems, external integration, 10+ files.",
+      "stages": [
+        "scope",
+        "design",
+        "architecture",
+        "implementation",
+        "review",
+        "release"
+      ],
+      "template": "full-feature",
+      "tier": "full",
+      "timestamp": "2026-06-02T21:56:33Z",
+      "type": "workflow_classified"
+    },
+    {
+      "alternatives_considered": [],
+      "decision": "Auth provider choice deferred to architecture stage",
+      "rationale": "The builder's brief does not specify a provider. Supabase is recommended (single SDK covers all required primitives: email/password, OAuth, email verification, password reset, admin API, session persistence). Firebase Auth and Auth0 are alternatives. This choice gates all three phases — the architecture stage must confirm it before implementation begins so the SDK calls are not written against the wrong abstraction.",
+      "timestamp": "2026-06-02T21:56:39Z",
+      "type": "decision"
+    },
+    {
+      "alternatives_considered": [],
+      "decision": "Role storage approach deferred to architecture stage",
+      "rationale": "Two options: store roles in the provider's user_metadata field (simple, no extra table, works entirely within the auth SDK) vs. a dedicated profiles table in the provider's database (more scalable, enables richer user data). The Admin API mutation that changes roles must be guarded server-side (service_role key or RLS) regardless of which approach is chosen — this is a security requirement, not just a design preference.",
+      "timestamp": "2026-06-02T21:56:45Z",
+      "type": "decision"
+    },
+    {
+      "stage": "scope",
+      "summary": "Full scope written as revision 2. 14 requirements across 4 categories (auth core, self-service flows, admin role management, settings/profile), 12 acceptance criteria, 3 phases. Workflow classified as full-feature (scope → design → architecture → implementation → review → release). Two key decisions deferred to architecture: auth provider choice (Supabase recommended) and role storage strategy. The biggest risk — provider choice gating all phases — is flagged in Scope Summary and Technical Notes.",
+      "timestamp": "2026-06-02T21:56:57Z",
+      "type": "stage_work_complete",
+      "worktree_head": "f3f31bef87079f869eaaaae6b7ffba7bc700685d",
+      "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "base_branch": "main",
+      "reason": "already_up_to_date",
+      "timestamp": "2026-06-02T21:57:49Z",
+      "type": "worktree_sync_skipped"
+    },
+    {
+      "actor": null,
+      "stage": "scope",
+      "timestamp": "2026-06-02T21:57:49Z",
+      "type": "stage_approved"
+    },
+    {
+      "from": "scope",
+      "timestamp": "2026-06-02T21:57:49Z",
+      "to": "design",
+      "type": "stage_advanced"
+    },
+    {
+      "base_branch": "main",
+      "reason": "already_up_to_date",
+      "timestamp": "2026-06-02T21:57:49Z",
+      "type": "worktree_sync_skipped"
+    },
+    {
+      "mode": "start",
+      "session_id": "01kt55fjf1p8fnmxf6vyvzn1xh",
+      "stage": "design",
+      "timestamp": "2026-06-02T21:57:49Z",
+      "type": "stage_agent_started"
+    },
+    {
+      "exit_code": 143,
+      "session_id": "01kt55848v9d7dws17mzxv7qmp",
+      "timed_out": false,
+      "timestamp": "2026-06-02T21:57:49Z",
+      "type": "agent_exited"
     }
   ],
+  "needsArchitecture": true,
+  "needsDesign": true,
+  "workflow": {
+    "tier": "full",
+    "template": "full-feature",
+    "stages": [
+      "scope",
+      "design",
+      "architecture",
+      "implementation",
+      "review",
+      "release"
+    ],
+    "classifiedBy": "scope-agent",
+    "rationale": "New UI pages required (forgot-password, reset-password, verify-email) → include design. Touches 4+ subsystems (AuthContext, Login, Signup, Admin, Settings, new routes) and introduces a new external dependency (auth provider SDK) with security implications → include architecture. Cross-cutting changes to 7+ files with no existing backend integration pattern to follow. Tier is full: new subsystems, external integration, 10+ files."
+  },
+  "stageApprovals": {
+    "scope": "2026-06-02T21:57:49Z"
+  },
   "stages": {
-    "implementation": {
+    "release": {
       "status": "not_started"
     },
     "architecture": {
       "status": "not_started"
     },
-    "design": {
+    "implementation": {
       "status": "not_started"
     },
     "scope": {
-      "status": "awaiting_approval",
-      "startedAt": "2026-06-02T21:45:00Z"
+      "status": "approved",
+      "approvedAt": "2026-06-02T21:57:49Z",
+      "startedAt": "2026-06-02T21:53:45Z"
     },
     "review": {
       "status": "not_started"
     },
-    "release": {
-      "status": "not_started"
+    "design": {
+      "status": "in_progress",
+      "startedAt": "2026-06-02T21:57:49Z"
     }
   },
   "worktreePath": "/Users/franciscolucas/Documents/TBN/.defract-worktrees/task-wire-up-real-auth-backend-self-service-01kt54r3w2d4",
-  "worktreeBaseBranch": "main"
+  "worktreeBaseBranch": "main",
+  "worktreeLastSyncedAt": "2026-06-02T21:57:49Z"
 }
