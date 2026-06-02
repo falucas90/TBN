@@ -2,18 +2,28 @@ import React, { useState } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { Card, Badge, Button } from '../components/ui';
 import { mockAlerts } from '../data/mock-data';
+import { calculateISV } from '../lib/isv';
 import { ExternalLink, Search } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 
 export default function AlertHistory() {
   const { addToast } = useToast();
-  
+
   const [filterBrand, setFilterBrand] = useState('all');
   const [filterMargin, setFilterMargin] = useState('all');
+  const [searchText, setSearchText] = useState('');
 
-  const filteredAlerts = mockAlerts
+  const alertsWithISV = mockAlerts.map(alert => {
+    const { isvPayable } = calculateISV(alert.cc, alert.co2, alert.fuelType, alert.ageYears, alert.flags.includes('PHEV'), false);
+    const totalCost = alert.priceOriginal + isvPayable + alert.transportEst;
+    const marginEst = alert.marketPrice - totalCost;
+    return { ...alert, isvPayable, totalCost, marginEst };
+  });
+
+  const filteredAlerts = alertsWithISV
     .filter(a => filterBrand === 'all' || a.carTitle.toLowerCase().includes(filterBrand))
-    .filter(a => filterMargin === 'all' || a.marginEst >= parseInt(filterMargin));
+    .filter(a => filterMargin === 'all' || a.marginEst >= parseInt(filterMargin))
+    .filter(a => !searchText || a.carTitle.toLowerCase().includes(searchText.toLowerCase()));
 
   // Group by date
   const groupedAlerts = filteredAlerts.reduce((acc, alert) => {
@@ -34,9 +44,13 @@ export default function AlertHistory() {
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
             <div style={{ position: 'relative' }}>
               <Search size={16} style={{ position: 'absolute', left: '12px', top: '10px', color: 'var(--color-text-secondary)' }} />
-              <input type="text" placeholder="Pesquisar carros..." style={{
-                padding: '0.5rem 1rem 0.5rem 2.25rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none'
-              }} />
+              <input
+                type="text"
+                placeholder="Pesquisar carros..."
+                value={searchText}
+                onChange={e => setSearchText(e.target.value)}
+                style={{ padding: '0.5rem 1rem 0.5rem 2.25rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }}
+              />
             </div>
             
             <select 
@@ -86,9 +100,9 @@ export default function AlertHistory() {
                       <h4 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>{alert.carTitle}</h4>
                       <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
                         <span>Preço Anúncio: €{alert.priceOriginal.toLocaleString()}</span>
-                        <span>+ ISV: €{alert.isvEst.toLocaleString()}</span>
+                        <span>+ ISV: €{Math.round(alert.isvPayable).toLocaleString()}</span>
                         <span>+ Transp.: €{alert.transportEst.toLocaleString()}</span>
-                        <span style={{ fontWeight: '500', color: 'var(--color-text-primary)' }}>Total: €{alert.totalCost.toLocaleString()}</span>
+                        <span style={{ fontWeight: '500', color: 'var(--color-text-primary)' }}>Total: €{Math.round(alert.totalCost).toLocaleString()}</span>
                       </div>
                     </div>
 
@@ -96,7 +110,7 @@ export default function AlertHistory() {
                       <div style={{ textAlign: 'right' }}>
                          <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>Margem Est.</div>
                          <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-success-text)' }}>
-                           €{alert.marginEst.toLocaleString()}
+                           €{Math.round(alert.marginEst).toLocaleString()}
                          </div>
                       </div>
                       <Button onClick={() => addToast('A abrir anúncio original...', 'info')}><ExternalLink size={16} /> Ver</Button>

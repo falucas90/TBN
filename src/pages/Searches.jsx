@@ -27,15 +27,23 @@ export default function Searches() {
     addToast('Pesquisa eliminada.', 'warn');
   };
 
+  const activeSearches = searches.filter(s => s.status === 'active');
+  const matchesToday = activeSearches.reduce((sum, s) => sum + s.matchesToday, 0);
+  const highMarginCount = activeSearches.filter(s => s.avgMargin > 3000).length;
+  const avgMarginValue = activeSearches.length > 0
+    ? Math.round(activeSearches.reduce((sum, s) => sum + s.avgMargin, 0) / activeSearches.length)
+    : 0;
+  const platformCount = new Set(searches.flatMap(s => s.sources)).size;
+
   return (
     <AppLayout>
       <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
-        
+
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
           <div>
             <h1 style={{ fontSize: '1.875rem', fontWeight: '700', marginBottom: '0.25rem' }}>Pesquisas Ativas</h1>
-            <p style={{ color: 'var(--color-text-secondary)' }}>Está a acompanhar {searches.length} pesquisas em 2 plataformas.</p>
+            <p style={{ color: 'var(--color-text-secondary)' }}>Está a acompanhar {searches.length} pesquisas em {platformCount} plataformas.</p>
           </div>
           <Link to="/searches/new">
             <Button><Plus size={18} /> Nova pesquisa</Button>
@@ -44,10 +52,10 @@ export default function Searches() {
 
         {/* Stats Row */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '3rem' }}>
-          <StatCard label="Matches Hoje" value="3" trend="+1" trendLabel="vs ontem" icon={Search} />
-          <StatCard label="Alta Margem" value="1" trend="↑" trendLabel="top tier" icon={TrendingUp} />
+          <StatCard label="Matches Hoje" value={String(matchesToday)} trend="+1" trendLabel="vs ontem" icon={Search} />
+          <StatCard label="Alta Margem" value={String(highMarginCount)} trend="↑" trendLabel="top tier" icon={TrendingUp} />
           <StatCard label="Alertas (7d)" value="12" trend="-2%" trendLabel="vs semana passada" icon={Bell} />
-          <StatCard label="Margem Média" value="€2,650" trend="+€120" trendLabel="vs mês passado" icon={TrendingUp} />
+          <StatCard label="Margem Média" value={`€${avgMarginValue.toLocaleString()}`} trend="+€120" trendLabel="vs mês passado" icon={TrendingUp} />
         </div>
 
         {/* Searches List */}

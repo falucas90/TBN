@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from '../components/ui';
 import { FormField } from '../components/forms';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 export default function Login() {
   const { login } = useAuth();
@@ -91,7 +91,7 @@ export default function Login() {
             </form>
             
             <div style={{ marginTop: '2.5rem', textAlign: 'center', fontSize: '0.9rem', color: '#555' }}>
-              Não tem uma conta? <a href="/signup" style={{ color: '#0066FF', fontWeight: '500', textDecoration: 'none' }}>Registe-se</a>
+              Não tem uma conta? <Link to="/signup" style={{ color: '#0066FF', fontWeight: '500', textDecoration: 'none' }}>Registe-se</Link>
             </div>
           </div>
         </div>
