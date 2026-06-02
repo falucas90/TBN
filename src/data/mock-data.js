@@ -42,7 +42,7 @@ export const mockAlerts = [
     transportEst: 800,
     totalCost: 27750,
     marketPrice: 33000,
-    marginEst: 5250,
+    marginEst: 3500,
     flags: ['PHEV']
   },
   {

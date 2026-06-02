@@ -11,8 +11,12 @@ export default function AlertHistory() {
   const [filterBrand, setFilterBrand] = useState('all');
   const [filterMargin, setFilterMargin] = useState('all');
 
+  const filteredAlerts = mockAlerts
+    .filter(a => filterBrand === 'all' || a.carTitle.toLowerCase().includes(filterBrand))
+    .filter(a => filterMargin === 'all' || a.marginEst >= parseInt(filterMargin));
+
   // Group by date
-  const groupedAlerts = mockAlerts.reduce((acc, alert) => {
+  const groupedAlerts = filteredAlerts.reduce((acc, alert) => {
     if (!acc[alert.date]) acc[alert.date] = [];
     acc[alert.date].push(alert);
     return acc;
@@ -60,7 +64,11 @@ export default function AlertHistory() {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-          {Object.entries(groupedAlerts).map(([date, alerts]) => (
+          {Object.keys(groupedAlerts).length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-secondary)' }}>
+              Nenhum alerta corresponde aos filtros selecionados.
+            </div>
+          ) : Object.entries(groupedAlerts).map(([date, alerts]) => (
             <div key={date}>
               <h3 style={{ fontSize: '0.875rem', fontWeight: '600', color: 'var(--color-text-secondary)', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 {date === 'Today' ? 'Hoje' : date === 'Yesterday' ? 'Ontem' : date}

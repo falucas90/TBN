@@ -22,6 +22,11 @@ export default function Searches() {
     }));
   };
 
+  const deleteSearch = (id) => {
+    setSearches(prev => prev.filter(s => s.id !== id));
+    addToast('Pesquisa eliminada.', 'warn');
+  };
+
   return (
     <AppLayout>
       <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
@@ -90,6 +95,7 @@ export default function Searches() {
                       <Link to={`/searches/${search.id}/edit`}>
                         <Button variant="ghost">Editar</Button>
                       </Link>
+                      <Button variant="ghost" onClick={() => deleteSearch(search.id)}>Eliminar</Button>
                     </div>
                   </div>
 
