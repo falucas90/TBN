@@ -1,11 +1,11 @@
 {
   "id": "task-add-authentication-and-admin-view-01kt54czr1xn",
-  "status": "active",
-  "stage": "review",
+  "status": "completed",
+  "stage": "release",
   "phase": 1,
   "totalPhases": 1,
   "createdAt": "2026-06-02T21:38:56Z",
-  "updatedAt": "2026-06-02T21:49:43Z",
+  "updatedAt": "2026-06-02T21:52:28Z",
   "events": [
     {
       "base_branch": "main",
@@ -384,6 +384,99 @@
       "type": "stage_work_complete",
       "worktree_head": "fcd1cf6620d725cca25bcd66a54c884a9893c292",
       "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "base_branch": "main",
+      "merged_commits": 1,
+      "timestamp": "2026-06-02T21:51:04Z",
+      "type": "worktree_synced"
+    },
+    {
+      "actor": null,
+      "stage": "review",
+      "timestamp": "2026-06-02T21:51:01Z",
+      "type": "stage_approved"
+    },
+    {
+      "current_worktree_head": "9ac84b678643b84dd690514e229cb600daedab93",
+      "current_worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stage": "review",
+      "stale_worktree_head": "fcd1cf6620d725cca25bcd66a54c884a9893c292",
+      "stale_worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timestamp": "2026-06-02T21:51:04Z",
+      "type": "worktree_drift_detected",
+      "what_changed": "HEAD"
+    },
+    {
+      "note": "automatic — worktree drift recovery",
+      "stage": "review",
+      "timestamp": "2026-06-02T21:51:04Z",
+      "type": "work_resumed"
+    },
+    {
+      "from": "review",
+      "timestamp": "2026-06-02T21:51:04Z",
+      "to": "release",
+      "type": "stage_advanced"
+    },
+    {
+      "base_branch": "main",
+      "reason": "already_up_to_date",
+      "timestamp": "2026-06-02T21:51:04Z",
+      "type": "worktree_sync_skipped"
+    },
+    {
+      "mode": "start",
+      "session_id": "01kt5536hks1cnbdskm9ytz6fd",
+      "stage": "release",
+      "timestamp": "2026-06-02T21:51:04Z",
+      "type": "stage_agent_started"
+    },
+    {
+      "note": "Starting release: production build, auth probe, push",
+      "phase": 1,
+      "stage": "release",
+      "timestamp": "2026-06-02T21:51:24Z",
+      "type": "work_resumed"
+    },
+    {
+      "change_summary": "Release validated — build passes, code pushed",
+      "revision": 1,
+      "stage": "release",
+      "timestamp": "2026-06-02T21:52:06Z",
+      "type": "stage_content_updated"
+    },
+    {
+      "alternatives_considered": [],
+      "decision": "Release complete — task done",
+      "rationale": "Production build passes, review approved on 2026-06-02, code committed and pushed to origin/feature/task-add-authentication-and-admin-view-01kt54czr1xn",
+      "timestamp": "2026-06-02T21:52:11Z",
+      "type": "decision"
+    },
+    {
+      "stage": "release",
+      "summary": "Production build passes (233 kB bundle), review was approved on 2026-06-02 with 8/8 acceptance criteria, branch pushed to origin. Implementation is committed as feat(task-add-authentication-and-admin-view-01kt54czr1xn): phase 1. Ready for merge.",
+      "timestamp": "2026-06-02T21:52:19Z",
+      "type": "stage_work_complete",
+      "worktree_head": "9ac84b678643b84dd690514e229cb600daedab93",
+      "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "base_branch": "main",
+      "files_changed": 7,
+      "lines_added": 151,
+      "lines_removed": 33,
+      "timestamp": "2026-06-02T21:52:27Z",
+      "type": "worktree_merged"
+    },
+    {
+      "timestamp": "2026-06-02T21:52:28Z",
+      "type": "worktree_removed"
+    },
+    {
+      "actor": null,
+      "timestamp": "2026-06-02T21:52:28Z",
+      "type": "task_completed"
     }
   ],
   "needsArchitecture": false,
@@ -401,41 +494,44 @@
     "rationale": "New user-visible functionality (admin panel, credential login) skips design because all UI patterns are already established in existing pages — Admin panel follows AlertHistory layout, no novel components needed. Skips architecture because the auth pattern is already in place (ProtectedRoute exists), admin is a straightforward role check on the existing context, and all changes are confined to 6 files in a single subsystem."
   },
   "stageApprovals": {
+    "review": "2026-06-02T21:51:01Z",
     "scope": "2026-06-02T21:42:30Z",
     "implementation": "2026-06-02T21:46:45Z"
   },
+  "completedAt": "2026-06-02T21:52:28Z",
   "stageContent": {
     "implementation": "## Phase 1: Credential login, logout enforcement, and admin panel\n\n### Files Changed\n\n- **`src/data/mock-data.js`** — Replaced `mockUser` (single object) with `mockUsers` array containing two accounts: Francisco Lucas (dealer, `francisco@flmotors.pt` / `dealer123`) and Admin Crivo (admin, `admin@crivo.pt` / `admin123`), each with `role`, `status`, `plan`, `password` fields.\n\n- **`src/context/AuthContext.jsx`** — Changed initial state to `isAuthenticated: false`, `currentUser: null`. `login(email, password)` now validates against `mockUsers`, returns `true`/`false`, and sets `currentUser` on success. `logout()` clears both. Exposes `currentUser` in context value.\n\n- **`src/pages/Login.jsx`** — Converted to controlled inputs with `email`, `password`, and `error` state. `handleLogin` calls `login(email, password)`, navigates to `/searches` on success, shows \"Credenciais inválidas\" on failure. Error clears when either field is edited.\n\n- **`src/components/layout/Sidebar.jsx`** — Reads `currentUser` from auth context; conditionally appends Admin nav item (icon: `Shield`, route: `/admin`) when `currentUser?.role === 'admin'`.\n\n- **`src/pages/Admin.jsx`** (new) — Admin panel listing all `mockUsers` in a table inside a `Card`, showing name, email, plan, and status columns. Follows existing page structure (AppLayout, padded container, heading).\n\n- **`src/App.jsx`** — Added `AdminRoute` guard (checks `isAuthenticated` then `currentUser?.role === 'admin'`, redirecting to `/login` or `/searches` respectively). Registered `/admin` route using `AdminRoute`.\n\n- **`src/pages/Settings.jsx`** — Replaced `mockUser` import with `useAuth()` hook; all references updated to `currentUser?.{field}`.\n\n### Deviations\n\nNone — implementation follows the phase spec exactly.\n\n### Build Status\n\nProduction build passes (`vite build`). ESLint reports 79 issues — all pre-existing across the codebase (unused React imports, missing prop-types); my changes introduce 2 additional issues of the identical type.",
+    "release": "## Release Notes\n\n### What was built\n- Authentication enforcement: the app now starts unauthenticated and redirects all visitors to `/login` instead of landing on the dashboard\n- Credential validation: `login(email, password)` validates against a `mockUsers` array with two mock accounts (dealer and admin), returning `true`/`false` and setting `currentUser` on success\n- Login form reworked: converted to controlled inputs with inline error state (\"Credenciais inválidas\") that clears on field edit\n- Role-aware sidebar: admin users see an additional \"Admin\" nav item (linking to `/admin`); dealer users do not\n- Admin panel at `/admin`: lists all mock dealer accounts with name, email, plan, and status columns, protected by an `AdminRoute` guard that redirects non-admin users to `/searches`\n\n### Key decisions\n- Auth context starts unauthenticated (useState(false)); login() validates credentials against mockUsers array — minimum change to enforce login gate without touching ProtectedRoute\n- AdminRoute is a separate guard from ProtectedRoute — checks isAuthenticated first, then role — keeping single-responsibility and avoiding a prop on every non-admin ProtectedRoute call\n- Settings.jsx migrated from direct mockUser import to currentUser via useAuth() — correct long-term pattern for a protected-route page\n\n### Changes by phase\n- **Phase 1: Credential login, logout enforcement, and admin panel** — Credential login enforcement, role-aware sidebar, and admin panel all implemented. AuthContext starts unauthenticated; login validates against mockUsers; AdminRoute guards /admin for admin-only access; Settings migrated from mockUser import to currentUser from auth context.\n\n## Verification\n\n### Production Build\nPASS — vite build completes cleanly; 233 kB JS bundle\n\n### Push\nPASS — branch pushed to origin/feature/task-add-authentication-and-admin-view-01kt54czr1xn\n\n### Review Reference\nApproved by reviewer on 2026-06-02 — 8/8 acceptance criteria passed, production build clean\n",
     "review": "## Verdict\n\n**Verdict:** APPROVE\n**Files reviewed:** 7 files changed across 1 phases\n\nAll 8 acceptance criteria pass. Authentication is correctly enforced from first load, credential validation works against mock data, the login error state clears on edit, and the admin role gate functions correctly for both the sidebar item and the /admin route. Production build passes.\n\n### Automated Checks\n\n| Check | Result | Details |\n|-------|--------|---------|\n| Production build | PASS | vite build completes cleanly; 233 kB JS bundle |\n| Lint | FAIL | 79 issues (77 errors, 2 warnings) — all pre-existing codebase patterns (unused React imports, missing prop-types). Implementation adds 2 issues of the identical type. Build is unaffected. |\n\n### Acceptance Criteria (8/8 passed)\n\n- [x] AC-1: Loading the app with no session redirects to `/login` (the dashboard is not visible) — PASS: AuthContext.jsx:7 — useState(false); App.jsx:16 — ProtectedRoute returns <Navigate to='/login' replace /> when !isAuthenticated\n- [x] AC-2: Submitting the login form with an unrecognised email/password shows an error message on the page without navigating away — PASS: Login.jsx:20 — setError('Credenciais inválidas') on login() returning false; Login.jsx:97-99 — error paragraph rendered below form fields; no navigate() call on failure path\n- [x] AC-3: Submitting the login form with valid mock credentials navigates to `/searches` and shows the authenticated dashboard — PASS: Login.jsx:17-18 — navigate('/searches') on success; AuthContext.jsx:11-16 — mockUsers.find() sets currentUser and isAuthenticated:true on match\n- [x] AC-4: Clicking \"Sair\" in the sidebar signs the user out and redirects to `/login`; navigating to `/searches` directly afterwards redirects back to `/login` — PASS: Sidebar.jsx:88 — logout button calls logout(); AuthContext.jsx:20-23 — logout() sets isAuthenticated:false and currentUser:null; ProtectedRoute re-renders on state change and redirects to /login\n- [x] AC-5: Signing in as the standard dealer user: the sidebar shows Pesquisas, Alertas, Definições — no Admin item visible — PASS: Sidebar.jsx:14 — Admin item only spread-appended when currentUser?.role === 'admin'; mock-data.js:70 — dealer user has role:'dealer'\n- [x] AC-6: Signing in as the admin user: the sidebar shows Pesquisas, Alertas, Definições, and Admin — PASS: Sidebar.jsx:14 — conditional spread adds { to:'/admin', icon:Shield, label:'Admin' }; mock-data.js:80 — admin user has role:'admin'\n- [x] AC-7: Navigating to `/admin` as the admin user shows a list of mock dealer accounts with name, email, plan, and status columns — PASS: Admin.jsx:20-23 — thead has Nome, Email, Plano, Estado columns; Admin.jsx:27 — tbody iterates mockUsers; App.jsx:43 — /admin route wrapped in AdminRoute which allows admin users\n- [x] AC-8: Navigating to `/admin` as a non-admin authenticated user redirects to `/searches` — PASS: App.jsx:23 — AdminRoute: if currentUser?.role !== 'admin' return <Navigate to='/searches' replace />; optional chaining ensures null currentUser also redirects\n\n### Code Quality (Refactor Review)\n\nNo code quality issues found in changed files.\n\n### Security Assessment (Security Review)\n\nNo security issues found in changed files.\n\n### Decisions Made During Implementation\n\n- Auth context starts unauthenticated (useState(false)); login() validates credentials against mockUsers array — minimum change to enforce login gate without touching ProtectedRoute\n- AdminRoute is a separate guard from ProtectedRoute — checks isAuthenticated first, then role — keeping single-responsibility and avoiding a prop on every non-admin ProtectedRoute call\n- Settings.jsx migrated from direct mockUser import to currentUser via useAuth() — correct long-term pattern for a protected-route page\n\n## Required Changes\n\nNone.\n"
   },
   "stages": {
-    "release": {
-      "status": "not_started"
-    },
     "scope": {
       "status": "approved",
       "approvedAt": "2026-06-02T21:42:30Z",
       "startedAt": "2026-06-02T21:40:02Z"
     },
+    "review": {
+      "status": "approved",
+      "approvedAt": "2026-06-02T21:51:01Z",
+      "startedAt": "2026-06-02T21:46:48Z"
+    },
+    "architecture": {
+      "status": "skipped"
+    },
     "design": {
       "status": "skipped"
+    },
+    "release": {
+      "status": "awaiting_approval",
+      "startedAt": "2026-06-02T21:51:04Z"
     },
     "implementation": {
       "status": "approved",
       "approvedAt": "2026-06-02T21:46:45Z",
       "startedAt": "2026-06-02T21:42:33Z"
-    },
-    "review": {
-      "status": "awaiting_approval",
-      "startedAt": "2026-06-02T21:46:48Z"
-    },
-    "architecture": {
-      "status": "skipped"
     }
   },
-  "worktreePath": "/Users/franciscolucas/Documents/TBN/.defract-worktrees/task-add-authentication-and-admin-view-01kt54czr1xn",
-  "worktreeBaseBranch": "main",
-  "worktreeLastSyncedAt": "2026-06-02T21:46:48Z",
+  "worktreeLastSyncedAt": "2026-06-02T21:51:04Z",
   "reviewPayload": {
     "verdict": "approve",
     "summary": "All 8 acceptance criteria pass. Authentication is correctly enforced from first load, credential validation works against mock data, the login error state clears on edit, and the admin role gate functions correctly for both the sidebar item and the /admin route. Production build passes.",

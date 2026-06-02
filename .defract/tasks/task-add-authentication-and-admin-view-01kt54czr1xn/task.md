@@ -3,7 +3,7 @@ defract:
   id: task-add-authentication-and-admin-view-01kt54czr1xn
   type: task
   status: active
-  stage: review
+  stage: release
   phase: 0
   total_phases: 1
   priority: normal
@@ -208,4 +208,34 @@ No security issues found in changed files.
 ## Required Changes
 
 None.
+
+## Release
+
+## Release Notes
+
+### What was built
+- Authentication enforcement: the app now starts unauthenticated and redirects all visitors to `/login` instead of landing on the dashboard
+- Credential validation: `login(email, password)` validates against a `mockUsers` array with two mock accounts (dealer and admin), returning `true`/`false` and setting `currentUser` on success
+- Login form reworked: converted to controlled inputs with inline error state ("Credenciais inválidas") that clears on field edit
+- Role-aware sidebar: admin users see an additional "Admin" nav item (linking to `/admin`); dealer users do not
+- Admin panel at `/admin`: lists all mock dealer accounts with name, email, plan, and status columns, protected by an `AdminRoute` guard that redirects non-admin users to `/searches`
+
+### Key decisions
+- Auth context starts unauthenticated (useState(false)); login() validates credentials against mockUsers array — minimum change to enforce login gate without touching ProtectedRoute
+- AdminRoute is a separate guard from ProtectedRoute — checks isAuthenticated first, then role — keeping single-responsibility and avoiding a prop on every non-admin ProtectedRoute call
+- Settings.jsx migrated from direct mockUser import to currentUser via useAuth() — correct long-term pattern for a protected-route page
+
+### Changes by phase
+- **Phase 1: Credential login, logout enforcement, and admin panel** — Credential login enforcement, role-aware sidebar, and admin panel all implemented. AuthContext starts unauthenticated; login validates against mockUsers; AdminRoute guards /admin for admin-only access; Settings migrated from mockUser import to currentUser from auth context.
+
+## Verification
+
+### Production Build
+PASS — vite build completes cleanly; 233 kB JS bundle
+
+### Push
+PASS — branch pushed to origin/feature/task-add-authentication-and-admin-view-01kt54czr1xn
+
+### Review Reference
+Approved by reviewer on 2026-06-02 — 8/8 acceptance criteria passed, production build clean
 
