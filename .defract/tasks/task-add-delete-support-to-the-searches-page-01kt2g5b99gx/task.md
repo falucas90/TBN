@@ -3,7 +3,7 @@ defract:
   id: task-add-delete-support-to-the-searches-page-01kt2g5b99gx
   type: task
   status: active
-  stage: implementation
+  stage: release
   phase: 0
   total_phases: 1
   priority: normal
@@ -14,8 +14,6 @@ defract:
   created_by: null
   assignee: null
 ---
-
-
 
 ## Story Brief
 
@@ -143,7 +141,7 @@ Vite production build passed. Pre-existing ESLint warning (`React` unused import
 **Verdict:** APPROVE
 **Files reviewed:** 1 files changed across 1 phases
 
-All 5 acceptance criteria pass on re-review. The deleteSearch handler and Eliminar ghost button are correctly implemented — ghost variant, correct toast text, placed outside the active/paused conditional so both card states show it. Production build passes; all ESLint errors are pre-existing baseline.
+All 5 acceptance criteria pass. The deleteSearch handler (lines 25-28) and Eliminar ghost button (line 98) are correctly implemented — ghost variant, exact toast text, placed outside the active/paused conditional so both card states show it. Production build passes; all 77 ESLint problems are pre-existing project baseline with zero new errors introduced.
 
 ### Automated Checks
 
@@ -176,4 +174,29 @@ No security issues found in changed files.
 ## Required Changes
 
 None.
+
+## Release
+
+## Release Notes
+
+### What was built
+- Added a `deleteSearch(id)` handler to `Searches.jsx` that filters the target search out of the `searches` state array and fires a warn toast confirming the action
+- Added a ghost-variant "Eliminar" button to every search card, placed immediately after the existing "Editar" button, visible on both active and paused cards
+- The page subtitle count (`searches.length`) decrements automatically on deletion via React re-render — no extra code required
+- The toast text ("Pesquisa eliminada.") and type ('warn') follow the existing convention established by the pause action
+
+### Key decisions
+- Ghost variant (not danger) used for Eliminar button — per builder's brief; keeps the destructive action visually consistent with the adjacent Editar button
+- Toast type 'warn' signals permanence without implying failure — consistent with how the existing pause action uses 'warn'
+- No confirmation dialog — deletion is immediate with toast only, as specified in scope
+
+### Changes by phase
+- **Phase 1: Add delete button and handler to each search card** — Added `deleteSearch(id)` function (filter + warn toast, mirroring `toggleSearchStatus`) and a `<Button variant="ghost">Eliminar</Button>` after the Editar link in `src/pages/Searches.jsx`. Build passes, all 5 acceptance criteria verified.
+
+## Verification
+
+- Production build: PASS (Vite, 1773 modules, dist/index.html 0.46 kB)
+- Review verdict: APPROVE (2026-06-02T21:29:07Z) — 5/5 acceptance criteria passed
+- Code committed on branch `feature/task-add-delete-support-to-the-searches-page-01kt2g5b99gx` at `db5508c`
+- Branch pushed to `git@github.com:falucas90/TBN.git` successfully
 
