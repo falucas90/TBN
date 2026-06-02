@@ -68,10 +68,27 @@ export const mockAlerts = [
   }
 ];
 
-export const mockUser = {
-  name: 'Francisco Lucas',
-  company: 'FL Motors',
-  email: 'francisco@flmotors.pt',
-  plan: 'Pro Sourcing',
-  defaultTransportCost: 800
-};
+export const mockUsers = [
+  {
+    id: 1,
+    name: 'Francisco Lucas',
+    company: 'FL Motors',
+    email: 'francisco@flmotors.pt',
+    password: 'dealer123',
+    role: 'dealer',
+    status: 'active',
+    plan: 'Pro Sourcing',
+    defaultTransportCost: 800
+  },
+  {
+    id: 2,
+    name: 'Admin Crivo',
+    company: 'Crivo',
+    email: 'admin@crivo.pt',
+    password: 'admin123',
+    role: 'admin',
+    status: 'active',
+    plan: 'Admin',
+    defaultTransportCost: 0
+  }
+];

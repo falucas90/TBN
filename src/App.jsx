@@ -9,10 +9,18 @@ import Searches from './pages/Searches';
 import CreateSearch from './pages/CreateSearch';
 import AlertHistory from './pages/AlertHistory';
 import Settings from './pages/Settings';
+import Admin from './pages/Admin';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuth();
   if (!isAuthenticated) return <Navigate to="/login" replace />;
+  return children;
+}
+
+function AdminRoute({ children }) {
+  const { isAuthenticated, currentUser } = useAuth();
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (currentUser?.role !== 'admin') return <Navigate to="/searches" replace />;
   return children;
 }
 
@@ -24,7 +32,7 @@ function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
-            
+
             {/* Protected Routes */}
             <Route path="/" element={<ProtectedRoute><Searches /></ProtectedRoute>} />
             <Route path="/searches" element={<ProtectedRoute><Searches /></ProtectedRoute>} />
@@ -32,6 +40,7 @@ function App() {
             <Route path="/searches/:id/edit" element={<ProtectedRoute><CreateSearch /></ProtectedRoute>} />
             <Route path="/alerts" element={<ProtectedRoute><AlertHistory /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>
