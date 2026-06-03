@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from 'react';
-import { mockUsers } from '../data/mock-data';
+import { loginWithCredentials } from '../services/authService';
 
 const AuthContext = createContext(null);
 
@@ -7,8 +7,8 @@ export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
 
-  const login = (email, password) => {
-    const user = mockUsers.find(u => u.email === email && u.password === password);
+  const login = async (email, password) => {
+    const user = await loginWithCredentials(email, password);
     if (user) {
       setCurrentUser(user);
       setIsAuthenticated(true);
