@@ -1,11 +1,11 @@
 {
   "id": "task-replace-mock-data-with-real-data-sources-01kt54r89hd3",
   "status": "active",
-  "stage": "scope",
+  "stage": "implementation",
   "phase": 0,
   "totalPhases": 1,
   "createdAt": "2026-06-02T21:45:06Z",
-  "updatedAt": "2026-06-02T21:45:49Z",
+  "updatedAt": "2026-06-03T14:50:00Z",
   "events": [
     {
       "base_branch": "main",
@@ -34,29 +34,192 @@
       "type": "stage_work_complete",
       "worktree_head": "ce1565c74d4994331e7f28062169872e0adba1bb",
       "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "base_branch": "main",
+      "merged_commits": 15,
+      "timestamp": "2026-06-02T21:55:34Z",
+      "type": "worktree_synced"
+    },
+    {
+      "mode": "approve_initial",
+      "session_id": "01kt55begpaag2ec1n1d78av1x",
+      "stage": "scope",
+      "timestamp": "2026-06-02T21:55:34Z",
+      "type": "stage_agent_started"
+    },
+    {
+      "change_summary": "Full scope: service abstraction layer to decouple components from mock data",
+      "revision": 2,
+      "timestamp": "2026-06-02T21:57:13Z",
+      "type": "scope_update"
+    },
+    {
+      "rationale": "Restructuring existing data access — no new UI, no new user-visible features (skip design); well-contained to 6 files and a clear service-layer pattern (skip architecture). Refactor template fits: same behaviour, better structure.",
+      "stages": [
+        "scope",
+        "implementation",
+        "review",
+        "release"
+      ],
+      "template": "refactor",
+      "tier": "standard",
+      "timestamp": "2026-06-02T21:57:19Z",
+      "type": "workflow_classified"
+    },
+    {
+      "alternatives_considered": [],
+      "decision": "Introduce a backend-agnostic `src/services/` layer as the sole seam between components and data sources. Service functions are async from day one so that swapping mock arrays for real network calls (REST or Supabase) requires no signature changes in consuming files. Mock data remains in `src/data/mock-data.js`; only service modules import from it.",
+      "rationale": "The real backend has not been decided yet. A generic async service layer satisfies any future choice without revisiting component code. The alternative — targeting a specific backend (e.g. Supabase) now — would require re-scoping if the choice changes.",
+      "timestamp": "2026-06-02T21:57:25Z",
+      "type": "decision"
+    },
+    {
+      "stage": "scope",
+      "summary": "Full scope written as revision 2. Single-phase refactor: introduce a `src/services/` directory with three async service modules (searches, alerts, auth) and update the three consumers (`Searches.jsx`, `AlertHistory.jsx`, `AuthContext.jsx`) to import from services instead of mock-data directly. App behaviour is unchanged; the service layer is the seam where real backend calls will plug in later. Workflow classified as refactor/standard. Key open question flagged in Technical Notes: real backend (REST vs. Supabase) not yet decided — deferred to a follow-up task.",
+      "timestamp": "2026-06-02T21:57:36Z",
+      "type": "stage_work_complete",
+      "worktree_head": "de907249b1c7cbfccd5c077e6f1ccf4507811681",
+      "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "base_branch": "main",
+      "merged_commits": 1,
+      "timestamp": "2026-06-02T22:00:36Z",
+      "type": "worktree_synced"
+    },
+    {
+      "actor": null,
+      "stage": "scope",
+      "timestamp": "2026-06-02T22:00:33Z",
+      "type": "stage_approved"
+    },
+    {
+      "current_worktree_head": "b6eea8eef568256d4563d650a3d5c016fa2a0b85",
+      "current_worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stage": "scope",
+      "stale_worktree_head": "de907249b1c7cbfccd5c077e6f1ccf4507811681",
+      "stale_worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timestamp": "2026-06-02T22:00:36Z",
+      "type": "worktree_drift_detected",
+      "what_changed": "HEAD"
+    },
+    {
+      "note": "automatic — worktree drift recovery",
+      "stage": "scope",
+      "timestamp": "2026-06-02T22:00:36Z",
+      "type": "work_resumed"
+    },
+    {
+      "from": "scope",
+      "timestamp": "2026-06-02T22:00:36Z",
+      "to": "implementation",
+      "type": "stage_advanced"
+    },
+    {
+      "base_branch": "main",
+      "reason": "already_up_to_date",
+      "timestamp": "2026-06-02T22:00:36Z",
+      "type": "worktree_sync_skipped"
+    },
+    {
+      "mode": "start",
+      "session_id": "01kt55mn182zvts0gh4xk8b8a1",
+      "stage": "implementation",
+      "timestamp": "2026-06-02T22:00:36Z",
+      "type": "stage_agent_started"
+    },
+    {
+      "exit_code": 143,
+      "session_id": "01kt55begpaag2ec1n1d78av1x",
+      "timed_out": false,
+      "timestamp": "2026-06-02T22:00:36Z",
+      "type": "agent_exited"
+    },
+    {
+      "action": "sweep",
+      "phase": 0,
+      "rationale": "Divergence is a sync commit (pull in main) from the worktree sync orchestrator — legitimate work that should land with the implementation stage.",
+      "stage": "implementation",
+      "timestamp": "2026-06-02T22:01:08Z",
+      "type": "worktree_drift_resolved"
+    },
+    {
+      "note": "Starting phase 1: create service layer and update consumers",
+      "phase": 0,
+      "stage": "implementation",
+      "timestamp": "2026-06-02T22:01:13Z",
+      "type": "work_resumed"
+    },
+    {
+      "description": "Starting phase 1: Introduce service abstraction layer",
+      "percentage": 0,
+      "phase": 1,
+      "timestamp": "2026-06-02T22:01:14Z",
+      "type": "progress_report"
+    },
+    {
+      "description": "Implementing core changes — updating consumers",
+      "percentage": 20,
+      "phase": 1,
+      "timestamp": "2026-06-02T22:01:29Z",
+      "type": "progress_report"
+    },
+    {
+      "base_branch": "main",
+      "reason": "already_up_to_date",
+      "timestamp": "2026-06-03T14:50:00Z",
+      "type": "worktree_sync_skipped"
+    },
+    {
+      "mode": "start",
+      "session_id": "01kt6zcy3ccnf797f6g39t6c0k",
+      "stage": "implementation",
+      "timestamp": "2026-06-03T14:50:00Z",
+      "type": "stage_agent_started"
     }
   ],
+  "needsArchitecture": false,
+  "needsDesign": false,
+  "workflow": {
+    "tier": "standard",
+    "template": "refactor",
+    "stages": [
+      "scope",
+      "implementation",
+      "review",
+      "release"
+    ],
+    "classifiedBy": "scope-agent",
+    "rationale": "Restructuring existing data access — no new UI, no new user-visible features (skip design); well-contained to 6 files and a clear service-layer pattern (skip architecture). Refactor template fits: same behaviour, better structure."
+  },
+  "stageApprovals": {
+    "scope": "2026-06-02T22:00:33Z"
+  },
   "stages": {
-    "review": {
-      "status": "not_started"
-    },
-    "design": {
-      "status": "not_started"
-    },
-    "architecture": {
-      "status": "not_started"
-    },
     "implementation": {
-      "status": "not_started"
+      "status": "in_progress",
+      "startedAt": "2026-06-03T14:50:00Z"
     },
     "scope": {
-      "status": "awaiting_approval",
-      "startedAt": "2026-06-02T21:45:06Z"
+      "status": "approved",
+      "approvedAt": "2026-06-02T22:00:33Z",
+      "startedAt": "2026-06-02T21:55:34Z"
+    },
+    "architecture": {
+      "status": "skipped"
+    },
+    "design": {
+      "status": "skipped"
+    },
+    "review": {
+      "status": "not_started"
     },
     "release": {
       "status": "not_started"
     }
   },
   "worktreePath": "/Users/franciscolucas/Documents/TBN/.defract-worktrees/task-replace-mock-data-with-real-data-sources-01kt54r89hd3",
-  "worktreeBaseBranch": "main"
+  "worktreeBaseBranch": "main",
+  "worktreeLastSyncedAt": "2026-06-03T14:50:00Z"
 }
