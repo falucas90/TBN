@@ -15,7 +15,6 @@ defract:
   assignee: falucas90
 ---
 
-
 ## Story Brief
 
 Promoted from backlog item `bli-real-backend-or-7`.
@@ -156,3 +155,236 @@ Authentication is currently fully mocked: `src/context/AuthContext.jsx` checks c
 - Auth provider SDK must be chosen and installed before Phase 1 can begin (e.g., `npm install @supabase/supabase-js`).
 - Phase 2 depends on Phase 1 — the auth provider connection must exist before email flows can be tested.
 - Phase 3 depends on Phase 1 — live user data requires the same auth provider session and admin credentials.
+
+## Design
+
+## UX Description
+
+**Problem:** Users who forget their password, register a new account, or need admin-managed roles have no working self-service paths — everything either throws silently or reads from hardcoded data.
+
+**What the user experiences:**
+A dealer who forgets their password taps a link on the login screen, enters their email, and receives a reset link by email — all without contacting support. New registrants land on a holding page that explains they must confirm their email before entering the app. Admins can open a live user table and change roles or toggle account status from a dropdown and toggle in each row.
+
+**Information hierarchy:**
+The three self-service pages (forgot-password, reset-password, verify-email) are stripped-down centered cards — no sidebar, no app chrome — matching the Login and Signup pattern already in place. Each card shows only what is needed for that step: a single field, a single primary action, and a status message. The Admin table gains two new columns (Funcao, Acoes) at the right of the existing four, keeping the read-only columns (Nome, Email, Plano, Estado) first so they stay visible on narrow viewports before the interactive columns scroll into view. The loading shimmer on route guards is invisible unless the auth provider takes more than ~300ms to resolve — normal users will never see it.
+
+**User flows:**
+
+**Forgot password:**
+1. User clicks "Esqueceu-se da palavra-passe?" on Login -> navigates to /forgot-password
+2. User types email and clicks "Enviar link" -> spinner on button; button disabled
+3. Provider sends reset email -> page shows green confirmation banner; email field cleared; no redirect
+4. User clicks "Voltar ao login" -> returns to /login
+
+**Reset password (valid token):**
+1. User clicks link in email -> browser opens /reset-password?token=...
+2. Page shows two password fields; user fills them and clicks "Redefinir palavra-passe"
+3. Provider validates token, updates password -> success banner; link to /login shown
+4. User clicks link -> /login
+
+**Reset password (expired/invalid token):**
+1. User opens /reset-password with bad token -> page loads with error callout; no password fields shown
+2. Callout shows Portuguese message and "Pedir novo link" button
+3. User clicks -> navigates to /forgot-password
+
+**Email verification:**
+1. After signup -> user lands on /verify-email
+2. Page shows mailbox icon, email address, and "Reenviar email" button
+3. User clicks "Reenviar email" -> button shows spinner, then success inline message
+4. User verifies in email client -> navigates back to /login (or provider auto-redirects to /searches)
+
+**Admin role management:**
+1. Admin opens /admin -> table shows live user list with Role dropdown and Status toggle per row
+2. Admin selects new role from dropdown -> "Guardar" button in that row activates (not yet saved)
+3. Admin clicks "Guardar" -> spinner; provider API call; success toast; button resets
+4. Admin self-demotes -> warning toast: "Vai perder acesso de administrador no proximo inicio de sessao"
+5. Admin toggles status -> immediate save (no confirm); success toast
+
+**States and edge cases:**
+- Forgot-password empty state: "Enviar link" button is disabled until email field has a value
+- Forgot-password unregistered email: provider returns success regardless (security); same confirmation shown
+- Reset-password token expired: error callout shown immediately on mount; no password fields rendered
+- Reset-password passwords mismatch: inline error below confirm field; submit stays disabled
+- Verify-email resend rate-limit: "Reenviar email" button disabled for 60s after each click; countdown shown
+- Admin empty state: table shows "Nenhum utilizador encontrado" row
+- Admin loading: skeleton rows (3 placeholder rows) while fetch is in flight
+- Admin save error: error toast with provider error message in Portuguese
+- Route guard loading: full-screen white with centered spinner; shown only if auth resolution exceeds ~300ms
+- Admin self-demotion: allowed; warning toast informs them of next-login effect
+
+## ASCII Wireframes
+
+**Forgot Password page (/forgot-password):**
+```
++-----------------------------------------------------------+
+|                                                           |
+|          +-------------------------------------+          |
+|          |  CRIVO                              |          |
+|          |                                     |          |
+|          |  Recuperar palavra-passe            |          |
+|          |  ---------------------------------  |          |
+|          |  Introduza o seu email e            |          |
+|          |  enviaremos um link de              |          |
+|          |  recuperacao.                       |          |
+|          |                                     |          |
+|          |  Email                              |          |
+|          |  +---------------------------------+|          |
+|          |  | stand@exemplo.pt               ||          |
+|          |  +---------------------------------+|          |
+|          |                                     |          |
+|          |  +---------------------------------+|          |
+|          |  |        Enviar link             ||          |
+|          |  +---------------------------------+|          |
+|          |  (disabled until email entered)     |          |
+|          |                                     |          |
+|          |  <- Voltar ao login                 |          |
+|          +-------------------------------------+          |
+|                                                           |
+|  After submit — success state:                            |
+|          +-------------------------------------+          |
+|          | [check] Email enviado               |          |
+|          | Verifique a sua caixa de entrada.   |          |
+|          +-------------------------------------+          |
+|                                                           |
++-----------------------------------------------------------+
+```
+
+Single centered card on plain page background, same visual weight as the Login right pane. The success state replaces the form in-place so the user has a clear endpoint without a page navigation.
+
+**Reset Password page (/reset-password) — valid token:**
+```
++-----------------------------------------------------------+
+|                                                           |
+|          +-------------------------------------+          |
+|          |  CRIVO                              |          |
+|          |                                     |          |
+|          |  Definir nova palavra-passe         |          |
+|          |                                     |          |
+|          |  Nova palavra-passe                 |          |
+|          |  +---------------------------------+|          |
+|          |  | ........                       ||          |
+|          |  +---------------------------------+|          |
+|          |                                     |          |
+|          |  Confirmar palavra-passe            |          |
+|          |  +---------------------------------+|          |
+|          |  | ........                       ||          |
+|          |  +---------------------------------+|          |
+|          |  [!] As palavras-passe nao         |          |
+|          |      coincidem                      |          |
+|          |  (hidden until mismatch detected)   |          |
+|          |                                     |          |
+|          |  +---------------------------------+|          |
+|          |  |  Redefinir palavra-passe       ||          |
+|          |  +---------------------------------+|          |
+|          +-------------------------------------+          |
+|                                                           |
++-----------------------------------------------------------+
+```
+
+**Reset Password page — expired/invalid token:**
+```
++-----------------------------------------------------------+
+|                                                           |
+|          +-------------------------------------+          |
+|          |  CRIVO                              |          |
+|          |                                     |          |
+|          |  +--------------------------------+ |          |
+|          |  | [!] Link expirado ou invalido  | |          |
+|          |  |     Este link de recuperacao   | |          |
+|          |  |     ja nao e valido. Peca um   | |          |
+|          |  |     novo link para continuar.  | |          |
+|          |  +--------------------------------+ |          |
+|          |                                     |          |
+|          |  +---------------------------------+|          |
+|          |  |     Pedir novo link            ||          |
+|          |  +---------------------------------+|          |
+|          |                                     |          |
+|          |  <- Voltar ao login                 |          |
+|          +-------------------------------------+          |
+|                                                           |
++-----------------------------------------------------------+
+```
+
+The expired-token state renders on mount before the user can interact — no password fields are shown at all, preventing any attempt to fill them in vain. This is checked against the URL token immediately.
+
+**Verify Email page (/verify-email):**
+```
++-----------------------------------------------------------+
+|                                                           |
+|          +-------------------------------------+          |
+|          |  CRIVO                              |          |
+|          |                                     |          |
+|          |              [envelope icon]        |          |
+|          |                                     |          |
+|          |  Verifique o seu email              |          |
+|          |  ---------------------------------  |          |
+|          |  Enviamos um link de                |          |
+|          |  confirmacao para:                  |          |
+|          |                                     |          |
+|          |  francisco@flmotors.pt              |          |
+|          |  (semibold, primary text color)     |          |
+|          |                                     |          |
+|          |  Clique no link para ativar         |          |
+|          |  a sua conta.                       |          |
+|          |                                     |          |
+|          |  +---------------------------------+|          |
+|          |  |     Reenviar email             ||          |
+|          |  +---------------------------------+|          |
+|          |  (secondary button; disabled 60s   |          |
+|          |   after each click)                 |          |
+|          |  Reenviar disponivel em 47s         |          |
+|          |  (countdown, secondary text color)  |          |
+|          |                                     |          |
+|          |  <- Voltar ao login                 |          |
+|          +-------------------------------------+          |
+|                                                           |
++-----------------------------------------------------------+
+```
+
+The email address is displayed so the user can confirm they are checking the right inbox. The resend button is secondary (not primary) to discourage repeated sends; a visible countdown makes the rate-limit feel intentional rather than broken.
+
+**Admin User Table — enhanced:**
+```
++-------------------------------------------------------------------------------------+
+|  Painel de Administracao                                                            |
+|  Contas de revendedores registadas na plataforma                                    |
+|                                                                                     |
+| +-----------------------------------------------------------------------------------+
+| | Nome          Email                  Plano    Estado         Funcao   Acoes       |
+| |-----------------------------------------------------------------------------------|
+| | Francisco L.  francisco@flmotors.pt  Pro      [==] Ativo     [Dealer v] [Guardar] |
+| |-----------------------------------------------------------------------------------|
+| | Admin Crivo   admin@crivo.pt         Admin    [==] Ativo     [Admin  v] [Guardar] |
+| |-----------------------------------------------------------------------------------|
+| |                                                                                   |
+| |  Loading state (3 skeleton rows):                                                 |
+| |  [||||||||]  [||||||||||||||||||]  [||||||]  [||||||]  [||||||]  [|||||||||]      |
+| |  [||||||||]  [||||||||||||||||||]  [||||||]  [||||||]  [||||||]  [|||||||||]      |
+| |  [||||||||]  [||||||||||||||||||]  [||||||]  [||||||]  [||||||]  [|||||||||]      |
+| +-----------------------------------------------------------------------------------+
+|                                                                                     |
+|  Estado toggle: uses existing Toggle component; save is immediate on toggle         |
+|  Funcao dropdown: two options (Dealer / Admin)                                      |
+|  Guardar: activates only when Funcao value differs from loaded value for that row   |
+|                                                                                     |
++-------------------------------------------------------------------------------------+
+```
+
+"Guardar" per row activates only after the dropdown value changes — this prevents accidental saves and scopes the button clearly to its row. Status toggle (Estado) saves immediately on change (lower-stakes action, consistent with the existing Toggle component pattern).
+
+**Route guard loading state:**
+```
++-----------------------------------------------------------+
+|                                                           |
+|                                                           |
+|                                                           |
+|                       ( O )                               |
+|                    (spinning)                             |
+|                                                           |
+|                                                           |
+|                                                           |
++-----------------------------------------------------------+
+```
+
+Full-viewport white background with a single centered spinner using the primary teal color. No text, no logo — just enough to signal the app is resolving auth state, without committing to layout that the auth result might contradict. Visible only if the session check takes longer than ~300ms.
+

@@ -60,3 +60,8 @@
 {"entryId":"01KT5580FDAJDZKV08132H82YM","taskId":"task-replace-mock-data-with-real-data-sources-01kt54r89hd3","stage":"release","timestamp":"2026-06-03T14:58:01Z"}
 {"entryId":"01KT54YF6HG67XZYK1A3E4ESFE","taskId":"task-replace-mock-data-with-real-data-sources-01kt54r89hd3","stage":"release","timestamp":"2026-06-03T14:58:01Z"}
 {"entryId":"01KT54YNF60ZY0AA4FS53AKKSP","taskId":"task-replace-mock-data-with-real-data-sources-01kt54r89hd3","stage":"release","timestamp":"2026-06-03T14:58:01Z"}
+{"entryId":"01KT558SG86V2JGF6SEZ6TH91B","taskId":"task-wire-up-real-auth-backend-self-service-01kt54r3w2d4","stage":"design","timestamp":"2026-06-03T15:01:41Z"}
+{"entryId":"01KT54Y9HD0YWCFK94E4PMSZPF","taskId":"task-wire-up-real-auth-backend-self-service-01kt54r3w2d4","stage":"design","timestamp":"2026-06-03T15:01:41Z"}
+{"entryId":"01KT5586RHEPFFB3TR5PX9V2J0","taskId":"task-wire-up-real-auth-backend-self-service-01kt54r3w2d4","stage":"design","timestamp":"2026-06-03T15:01:41Z"}
+{"entryId":"01KT5580FDAJDZKV08132H82YM","taskId":"task-wire-up-real-auth-backend-self-service-01kt54r3w2d4","stage":"design","timestamp":"2026-06-03T15:01:41Z"}
+{"entryId":"01KT54YF6HG67XZYK1A3E4ESFE","taskId":"task-wire-up-real-auth-backend-self-service-01kt54r3w2d4","stage":"design","timestamp":"2026-06-03T15:01:41Z"}
