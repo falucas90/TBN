@@ -1,9 +1,15 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { Card } from '../components/ui';
-import { mockUsers } from '../data/mock-data';
+import { getUsers } from '../services/authService';
 
 export default function Admin() {
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    getUsers().then(setUsers);
+  }, []);
+
   return (
     <AppLayout>
       <div style={{ padding: '2rem', maxWidth: '900px', margin: '0 auto', width: '100%' }}>
@@ -24,7 +30,7 @@ export default function Admin() {
                 </tr>
               </thead>
               <tbody>
-                {mockUsers.map((user) => (
+                {users.map((user) => (
                   <tr key={user.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
                     <td style={{ padding: '0.875rem 1rem', fontWeight: '500' }}>{user.name}</td>
                     <td style={{ padding: '0.875rem 1rem', color: 'var(--color-text-secondary)' }}>{user.email}</td>
