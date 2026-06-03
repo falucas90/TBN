@@ -1,11 +1,11 @@
 {
   "id": "task-replace-mock-data-with-real-data-sources-01kt54r89hd3",
   "status": "active",
-  "stage": "implementation",
-  "phase": 0,
+  "stage": "review",
+  "phase": 1,
   "totalPhases": 1,
   "createdAt": "2026-06-02T21:45:06Z",
-  "updatedAt": "2026-06-03T14:51:10Z",
+  "updatedAt": "2026-06-03T14:55:02Z",
   "events": [
     {
       "base_branch": "main",
@@ -191,6 +191,184 @@
       "phase": 1,
       "timestamp": "2026-06-03T14:51:10Z",
       "type": "progress_report"
+    },
+    {
+      "description": "Implementing core changes — updating Searches.jsx and AlertHistory.jsx",
+      "percentage": 20,
+      "phase": 1,
+      "timestamp": "2026-06-03T14:51:46Z",
+      "type": "progress_report"
+    },
+    {
+      "description": "Running verification checks",
+      "percentage": 60,
+      "phase": 1,
+      "timestamp": "2026-06-03T14:52:20Z",
+      "type": "progress_report"
+    },
+    {
+      "description": "Running full check suite",
+      "percentage": 80,
+      "phase": 1,
+      "timestamp": "2026-06-03T14:53:02Z",
+      "type": "progress_report"
+    },
+    {
+      "details": "No automated test suite. Verified: (1) no mock-data imports remain in src/pages/ or src/context/ — grep confirms clean; (2) lint count unchanged at 79 problems (all pre-existing); (3) three service modules created with correct exports; (4) AuthContext.jsx already using authService; (5) Searches.jsx and AlertHistory.jsx now load via service calls on mount. Admin.jsx also fixed to satisfy R7.",
+      "failed": 0,
+      "passed": 5,
+      "phase": 0,
+      "skipped": 0,
+      "timestamp": "2026-06-03T14:53:14Z",
+      "type": "test_results"
+    },
+    {
+      "alternatives_considered": [],
+      "decision": "Implementation: added getUsers() to authService.js and updated Admin.jsx to consume it, fixing an R7 violation the phase plan did not list.",
+      "phase": 1,
+      "rationale": "Admin.jsx imported mockUsers directly — not listed in the phase Files but covered by R7 (\"No page may import from src/data/mock-data.js\"). Adding a single getUsers() export and replacing the import in Admin.jsx satisfies R7 with no structural change beyond what the plan already specifies for the other pages.",
+      "timestamp": "2026-06-03T14:53:21Z",
+      "type": "decision"
+    },
+    {
+      "description": "Phase 1 implementation complete — awaiting approval",
+      "percentage": 100,
+      "phase": 1,
+      "timestamp": "2026-06-03T14:53:25Z",
+      "type": "progress_report"
+    },
+    {
+      "change_summary": "Phase 1 complete: service layer introduced, all consumers updated",
+      "revision": 1,
+      "stage": "implementation",
+      "timestamp": "2026-06-03T14:53:40Z",
+      "type": "stage_content_updated"
+    },
+    {
+      "artifacts_created": [
+        "src/services/searchesService.js",
+        "src/services/alertsService.js",
+        "src/services/authService.js",
+        "src/pages/Searches.jsx",
+        "src/pages/AlertHistory.jsx",
+        "src/pages/Admin.jsx"
+      ],
+      "phase": 0,
+      "summary": "Created three service modules (searchesService, alertsService, authService) and updated all four consumers (AuthContext, Searches, AlertHistory, Admin) so no page or context imports from mock-data directly. App behaviour is unchanged.",
+      "timestamp": "2026-06-03T14:53:44Z",
+      "type": "phase_completed"
+    },
+    {
+      "items": [
+        {
+          "description": "Start the dev server with `npm run dev` and open the app in a browser. Confirm the login page loads without errors in the console."
+        },
+        {
+          "description": "Log in with `francisco@flmotors.pt` / `dealer123`. Confirm you are redirected to the Searches page and see two mock searches: BMW 320e Station Wagons (active) and Renault Megane Diesel (paused)."
+        },
+        {
+          "description": "On the Searches page, click Pausar on the BMW search. Confirm the search card dims and shows 'Pausado', and a yellow toast appears."
+        },
+        {
+          "description": "On the Searches page, click Eliminar on the Renault Megane Diesel search. Confirm it disappears from the list and a yellow toast appears."
+        },
+        {
+          "description": "Navigate to `/alerts`. Confirm two alert cards render: '2021 BMW 320e Touring M-Sport' and '2020 Volvo V60 T6 Recharge', each showing a computed ISV, total cost, and margin estimate."
+        },
+        {
+          "description": "Run `grep -r 'mock-data' src/pages src/context` in the project directory. Confirm the command returns no output."
+        },
+        {
+          "description": "Run `npm run lint` and confirm the error count is 79 (no new errors compared to the pre-task baseline)."
+        }
+      ],
+      "phase": 0,
+      "phase_title": "Introduce service abstraction layer",
+      "timestamp": "2026-06-03T14:53:54Z",
+      "type": "manual_tests"
+    },
+    {
+      "agent_phase": 1,
+      "phase_title": "Introduce service abstraction layer",
+      "server_phase": 0,
+      "timestamp": "2026-06-03T14:53:58Z",
+      "type": "phase_drift_detected"
+    },
+    {
+      "phase": 0,
+      "phase_title": "Introduce service abstraction layer",
+      "timestamp": "2026-06-03T14:53:58Z",
+      "type": "phase_awaiting_approval",
+      "worktree_head": "b6eea8eef568256d4563d650a3d5c016fa2a0b85",
+      "worktree_status_digest": "25899a9fe62bd7d69ec5a6ec38db284fe58c285534686771f28592506ce70343"
+    },
+    {
+      "approved_by": "user",
+      "phase": 0,
+      "phase_title": "Introduce service abstraction layer",
+      "timestamp": "2026-06-03T14:55:00Z",
+      "type": "phase_approved"
+    },
+    {
+      "checked_indices": [],
+      "phase": 0,
+      "timestamp": "2026-06-03T14:55:00Z",
+      "type": "manual_tests_checks_persisted"
+    },
+    {
+      "stage": "implementation",
+      "summary": "All phases approved — implementation ready for review.",
+      "timestamp": "2026-06-03T14:55:00Z",
+      "type": "stage_work_complete",
+      "worktree_head": "ad799c3f9455498b4e23ebc411bc90035bb87e56",
+      "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "base_branch": "main",
+      "merged_commits": 3,
+      "timestamp": "2026-06-03T14:55:02Z",
+      "type": "worktree_synced"
+    },
+    {
+      "actor": null,
+      "stage": "implementation",
+      "timestamp": "2026-06-03T14:55:00Z",
+      "type": "stage_approved"
+    },
+    {
+      "current_worktree_head": "b9115e98b221c3188c280962b217cd983c1dd950",
+      "current_worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stage": "implementation",
+      "stale_worktree_head": "ad799c3f9455498b4e23ebc411bc90035bb87e56",
+      "stale_worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timestamp": "2026-06-03T14:55:02Z",
+      "type": "worktree_drift_detected",
+      "what_changed": "HEAD"
+    },
+    {
+      "note": "automatic — worktree drift recovery",
+      "stage": "implementation",
+      "timestamp": "2026-06-03T14:55:02Z",
+      "type": "work_resumed"
+    },
+    {
+      "from": "implementation",
+      "timestamp": "2026-06-03T14:55:02Z",
+      "to": "review",
+      "type": "stage_advanced"
+    },
+    {
+      "base_branch": "main",
+      "reason": "already_up_to_date",
+      "timestamp": "2026-06-03T14:55:02Z",
+      "type": "worktree_sync_skipped"
+    },
+    {
+      "mode": "start",
+      "session_id": "01kt6zp56veg3k7m1ng5dxw85w",
+      "stage": "review",
+      "timestamp": "2026-06-03T14:55:02Z",
+      "type": "stage_agent_started"
     }
   ],
   "needsArchitecture": false,
@@ -208,32 +386,38 @@
     "rationale": "Restructuring existing data access — no new UI, no new user-visible features (skip design); well-contained to 6 files and a clear service-layer pattern (skip architecture). Refactor template fits: same behaviour, better structure."
   },
   "stageApprovals": {
+    "implementation": "2026-06-03T14:55:00Z",
     "scope": "2026-06-02T22:00:33Z"
   },
+  "stageContent": {
+    "implementation": "## Phase 1: Introduce service abstraction layer\n\n**Status:** Complete\n\n**Files created:**\n- `src/services/authService.js` — exports `loginWithCredentials(email, password)` and `getUsers()`, both returning Promises backed by mockUsers\n- `src/services/searchesService.js` — exports `getSearches()`, `createSearch(data)`, `updateSearch(id, patch)`, `deleteSearch(id)`, all async, backed by a module-level copy of mockSearches\n- `src/services/alertsService.js` — exports `getAlerts()` returning a Promise backed by mockAlerts\n\n**Files modified:**\n- `src/context/AuthContext.jsx` — was already updated (prior session); uses `loginWithCredentials()` from authService\n- `src/pages/Searches.jsx` — replaced `mockSearches` static import with `useEffect` → `getSearches()`; `toggleSearchStatus` calls `updateSearch`; `deleteSearch` calls service's `deleteSearch`; uses `undefined` sentinel to avoid empty-list flash\n- `src/pages/AlertHistory.jsx` — replaced `mockAlerts` import with `useEffect` → `getAlerts()`; ISV enrichment runs over resolved data as before\n- `src/pages/Admin.jsx` — was not in the phase plan but had a direct `mockUsers` import (R7 violation); updated to call `getUsers()` from authService\n\n**Deviations from plan:**\n- Added `getUsers()` to authService and updated Admin.jsx — not listed in phase Files but required by acceptance criterion R7 (\"no page may import from mock-data\"). Fix was minimal (one export, one import swap).\n\n**Verification:**\n- `grep -r \"mock-data\" src/pages src/context` returns empty — R7 satisfied\n- Lint count unchanged at 79 problems (all pre-existing, none introduced)\n- App behaviour unchanged: service functions resolve mock data synchronously via Promise microtask"
+  },
   "stages": {
+    "design": {
+      "status": "skipped"
+    },
+    "release": {
+      "status": "not_started"
+    },
     "scope": {
       "status": "approved",
       "approvedAt": "2026-06-02T22:00:33Z",
       "startedAt": "2026-06-02T21:55:34Z"
     },
-    "release": {
-      "status": "not_started"
-    },
-    "review": {
-      "status": "not_started"
-    },
     "architecture": {
       "status": "skipped"
     },
-    "implementation": {
+    "review": {
       "status": "in_progress",
-      "startedAt": "2026-06-03T14:50:00Z"
+      "startedAt": "2026-06-03T14:55:02Z"
     },
-    "design": {
-      "status": "skipped"
+    "implementation": {
+      "status": "approved",
+      "approvedAt": "2026-06-03T14:55:00Z",
+      "startedAt": "2026-06-03T14:50:00Z"
     }
   },
   "worktreePath": "/Users/franciscolucas/Documents/TBN/.defract-worktrees/task-replace-mock-data-with-real-data-sources-01kt54r89hd3",
   "worktreeBaseBranch": "main",
-  "worktreeLastSyncedAt": "2026-06-03T14:50:00Z"
+  "worktreeLastSyncedAt": "2026-06-03T14:55:02Z"
 }

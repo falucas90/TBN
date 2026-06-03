@@ -3,7 +3,7 @@ defract:
   id: task-replace-mock-data-with-real-data-sources-01kt54r89hd3
   type: task
   status: active
-  stage: implementation
+  stage: review
   phase: 0
   total_phases: 1
   priority: normal
@@ -129,3 +129,28 @@ When the real backend is chosen, the only files that change are the three servic
 ### Dependencies
 
 The parallel authentication task (`task-add-authentication-and-admin-view`) may update `AuthContext.jsx` independently. Coordinate to avoid merge conflicts on that file — this task only changes the data-access line (`mockUsers` import → `authService` call); the auth task owns the broader authentication logic.
+
+## Implementation Notes
+
+## Phase 1: Introduce service abstraction layer
+
+**Status:** Complete
+
+**Files created:**
+- `src/services/authService.js` — exports `loginWithCredentials(email, password)` and `getUsers()`, both returning Promises backed by mockUsers
+- `src/services/searchesService.js` — exports `getSearches()`, `createSearch(data)`, `updateSearch(id, patch)`, `deleteSearch(id)`, all async, backed by a module-level copy of mockSearches
+- `src/services/alertsService.js` — exports `getAlerts()` returning a Promise backed by mockAlerts
+
+**Files modified:**
+- `src/context/AuthContext.jsx` — was already updated (prior session); uses `loginWithCredentials()` from authService
+- `src/pages/Searches.jsx` — replaced `mockSearches` static import with `useEffect` → `getSearches()`; `toggleSearchStatus` calls `updateSearch`; `deleteSearch` calls service's `deleteSearch`; uses `undefined` sentinel to avoid empty-list flash
+- `src/pages/AlertHistory.jsx` — replaced `mockAlerts` import with `useEffect` → `getAlerts()`; ISV enrichment runs over resolved data as before
+- `src/pages/Admin.jsx` — was not in the phase plan but had a direct `mockUsers` import (R7 violation); updated to call `getUsers()` from authService
+
+**Deviations from plan:**
+- Added `getUsers()` to authService and updated Admin.jsx — not listed in phase Files but required by acceptance criterion R7 ("no page may import from mock-data"). Fix was minimal (one export, one import swap).
+
+**Verification:**
+- `grep -r "mock-data" src/pages src/context` returns empty — R7 satisfied
+- Lint count unchanged at 79 problems (all pre-existing, none introduced)
+- App behaviour unchanged: service functions resolve mock data synchronously via Promise microtask
