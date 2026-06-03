@@ -3,7 +3,7 @@ defract:
   id: task-replace-mock-data-with-real-data-sources-01kt54r89hd3
   type: task
   status: active
-  stage: review
+  stage: release
   phase: 0
   total_phases: 1
   priority: normal
@@ -14,7 +14,6 @@ defract:
   created_by: falucas90
   assignee: falucas90
 ---
-
 
 ## Story Brief
 
@@ -154,3 +153,82 @@ The parallel authentication task (`task-add-authentication-and-admin-view`) may 
 - `grep -r "mock-data" src/pages src/context` returns empty — R7 satisfied
 - Lint count unchanged at 79 problems (all pre-existing, none introduced)
 - App behaviour unchanged: service functions resolve mock data synchronously via Promise microtask
+
+## Review
+
+## Verdict
+
+**Verdict:** APPROVE
+**Files reviewed:** 7 files changed across 1 phases
+
+All six acceptance criteria pass. Three service modules are correctly structured with async signatures, no page or context imports from mock-data directly, and lint is clean at the pre-task baseline of 79 problems. App behaviour is preserved: login, searches, and alert history all work through the new service layer.
+
+### Automated Checks
+
+| Check | Result | Details |
+|-------|--------|---------|
+| R7 grep (no mock-data in pages/context) | PASS | grep -r mock-data src/pages src/context returns no output (exit 1) |
+| Lint | PASS | 79 problems — identical to pre-task baseline, no new errors introduced |
+
+### Acceptance Criteria (6/6 passed)
+
+- [x] AC-1: `src/services/searchesService.js`, `src/services/alertsService.js`, and `src/services/authService.js` all exist and export the functions listed in R1–R3. — PASS: searchesService.js:5-28 exports getSearches, createSearch, updateSearch, deleteSearch all returning Promises; alertsService.js:3-5 exports getAlerts returning a Promise; authService.js:3-6 exports loginWithCredentials returning a Promise.
+- [x] AC-2: No `import` statement referencing `src/data/mock-data.js` (or `../data/mock-data`) remains in any file under `src/pages/` or `src/context/`. — PASS: grep -r mock-data src/pages src/context returns no matches (exit 1). Only src/services/*.js files import from mock-data.
+- [x] AC-3: Logging in with `francisco@flmotors.pt` / `dealer123` succeeds and populates `currentUser` as before. — PASS: authService.js:4 finds user by email+password; mock-data.js:76-77 has francisco@flmotors.pt / dealer123; AuthContext.jsx:11-14 sets currentUser and isAuthenticated on successful resolution.
+- [x] AC-4: The Searches page renders both mock searches on load; pausing/deleting a search still works correctly. — PASS: Searches.jsx:14-16 calls getSearches() in useEffect on mount; line 12 uses undefined sentinel to prevent flash; toggleSearchStatus (line 18) calls updateSearch; deleteSearch (line 31) calls deleteSearchById.
+- [x] AC-5: The Alert History page renders both mock alerts with computed ISV values identical to the current display. — PASS: AlertHistory.jsx:17-19 calls getAlerts() in useEffect; lines 21-26 map resolved alerts through calculateISV; totalCost and marginEst computed at render time from raw inputs.
+- [x] AC-6: `npm run lint` passes with no new errors. — PASS: npm run lint reports 79 problems (77 errors, 2 warnings) — identical to the pre-task baseline documented in the implementation notes.
+
+### Code Quality (Refactor Review)
+
+#### Loading state inconsistency
+
+- **INFO:** `src/pages/AlertHistory.jsx:12` — AlertHistory initialises alerts with useState([]) rather than an undefined sentinel, so the 'no alerts' empty-state message can flash for one frame before getAlerts() resolves. Searches.jsx uses the undefined sentinel pattern documented in the edge cases section. Suggested fix: Replace useState([]) with useState(undefined) and add an early return null when alerts === undefined, matching the pattern used in Searches.jsx:12 and :37
+
+### Security Assessment (Security Review)
+
+No security issues found in changed files.
+
+### Decisions Made During Implementation
+
+- Introduce a backend-agnostic src/services/ layer with async function signatures so swapping mock arrays for real network calls requires no changes in consuming components.
+- Added getUsers() to authService.js and updated Admin.jsx to call it — not in the phase plan but required by R7 (no page may import from mock-data).
+
+## Required Changes
+
+None.
+
+## Release
+
+## Release Notes
+
+### What was built
+- Introduced a `src/services/` abstraction layer with three service modules: `searchesService.js`, `alertsService.js`, and `authService.js`
+- All service functions are async from day one so swapping mock data for real network calls requires no signature changes in consuming components
+- Updated `AuthContext.jsx`, `Searches.jsx`, `AlertHistory.jsx`, and `Admin.jsx` to import from services only — no page or context imports `mock-data.js` directly
+- Added `getUsers()` to `authService.js` to cover `Admin.jsx`, fixing an R7 violation not in the original phase plan
+- App behaviour is unchanged — service functions resolve mock data immediately via Promise microtask
+
+### Key decisions
+- Introduce a backend-agnostic `src/services/` layer with async function signatures so swapping mock arrays for real network calls requires no changes in consuming components.
+- Added `getUsers()` to `authService.js` and updated `Admin.jsx` to call it — not in the phase plan but required by R7 (no page may import from mock-data).
+
+### Changes by phase
+- **Phase 1: Introduce service abstraction layer** — Created three service modules (searchesService, alertsService, authService) and updated all four consumers (AuthContext, Searches, AlertHistory, Admin) so no page or context imports from mock-data directly. App behaviour is unchanged.
+
+## Verification
+
+### Production Build
+PASS — `npm run build` completed in 1.06s, 235 kB bundle.
+
+### Review Reference
+Approved by reviewer on 2026-06-03 — 6/6 acceptance criteria passed, 2/2 automated checks passed.
+
+### Release Checklist
+- [x] Approved review exists
+- [x] Production build passes
+- [x] Code committed and pushed
+- [x] Release notes prepared
+- [x] Stage content updated
+- [x] Completion event logged
+

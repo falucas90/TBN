@@ -1,11 +1,11 @@
 {
   "id": "task-replace-mock-data-with-real-data-sources-01kt54r89hd3",
-  "status": "active",
-  "stage": "review",
+  "status": "completed",
+  "stage": "release",
   "phase": 1,
   "totalPhases": 1,
   "createdAt": "2026-06-02T21:45:06Z",
-  "updatedAt": "2026-06-03T14:55:02Z",
+  "updatedAt": "2026-06-03T14:59:27Z",
   "events": [
     {
       "base_branch": "main",
@@ -369,6 +369,130 @@
       "stage": "review",
       "timestamp": "2026-06-03T14:55:02Z",
       "type": "stage_agent_started"
+    },
+    {
+      "details": "No automated test suite. Verified: (1) grep of src/pages/ and src/context/ returns no mock-data imports; (2) lint produces 79 problems — same count as pre-task baseline, no new errors; (3) all three service modules exist with correct exports; (4) AuthContext, Searches, AlertHistory, Admin all import from services only; (5) mock user credentials confirmed in mock-data.js.",
+      "failed": 0,
+      "passed": 5,
+      "phase": 1,
+      "skipped": 0,
+      "timestamp": "2026-06-03T14:57:03Z",
+      "type": "test_results"
+    },
+    {
+      "change_summary": "APPROVE: All six acceptance criteria pass. Three service modules are correctly structured with async signatures, no page or context imports from mock-data directly, and lint is clean at the pre-task baseline of 79 problems. App behaviour is preserved: login, searches, and alert history all work through the new service layer.",
+      "revision": 1,
+      "stage": "review",
+      "timestamp": "2026-06-03T14:57:25Z",
+      "type": "stage_content_updated"
+    },
+    {
+      "alternatives_considered": [],
+      "decision": "Review verdict: APPROVE",
+      "rationale": "6/6 acceptance criteria passed, 2/2 automated checks passed. All service modules correctly created with async signatures; no mock-data imports remain in pages or context; lint count unchanged at 79 problems. One info-level finding: AlertHistory.jsx does not use the undefined sentinel pattern that Searches.jsx uses, which could cause a one-frame empty-state flash.",
+      "timestamp": "2026-06-03T14:57:30Z",
+      "type": "decision"
+    },
+    {
+      "stage": "review",
+      "summary": "APPROVE — 6/6 acceptance criteria pass, lint clean at pre-task baseline. Service layer correctly introduced with no mock-data imports remaining in pages or context. One info-level finding: AlertHistory.jsx could use the undefined sentinel pattern to match Searches.jsx, but this does not block approval.",
+      "timestamp": "2026-06-03T14:57:41Z",
+      "type": "stage_work_complete",
+      "worktree_head": "b9115e98b221c3188c280962b217cd983c1dd950",
+      "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "base_branch": "main",
+      "merged_commits": 1,
+      "timestamp": "2026-06-03T14:58:01Z",
+      "type": "worktree_synced"
+    },
+    {
+      "actor": null,
+      "stage": "review",
+      "timestamp": "2026-06-03T14:57:59Z",
+      "type": "stage_approved"
+    },
+    {
+      "current_worktree_head": "b8dc41f72ca6298a1f80a48d4e55fe1e8461c6de",
+      "current_worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stage": "review",
+      "stale_worktree_head": "b9115e98b221c3188c280962b217cd983c1dd950",
+      "stale_worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timestamp": "2026-06-03T14:58:01Z",
+      "type": "worktree_drift_detected",
+      "what_changed": "HEAD"
+    },
+    {
+      "note": "automatic — worktree drift recovery",
+      "stage": "review",
+      "timestamp": "2026-06-03T14:58:01Z",
+      "type": "work_resumed"
+    },
+    {
+      "from": "review",
+      "timestamp": "2026-06-03T14:58:01Z",
+      "to": "release",
+      "type": "stage_advanced"
+    },
+    {
+      "base_branch": "main",
+      "reason": "already_up_to_date",
+      "timestamp": "2026-06-03T14:58:01Z",
+      "type": "worktree_sync_skipped"
+    },
+    {
+      "mode": "start",
+      "session_id": "01kt6zvm4n6tgnq1esj2d029h2",
+      "stage": "release",
+      "timestamp": "2026-06-03T14:58:02Z",
+      "type": "stage_agent_started"
+    },
+    {
+      "note": "Release: production build passes, SSH auth confirmed — committing and pushing",
+      "phase": 1,
+      "stage": "release",
+      "timestamp": "2026-06-03T14:58:20Z",
+      "type": "work_resumed"
+    },
+    {
+      "change_summary": "Release validated — build passes, code pushed",
+      "revision": 1,
+      "stage": "release",
+      "timestamp": "2026-06-03T14:59:00Z",
+      "type": "stage_content_updated"
+    },
+    {
+      "alternatives_considered": [],
+      "decision": "Release complete — task done",
+      "rationale": "Production build passes, review approved on 2026-06-03 (6/6 acceptance criteria), code committed at ad799c3 and pushed to origin/feature/task-replace-mock-data-with-real-data-sources-01kt54r89hd3",
+      "timestamp": "2026-06-03T14:59:05Z",
+      "type": "decision"
+    },
+    {
+      "stage": "release",
+      "summary": "Release complete. Production build passes (235 kB, 1.06s). SSH auth confirmed before push — no loop-back. Code pushed to origin. All 6 acceptance criteria met per approved review from 2026-06-03.",
+      "timestamp": "2026-06-03T14:59:13Z",
+      "type": "stage_work_complete",
+      "worktree_head": "b8dc41f72ca6298a1f80a48d4e55fe1e8461c6de",
+      "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "base_branch": "main",
+      "files_changed": 7,
+      "lines_added": 77,
+      "lines_removed": 13,
+      "timestamp": "2026-06-03T14:59:26Z",
+      "type": "worktree_merged"
+    },
+    {
+      "timestamp": "2026-06-03T14:59:27Z",
+      "type": "worktree_removed"
+    },
+    {
+      "actor": null,
+      "timestamp": "2026-06-03T14:59:27Z",
+      "type": "task_completed"
     }
   ],
   "needsArchitecture": false,
@@ -387,37 +511,115 @@
   },
   "stageApprovals": {
     "implementation": "2026-06-03T14:55:00Z",
+    "review": "2026-06-03T14:57:59Z",
     "scope": "2026-06-02T22:00:33Z"
   },
+  "completedAt": "2026-06-03T14:59:27Z",
   "stageContent": {
-    "implementation": "## Phase 1: Introduce service abstraction layer\n\n**Status:** Complete\n\n**Files created:**\n- `src/services/authService.js` — exports `loginWithCredentials(email, password)` and `getUsers()`, both returning Promises backed by mockUsers\n- `src/services/searchesService.js` — exports `getSearches()`, `createSearch(data)`, `updateSearch(id, patch)`, `deleteSearch(id)`, all async, backed by a module-level copy of mockSearches\n- `src/services/alertsService.js` — exports `getAlerts()` returning a Promise backed by mockAlerts\n\n**Files modified:**\n- `src/context/AuthContext.jsx` — was already updated (prior session); uses `loginWithCredentials()` from authService\n- `src/pages/Searches.jsx` — replaced `mockSearches` static import with `useEffect` → `getSearches()`; `toggleSearchStatus` calls `updateSearch`; `deleteSearch` calls service's `deleteSearch`; uses `undefined` sentinel to avoid empty-list flash\n- `src/pages/AlertHistory.jsx` — replaced `mockAlerts` import with `useEffect` → `getAlerts()`; ISV enrichment runs over resolved data as before\n- `src/pages/Admin.jsx` — was not in the phase plan but had a direct `mockUsers` import (R7 violation); updated to call `getUsers()` from authService\n\n**Deviations from plan:**\n- Added `getUsers()` to authService and updated Admin.jsx — not listed in phase Files but required by acceptance criterion R7 (\"no page may import from mock-data\"). Fix was minimal (one export, one import swap).\n\n**Verification:**\n- `grep -r \"mock-data\" src/pages src/context` returns empty — R7 satisfied\n- Lint count unchanged at 79 problems (all pre-existing, none introduced)\n- App behaviour unchanged: service functions resolve mock data synchronously via Promise microtask"
+    "review": "## Verdict\n\n**Verdict:** APPROVE\n**Files reviewed:** 7 files changed across 1 phases\n\nAll six acceptance criteria pass. Three service modules are correctly structured with async signatures, no page or context imports from mock-data directly, and lint is clean at the pre-task baseline of 79 problems. App behaviour is preserved: login, searches, and alert history all work through the new service layer.\n\n### Automated Checks\n\n| Check | Result | Details |\n|-------|--------|---------|\n| R7 grep (no mock-data in pages/context) | PASS | grep -r mock-data src/pages src/context returns no output (exit 1) |\n| Lint | PASS | 79 problems — identical to pre-task baseline, no new errors introduced |\n\n### Acceptance Criteria (6/6 passed)\n\n- [x] AC-1: `src/services/searchesService.js`, `src/services/alertsService.js`, and `src/services/authService.js` all exist and export the functions listed in R1–R3. — PASS: searchesService.js:5-28 exports getSearches, createSearch, updateSearch, deleteSearch all returning Promises; alertsService.js:3-5 exports getAlerts returning a Promise; authService.js:3-6 exports loginWithCredentials returning a Promise.\n- [x] AC-2: No `import` statement referencing `src/data/mock-data.js` (or `../data/mock-data`) remains in any file under `src/pages/` or `src/context/`. — PASS: grep -r mock-data src/pages src/context returns no matches (exit 1). Only src/services/*.js files import from mock-data.\n- [x] AC-3: Logging in with `francisco@flmotors.pt` / `dealer123` succeeds and populates `currentUser` as before. — PASS: authService.js:4 finds user by email+password; mock-data.js:76-77 has francisco@flmotors.pt / dealer123; AuthContext.jsx:11-14 sets currentUser and isAuthenticated on successful resolution.\n- [x] AC-4: The Searches page renders both mock searches on load; pausing/deleting a search still works correctly. — PASS: Searches.jsx:14-16 calls getSearches() in useEffect on mount; line 12 uses undefined sentinel to prevent flash; toggleSearchStatus (line 18) calls updateSearch; deleteSearch (line 31) calls deleteSearchById.\n- [x] AC-5: The Alert History page renders both mock alerts with computed ISV values identical to the current display. — PASS: AlertHistory.jsx:17-19 calls getAlerts() in useEffect; lines 21-26 map resolved alerts through calculateISV; totalCost and marginEst computed at render time from raw inputs.\n- [x] AC-6: `npm run lint` passes with no new errors. — PASS: npm run lint reports 79 problems (77 errors, 2 warnings) — identical to the pre-task baseline documented in the implementation notes.\n\n### Code Quality (Refactor Review)\n\n#### Loading state inconsistency\n\n- **INFO:** `src/pages/AlertHistory.jsx:12` — AlertHistory initialises alerts with useState([]) rather than an undefined sentinel, so the 'no alerts' empty-state message can flash for one frame before getAlerts() resolves. Searches.jsx uses the undefined sentinel pattern documented in the edge cases section. Suggested fix: Replace useState([]) with useState(undefined) and add an early return null when alerts === undefined, matching the pattern used in Searches.jsx:12 and :37\n\n### Security Assessment (Security Review)\n\nNo security issues found in changed files.\n\n### Decisions Made During Implementation\n\n- Introduce a backend-agnostic src/services/ layer with async function signatures so swapping mock arrays for real network calls requires no changes in consuming components.\n- Added getUsers() to authService.js and updated Admin.jsx to call it — not in the phase plan but required by R7 (no page may import from mock-data).\n\n## Required Changes\n\nNone.\n",
+    "implementation": "## Phase 1: Introduce service abstraction layer\n\n**Status:** Complete\n\n**Files created:**\n- `src/services/authService.js` — exports `loginWithCredentials(email, password)` and `getUsers()`, both returning Promises backed by mockUsers\n- `src/services/searchesService.js` — exports `getSearches()`, `createSearch(data)`, `updateSearch(id, patch)`, `deleteSearch(id)`, all async, backed by a module-level copy of mockSearches\n- `src/services/alertsService.js` — exports `getAlerts()` returning a Promise backed by mockAlerts\n\n**Files modified:**\n- `src/context/AuthContext.jsx` — was already updated (prior session); uses `loginWithCredentials()` from authService\n- `src/pages/Searches.jsx` — replaced `mockSearches` static import with `useEffect` → `getSearches()`; `toggleSearchStatus` calls `updateSearch`; `deleteSearch` calls service's `deleteSearch`; uses `undefined` sentinel to avoid empty-list flash\n- `src/pages/AlertHistory.jsx` — replaced `mockAlerts` import with `useEffect` → `getAlerts()`; ISV enrichment runs over resolved data as before\n- `src/pages/Admin.jsx` — was not in the phase plan but had a direct `mockUsers` import (R7 violation); updated to call `getUsers()` from authService\n\n**Deviations from plan:**\n- Added `getUsers()` to authService and updated Admin.jsx — not listed in phase Files but required by acceptance criterion R7 (\"no page may import from mock-data\"). Fix was minimal (one export, one import swap).\n\n**Verification:**\n- `grep -r \"mock-data\" src/pages src/context` returns empty — R7 satisfied\n- Lint count unchanged at 79 problems (all pre-existing, none introduced)\n- App behaviour unchanged: service functions resolve mock data synchronously via Promise microtask",
+    "release": "## Release Notes\n\n### What was built\n- Introduced a `src/services/` abstraction layer with three service modules: `searchesService.js`, `alertsService.js`, and `authService.js`\n- All service functions are async from day one so swapping mock data for real network calls requires no signature changes in consuming components\n- Updated `AuthContext.jsx`, `Searches.jsx`, `AlertHistory.jsx`, and `Admin.jsx` to import from services only — no page or context imports `mock-data.js` directly\n- Added `getUsers()` to `authService.js` to cover `Admin.jsx`, fixing an R7 violation not in the original phase plan\n- App behaviour is unchanged — service functions resolve mock data immediately via Promise microtask\n\n### Key decisions\n- Introduce a backend-agnostic `src/services/` layer with async function signatures so swapping mock arrays for real network calls requires no changes in consuming components.\n- Added `getUsers()` to `authService.js` and updated `Admin.jsx` to call it — not in the phase plan but required by R7 (no page may import from mock-data).\n\n### Changes by phase\n- **Phase 1: Introduce service abstraction layer** — Created three service modules (searchesService, alertsService, authService) and updated all four consumers (AuthContext, Searches, AlertHistory, Admin) so no page or context imports from mock-data directly. App behaviour is unchanged.\n\n## Verification\n\n### Production Build\nPASS — `npm run build` completed in 1.06s, 235 kB bundle.\n\n### Review Reference\nApproved by reviewer on 2026-06-03 — 6/6 acceptance criteria passed, 2/2 automated checks passed.\n\n### Release Checklist\n- [x] Approved review exists\n- [x] Production build passes\n- [x] Code committed and pushed\n- [x] Release notes prepared\n- [x] Stage content updated\n- [x] Completion event logged\n"
   },
   "stages": {
-    "design": {
-      "status": "skipped"
-    },
-    "release": {
-      "status": "not_started"
-    },
     "scope": {
       "status": "approved",
       "approvedAt": "2026-06-02T22:00:33Z",
       "startedAt": "2026-06-02T21:55:34Z"
     },
-    "architecture": {
-      "status": "skipped"
-    },
-    "review": {
-      "status": "in_progress",
-      "startedAt": "2026-06-03T14:55:02Z"
-    },
     "implementation": {
       "status": "approved",
       "approvedAt": "2026-06-03T14:55:00Z",
       "startedAt": "2026-06-03T14:50:00Z"
+    },
+    "design": {
+      "status": "skipped"
+    },
+    "review": {
+      "status": "approved",
+      "approvedAt": "2026-06-03T14:57:59Z",
+      "startedAt": "2026-06-03T14:55:02Z"
+    },
+    "release": {
+      "status": "awaiting_approval",
+      "startedAt": "2026-06-03T14:58:02Z"
+    },
+    "architecture": {
+      "status": "skipped"
     }
   },
-  "worktreePath": "/Users/franciscolucas/Documents/TBN/.defract-worktrees/task-replace-mock-data-with-real-data-sources-01kt54r89hd3",
-  "worktreeBaseBranch": "main",
-  "worktreeLastSyncedAt": "2026-06-03T14:55:02Z"
+  "worktreeLastSyncedAt": "2026-06-03T14:58:01Z",
+  "reviewPayload": {
+    "verdict": "approve",
+    "summary": "All six acceptance criteria pass. Three service modules are correctly structured with async signatures, no page or context imports from mock-data directly, and lint is clean at the pre-task baseline of 79 problems. App behaviour is preserved: login, searches, and alert history all work through the new service layer.",
+    "filesReviewedCount": 7,
+    "phasesReviewedCount": 1,
+    "automatedChecks": [
+      {
+        "name": "R7 grep (no mock-data in pages/context)",
+        "result": "pass",
+        "detail": "grep -r mock-data src/pages src/context returns no output (exit 1)"
+      },
+      {
+        "name": "Lint",
+        "result": "pass",
+        "detail": "79 problems — identical to pre-task baseline, no new errors introduced"
+      }
+    ],
+    "acceptanceCriteria": [
+      {
+        "acId": "AC-1",
+        "text": "`src/services/searchesService.js`, `src/services/alertsService.js`, and `src/services/authService.js` all exist and export the functions listed in R1–R3.",
+        "status": "pass",
+        "evidence": "searchesService.js:5-28 exports getSearches, createSearch, updateSearch, deleteSearch all returning Promises; alertsService.js:3-5 exports getAlerts returning a Promise; authService.js:3-6 exports loginWithCredentials returning a Promise."
+      },
+      {
+        "acId": "AC-2",
+        "text": "No `import` statement referencing `src/data/mock-data.js` (or `../data/mock-data`) remains in any file under `src/pages/` or `src/context/`.",
+        "status": "pass",
+        "evidence": "grep -r mock-data src/pages src/context returns no matches (exit 1). Only src/services/*.js files import from mock-data."
+      },
+      {
+        "acId": "AC-3",
+        "text": "Logging in with `francisco@flmotors.pt` / `dealer123` succeeds and populates `currentUser` as before.",
+        "status": "pass",
+        "evidence": "authService.js:4 finds user by email+password; mock-data.js:76-77 has francisco@flmotors.pt / dealer123; AuthContext.jsx:11-14 sets currentUser and isAuthenticated on successful resolution."
+      },
+      {
+        "acId": "AC-4",
+        "text": "The Searches page renders both mock searches on load; pausing/deleting a search still works correctly.",
+        "status": "pass",
+        "evidence": "Searches.jsx:14-16 calls getSearches() in useEffect on mount; line 12 uses undefined sentinel to prevent flash; toggleSearchStatus (line 18) calls updateSearch; deleteSearch (line 31) calls deleteSearchById."
+      },
+      {
+        "acId": "AC-5",
+        "text": "The Alert History page renders both mock alerts with computed ISV values identical to the current display.",
+        "status": "pass",
+        "evidence": "AlertHistory.jsx:17-19 calls getAlerts() in useEffect; lines 21-26 map resolved alerts through calculateISV; totalCost and marginEst computed at render time from raw inputs."
+      },
+      {
+        "acId": "AC-6",
+        "text": "`npm run lint` passes with no new errors.",
+        "status": "pass",
+        "evidence": "npm run lint reports 79 problems (77 errors, 2 warnings) — identical to the pre-task baseline documented in the implementation notes."
+      }
+    ],
+    "headlineFindings": [],
+    "requiredChanges": [],
+    "codeQualityFindings": [
+      {
+        "category": "Loading state inconsistency",
+        "severity": "info",
+        "file": "src/pages/AlertHistory.jsx",
+        "line": 12,
+        "description": "AlertHistory initialises alerts with useState([]) rather than an undefined sentinel, so the 'no alerts' empty-state message can flash for one frame before getAlerts() resolves. Searches.jsx uses the undefined sentinel pattern documented in the edge cases section.",
+        "fixOrRemediation": "Replace useState([]) with useState(undefined) and add an early return null when alerts === undefined, matching the pattern used in Searches.jsx:12 and :37."
+      }
+    ],
+    "securityFindings": [],
+    "decisions": [
+      "Introduce a backend-agnostic src/services/ layer with async function signatures so swapping mock arrays for real network calls requires no changes in consuming components.",
+      "Added getUsers() to authService.js and updated Admin.jsx to call it — not in the phase plan but required by R7 (no page may import from mock-data)."
+    ],
+    "revision": 1
+  }
 }
