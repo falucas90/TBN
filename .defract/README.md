@@ -6,13 +6,13 @@ This project uses [defract](https://defract.dev) for structured AI-assisted deve
 
 | Task | Stage | Status |
 |------|-------|--------|
-| Replace Mock Data with Real Data Sources | scope | active |
-| Wire up real auth backend, self-service flows, and role management | scope | active |
+| Wire up real auth backend, self-service flows, and role management | design | active |
 | Add a catch-all redirect route in App.jsx | release | completed |
 | Add authentication and admin view | release | completed |
 | Add delete support to the Searches page | release | completed |
 | Apply brand and margin filters in AlertHistory | release | completed |
 | Audit codebase for needed improvements and fixes | release | completed |
+| Replace Mock Data with Real Data Sources | release | completed |
 
 
 ## Reading without defract
