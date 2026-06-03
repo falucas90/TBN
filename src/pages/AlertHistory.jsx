@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { Card, Badge, Button } from '../components/ui';
-import { mockAlerts } from '../data/mock-data';
+import { getAlerts } from '../services/alertsService';
 import { calculateISV } from '../lib/isv';
 import { ExternalLink, Search } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
@@ -9,11 +9,16 @@ import { useToast } from '../context/ToastContext';
 export default function AlertHistory() {
   const { addToast } = useToast();
 
+  const [alerts, setAlerts] = useState([]);
   const [filterBrand, setFilterBrand] = useState('all');
   const [filterMargin, setFilterMargin] = useState('all');
   const [searchText, setSearchText] = useState('');
 
-  const alertsWithISV = mockAlerts.map(alert => {
+  useEffect(() => {
+    getAlerts().then(setAlerts);
+  }, []);
+
+  const alertsWithISV = alerts.map(alert => {
     const { isvPayable } = calculateISV(alert.cc, alert.co2, alert.fuelType, alert.ageYears, alert.flags.includes('PHEV'), false);
     const totalCost = alert.priceOriginal + isvPayable + alert.transportEst;
     const marginEst = alert.marketPrice - totalCost;

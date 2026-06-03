@@ -1,31 +1,40 @@
 import React from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { Card, Button, Badge, StatCard } from '../components/ui';
-import { mockSearches as initialMockSearches } from '../data/mock-data';
+import { getSearches, updateSearch, deleteSearch as deleteSearchById } from '../services/searchesService';
 import { Search, TrendingUp, Bell, Plus, Play, Pause, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function Searches() {
   const { addToast } = useToast();
-  const [searches, setSearches] = useState(initialMockSearches);
+  const [searches, setSearches] = useState(undefined);
+
+  useEffect(() => {
+    getSearches().then(setSearches);
+  }, []);
 
   const toggleSearchStatus = (id) => {
     setSearches(prev => prev.map(s => {
       if (s.id === id) {
         const isPausing = s.status === 'active';
+        const newStatus = isPausing ? 'paused' : 'active';
         addToast(isPausing ? 'Pesquisa pausada.' : 'Pesquisa retomada com sucesso.', isPausing ? 'warn' : 'success');
-        return { ...s, status: isPausing ? 'paused' : 'active' };
+        updateSearch(id, { status: newStatus });
+        return { ...s, status: newStatus };
       }
       return s;
     }));
   };
 
   const deleteSearch = (id) => {
+    deleteSearchById(id);
     setSearches(prev => prev.filter(s => s.id !== id));
     addToast('Pesquisa eliminada.', 'warn');
   };
+
+  if (searches === undefined) return null;
 
   const activeSearches = searches.filter(s => s.status === 'active');
   const matchesToday = activeSearches.reduce((sum, s) => sum + s.matchesToday, 0);
