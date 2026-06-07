@@ -15,7 +15,6 @@ defract:
   assignee: falucas90
 ---
 
-
 ## Story Brief
 
 Promoted from backlog item `bli-real-backend-or-7`.
@@ -439,4 +438,35 @@ The app's authentication layer moves from hard-coded mock data to Supabase, a ho
 - [ ] npm run lint passes with no errors
 
 **Estimated effort:** Medium
+
+## Implementation Notes
+
+## Phase 1: Core auth wire-up — Complete
+
+### What was built
+
+**New files:**
+- `src/lib/supabase.js` — Supabase client singleton using `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` env vars
+- `.env` — local placeholder (gitignored); builder fills in real Supabase project values
+- `.env.example` — committed template with placeholder values for other developers
+
+**Modified files:**
+- `src/services/authService.js` — replaced `mockUsers` import with Supabase SDK calls: `loginWithCredentials` → `signInWithPassword`, new `loginWithGoogle` (OAuth), `logoutUser` (signOut), `signupUser` (signUp with metadata), `sendPasswordResetEmail`, `updatePassword`, `resendVerificationEmail`, `updateUserProfile`; `getUsers()` stub retained for Phase 3
+- `src/context/AuthContext.jsx` — rewritten to subscribe to `supabase.auth.onAuthStateChange`; `isLoading` starts `true` and is set to `false` on first event (INITIAL_SESSION); `currentUser` set with `role` mapped from `user_metadata.role` (defaults to `'dealer'`); exposes `login`, `loginGoogle`, `signup`, `logout`, `isLoading`, `isAuthenticated`, `currentUser`
+- `src/pages/Login.jsx` — `handleLogin` made async with try/catch; Supabase error codes mapped to Portuguese messages; `useEffect` watches `isAuthenticated` to navigate to `/searches` (avoids race with async `onAuthStateChange`); Google button wired to `loginGoogle()`; forgot-password `<a>` replaced with `<Link to="/forgot-password">`; `isSubmitting` state disables button during request
+- `src/pages/Signup.jsx` — all inputs made controlled; step 2 "Concluir Registo" calls `signup(email, password, { full_name, company, nif, role: 'dealer' })`; on success navigates to `/verify-email`; Portuguese error messages on failure
+- `src/App.jsx` — `ProtectedRoute` and `AdminRoute` render `AuthLoadingSpinner` while `isLoading` is true; spinner is a full-viewport white overlay with a teal CSS border spinner (keyframe defined inline)
+- `package.json` — `@supabase/supabase-js` added to dependencies via `npm install`
+- `.gitignore` — `.env` added so real credentials are never committed
+
+### Key implementation decision
+
+Post-login navigation uses `useEffect` on `isAuthenticated` in Login.jsx rather than `navigate()` directly after `await login()`. This avoids a race condition where `navigate('/searches')` fires before `onAuthStateChange` has propagated the new session into React state, which would cause ProtectedRoute to see `isAuthenticated=false` and redirect back to `/login`.
+
+### Verification status
+
+- `npm install` completed without errors (279 packages added)
+- `vite build` passes cleanly — 1821 modules transformed, zero errors
+- Lint: 105 pre-existing errors (react/prop-types, unused React imports — codebase-wide, predating this task); zero new violations introduced
+- Live functional testing requires builder to fill in `.env` with real Supabase project URL and anon key
 
