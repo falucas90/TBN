@@ -1,27 +1,74 @@
+/* CRIVO — Design tokens (ported from official design system) */
+
+@import url('https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&f[]=jetbrains-mono@400,500&display=swap');
+
 :root {
-  --color-primary-teal: #0d9488;
-  --color-primary-teal-light: #ccfbf1;
-  --color-primary-teal-dark: #0f766e;
-  --color-text-primary: #111827;
-  --color-text-secondary: #6b7280;
-  --color-bg-page: #f3f4f6;
-  --color-bg-card: #ffffff;
-  --color-bg-sidebar: #ffffff;
-  --color-border: #e5e7eb;
-  --color-border-hover: #d1d5db;
-  --color-info-bg: #eff6ff;
-  --color-info-text: #3b82f6;
-  --color-warn-bg: #fffbeb;
-  --color-warn-text: #d97706;
-  --color-success-bg: #f0fdf4;
-  --color-success-text: #16a34a;
-  --color-danger-bg: #fef2f2;
-  --color-danger-text: #dc2626;
+  /* ——— Surfaces (paper, light) ——— */
+  --obsidian:  #FAFAF7;
+  --graphite:  #FFFFFF;
+  --slate:     #F2F1EC;
+  --slate-2:   #EDECE5;
+  --hairline:  #E3E1D8;
+  --hairline-strong: #CFCCC0;
 
-  --radius-card: 12px;
-  --radius-input: 6px;
-  --radius-badge: 999px;
+  /* ——— Ink ——— */
+  --bone: #12140F;
+  --ash:  #5E6158;
+  --dust: #858879;
+  --chalk:#B3B2A6;
 
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  /* ——— Signal ——— */
+  --emerald:     #0E8C6A;
+  --emerald-ink: #FFFFFF;
+  --mint:        #3FA88A;
+  --amber:       #B88412;
+  --coral:       #C94B4B;
+
+  /* ——— Tints ——— */
+  --emerald-12: rgba(14,140,106,0.10);
+  --emerald-20: rgba(14,140,106,0.18);
+  --amber-12:   rgba(184,132,18,0.12);
+  --coral-12:   rgba(201,75,75,0.10);
+
+  /* ——— Type ——— */
+  --font-display: "General Sans", "Söhne", ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    "JetBrains Mono", ui-monospace, Menlo, monospace;
+
+  --fs-eyebrow: 11px;
+  --fs-micro:   12px;
+  --fs-body:    14px;
+  --fs-md:      15px;
+  --fs-lg:      17px;
+  --fs-xl:      22px;
+  --fs-2xl:     28px;
+  --fs-3xl:     40px;
+
+  --lh-body:  1.55;
+  --lh-tight: 1.15;
+
+  --tracking-tight:   -0.02em;
+  --tracking-tighter: -0.03em;
+  --tracking-label:    0.12em;
+
+  /* ——— Spacing ——— */
+  --s-1: 4px;  --s-2: 8px;  --s-3: 12px; --s-4: 16px;
+  --s-5: 20px; --s-6: 24px; --s-7: 32px; --s-8: 40px;
+  --s-9: 48px; --s-10: 64px;
+
+  /* ——— Radius ——— */
+  --r-sm:   6px;
+  --r-md:   8px;
+  --r-lg:   12px;
+  --r-xl:   16px;
+  --r-full: 999px;
+
+  /* ——— Motion ——— */
+  --t-fast: 120ms;
+  --t-base: 180ms;
+  --t-slow: 240ms;
+  --ease: cubic-bezier(0.2, 0.6, 0.2, 1);
+
+  /* ——— Layout ——— */
+  --sidebar-w: 220px;
+  --sidebar-collapsed: 64px;
 }
