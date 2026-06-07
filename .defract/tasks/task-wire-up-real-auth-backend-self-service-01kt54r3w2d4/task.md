@@ -3,7 +3,7 @@ defract:
   id: task-wire-up-real-auth-backend-self-service-01kt54r3w2d4
   type: task
   status: active
-  stage: design
+  stage: architecture
   phase: 0
   total_phases: 3
   priority: normal
@@ -387,4 +387,29 @@ The email address is displayed so the user can confirm they are checking the rig
 ```
 
 Full-viewport white background with a single centered spinner using the primary teal color. No text, no logo — just enough to signal the app is resolving auth state, without committing to layout that the auth result might contradict. Visible only if the session check takes longer than ~300ms.
+
+## Architecture
+
+### Open Decisions
+
+**1. Which authentication service should handle user accounts, login sessions, and email flows?**
+
+This choice locks in the SDK used across every phase of the implementation. Changing providers mid-build means rewriting every auth call — it gates the entire project.
+
+- Supabase (recommended): One package covers email/password auth, Google OAuth, email verification, password reset, and an admin API for user management. Open-source with a generous free tier and a Postgres database included.
+- Firebase Auth: Google's equivalent with the same feature set. Tighter Google Cloud ecosystem coupling; admin role operations require a Firebase Admin SDK running in a Cloud Function rather than Supabase's Edge Functions.
+
+**2. Where should each user's role (Dealer or Admin) be stored?**
+
+The role must be available on every page load for route guards to work without an extra round-trip. The storage location also determines how easily roles can be updated and whether mutations can be locked down without additional infrastructure.
+
+- Provider user metadata (recommended): Role is stored directly inside the auth provider's built-in user record. Available immediately on session resume with no extra database query. Mutations still require a server-side function to prevent self-promotion.
+- Separate profiles table in Supabase Postgres: Role lives in a typed SQL table with row-level security policies controlling who can write it. Cleaner for future profile fields; adds one database read per session to hydrate the role into the app.
+
+**3. How should the admin role-change operation be protected against abuse?**
+
+If a non-admin user can reach the API that changes roles from their browser, they can promote themselves to admin. The service key that authorises role mutations must never be exposed client-side.
+
+- Supabase Edge Function (recommended): A thin server-side function holds the service_role key and validates the caller's JWT before executing the admin operation. Works regardless of which role-storage option is chosen and keeps all secrets off the client.
+- Row Level Security on a profiles table: If roles are stored in a Postgres table, a RLS policy can restrict writes to rows where the caller's current role is admin. No Edge Function required, but only applicable if the 'profiles table' option is chosen for D2.
 

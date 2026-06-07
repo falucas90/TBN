@@ -1,5 +1,5 @@
 {
-  "tasks_since_consolidation": 2,
+  "tasks_since_consolidation": 3,
   "consolidation_history": [
     {
       "entriesArchived": 0,
@@ -14,15 +14,22 @@
       "entriesUpdated": 0,
       "taskId": "task-audit-codebase-for-needed-improvements-01kt545bmfg1",
       "timestamp": "2026-06-02T21:53:50.708888+00:00"
+    },
+    {
+      "entriesArchived": 0,
+      "entriesCreated": 3,
+      "entriesUpdated": 0,
+      "taskId": "task-add-authentication-and-admin-view-01kt54czr1xn",
+      "timestamp": "2026-06-07T19:12:47.324041+00:00"
     }
   ],
   "usage_sweep_cursor": "2026-06-07T19:02:21Z",
   "last_emit_hashes": {
     "builder-preferences.md": "3330d454526848980df9e46c27aaa427d248933fad32c479bd82906eb5d8fabb",
-    "decisions.md": "7a1577dd3e0452b4c51657ed1bc4d010c4675cad1aecec2a2dc7febf4e4d833a",
     "mistakes.md": "b69323a13624e31e59b89012cf54158465b76789f9bf329d32101df8bcb2de38",
-    "workflows.md": "eefc5d74970b514356eb6e4bab67acf9697a8d5e773987bf6355c0b1bfb85094",
-    "project-facts.md": "a25a12e20141df5c38db592e489394fbaea7d2afa191e30b1e449d011b6cec84"
+    "project-facts.md": "a25a12e20141df5c38db592e489394fbaea7d2afa191e30b1e449d011b6cec84",
+    "decisions.md": "f44b8c295b2558847e1ca54802ad5360a7cc72243331f5f24a8731c331ec2c80",
+    "workflows.md": "33bd4205fb5357fe1b2b3d6f79f26c04478361cc5035722c5f699346a3142178"
   },
   "pending_external_edits": []
 }
