@@ -51,7 +51,26 @@ export async function updateUserProfile(profileData) {
   if (error) throw error;
 }
 
-// Stub — replaced with Edge Function call in Phase 3
-export function getUsers() {
-  return Promise.resolve([]);
+export async function listUsers() {
+  const { data, error } = await supabase.functions.invoke('update-user-role', {
+    body: { action: 'list' },
+  });
+  if (error) throw error;
+  return data.users ?? [];
+}
+
+export async function updateUserRole(userId, role) {
+  const { data, error } = await supabase.functions.invoke('update-user-role', {
+    body: { action: 'update-role', userId, role },
+  });
+  if (error) throw error;
+  return data.user;
+}
+
+export async function updateUserStatus(userId, status) {
+  const { data, error } = await supabase.functions.invoke('update-user-role', {
+    body: { action: 'update-status', userId, status },
+  });
+  if (error) throw error;
+  return data.user;
 }
