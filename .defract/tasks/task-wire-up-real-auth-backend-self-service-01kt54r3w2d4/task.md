@@ -470,3 +470,26 @@ Post-login navigation uses `useEffect` on `isAuthenticated` in Login.jsx rather 
 - Lint: 105 pre-existing errors (react/prop-types, unused React imports — codebase-wide, predating this task); zero new violations introduced
 - Live functional testing requires builder to fill in `.env` with real Supabase project URL and anon key
 
+## Phase 2: Self-service flows — Complete
+
+### What was built
+
+**New files:**
+- `src/pages/ForgotPassword.jsx` — Centered-card page at `/forgot-password`. Email input with disabled submit until value entered; calls `sendPasswordResetEmail` on submit; always shows success Callout in-place (email cleared) regardless of outcome — prevents revealing whether email is registered.
+- `src/pages/ResetPassword.jsx` — Centered-card page at `/reset-password`. On mount, checks URL for `?code=` or `#access_token`; if absent, immediately shows danger Callout with "Pedir novo link" button and no password fields. If token present, subscribes to `supabase.auth.onAuthStateChange` for `PASSWORD_RECOVERY` event; on valid token shows two password fields with mismatch inline error and disabled submit; on success shows success Callout with link to `/login`.
+- `src/pages/VerifyEmail.jsx` — Centered-card page at `/verify-email`. Displays Mail icon, user's email from `useAuth().currentUser`, "Reenviar email" secondary button; calls `resendVerificationEmail` on click; disables button and runs 60-second countdown after each click using `setInterval`; displays countdown as "Reenviar disponível em Xs".
+
+**Modified files:**
+- `src/App.jsx` — imported three new pages; added public routes for `/forgot-password`, `/reset-password`, `/verify-email` before the ProtectedRoute block
+
+### Key implementation decision
+
+ResetPassword detects valid recovery tokens by checking the URL for `?code=` or `#access_token` before subscribing to `onAuthStateChange`. If no token is in the URL, the invalid state is shown immediately rather than waiting for events that will never arrive, avoiding an indefinite "checking..." screen.
+
+### Verification status
+
+- `vite build` passes cleanly — 1824 modules (3 new), zero errors
+- Lint: 107 total (105 errors + 2 warnings) — identical to pre-existing baseline, zero new violations
+- All three new routes are public (outside ProtectedRoute) and accessible without authentication
+- Login page already linked to `/forgot-password` via `<Link>` from Phase 1
+
