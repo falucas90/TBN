@@ -493,3 +493,26 @@ ResetPassword detects valid recovery tokens by checking the URL for `?code=` or 
 - All three new routes are public (outside ProtectedRoute) and accessible without authentication
 - Login page already linked to `/forgot-password` via `<Link>` from Phase 1
 
+## Phase 3: Admin role management and cleanup — Complete
+
+### What was built
+
+**New files:**
+- `supabase/functions/update-user-role/index.ts` — Deno Edge Function using Supabase service_role key. Verifies caller JWT and checks caller's `user_metadata.role === 'admin'` before executing admin operations. Supports `action: 'list'` (listUsers), `action: 'update-role'` (updateUserById with role in user_metadata), and `action: 'update-status'` (updateUserById with status in user_metadata). Returns JSON with CORS headers.
+
+**Modified files:**
+- `src/services/authService.js` — removed `getUsers()` stub; added `listUsers()`, `updateUserRole(userId, role)`, `updateUserStatus(userId, status)` — all invoke the Edge Function via `supabase.functions.invoke`
+- `src/pages/Admin.jsx` — full rewrite: fetches live user list from Edge Function on mount; shows 3 skeleton placeholder rows while loading; Funcao column with `<select>` (Dealer / Admin); Guardar Button enabled only when pending role differs from loaded role; clicking Guardar calls `updateUserRole`, shows success/error toast, resets button; Estado column uses Toggle component for immediate-save status changes with success toast; admin self-demotion shows Portuguese warning toast; empty-state row when user list is empty
+- `src/pages/Settings.jsx` — name and phone fields are now controlled state initialised from `currentUser.user_metadata`; "Guardar Alterações" is async and calls `updateUserProfile`; success toast shown only after provider confirms save; error toast on failure
+- `src/data/mock-data.js` — `mockUsers` array export removed entirely; `mockSearches` and `mockAlerts` untouched
+
+### Key implementation decision
+
+`pendingRoles` state is initialised inside the `.then()` callback alongside `setUsers`, so the dirty-check (`pendingRole !== loadedRole`) starts with accurate baseline values. This ensures no row appears dirty on first render.
+
+### Verification status
+
+- `grep -r 'mockUsers' src/` — CLEAN (no matches)
+- `vite build` passes cleanly — 1824 modules, zero errors
+- Lint: 107 problems (105 errors + 2 warnings) — identical to Phase 2 baseline, zero new violations
+
