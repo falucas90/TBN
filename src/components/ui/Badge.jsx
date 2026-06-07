@@ -2,16 +2,16 @@ import React from 'react';
 
 export default function Badge({ children, variant = 'info', className = '' }) {
   const styles = {
-    info: { bg: 'var(--color-info-bg)', text: 'var(--color-info-text)' },
-    warn: { bg: 'var(--color-warn-bg)', text: 'var(--color-warn-text)' },
-    success: { bg: 'var(--color-success-bg)', text: 'var(--color-success-text)' },
-    danger: { bg: 'var(--color-danger-bg)', text: 'var(--color-danger-text)' },
-    outline: { bg: 'transparent', text: 'var(--color-text-secondary)', border: '1px solid var(--color-border)' },
-    primary: { bg: 'var(--color-primary-teal)', text: '#ffffff' },
-    white: { bg: '#ffffff', text: 'var(--color-text-primary)' }
+    info:    { bg: 'var(--info-bg)',    color: 'var(--info)'    },
+    warn:    { bg: 'var(--warn-bg)',    color: 'var(--warn)'    },
+    success: { bg: 'var(--success-bg)', color: 'var(--success)' },
+    danger:  { bg: 'var(--danger-bg)', color: 'var(--danger)'  },
+    primary: { bg: 'var(--accent-dim)', color: 'var(--accent)'  },
+    outline: { bg: 'transparent',       color: 'var(--text-secondary)', border: '1px solid var(--border-default)' },
+    muted:   { bg: 'var(--surface-3)',  color: 'var(--text-secondary)' },
   };
 
-  const currentStyle = styles[variant] || styles.info;
+  const s = styles[variant] || styles.info;
 
   return (
     <span
@@ -19,14 +19,16 @@ export default function Badge({ children, variant = 'info', className = '' }) {
       style={{
         display: 'inline-flex',
         alignItems: 'center',
-        padding: '0.125rem 0.625rem',
-        borderRadius: 'var(--radius-badge)',
-        fontSize: '0.75rem',
+        padding: '0.15rem 0.55rem',
+        borderRadius: 'var(--radius-pill)',
+        fontSize: '0.6875rem',
         fontWeight: '600',
-        backgroundColor: currentStyle.bg,
-        color: currentStyle.text,
-        border: currentStyle.border || 'none',
-        whiteSpace: 'nowrap'
+        letterSpacing: '0.02em',
+        textTransform: 'uppercase',
+        background: s.bg,
+        color: s.color,
+        border: s.border || 'none',
+        whiteSpace: 'nowrap',
       }}
     >
       {children}
