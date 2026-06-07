@@ -1,30 +1,47 @@
 import React from 'react';
 
 export default function StatCard({ label, value, trend, trendLabel, icon: Icon }) {
+  const isPositive = trend && (trend.startsWith('+') || trend.startsWith('↑'));
+  const isNegative = trend && (trend.startsWith('-') || trend.startsWith('↓'));
+
   return (
     <div style={{
-      backgroundColor: 'var(--color-bg-card)',
-      borderRadius: 'var(--radius-card)',
-      padding: '1.5rem',
-      border: '1px solid var(--color-border)',
-      boxShadow: 'var(--shadow-sm)',
+      background: 'var(--surface-1)',
+      borderRadius: 'var(--radius-lg)',
+      padding: '1.25rem 1.5rem',
+      border: '1px solid var(--border-subtle)',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '0.75rem',
     }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-        <h3 style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', fontWeight: '500' }}>{label}</h3>
-        {Icon && <Icon size={20} style={{ color: 'var(--color-text-secondary)' }} />}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)', fontWeight: '500' }}>
+          {label}
+        </span>
+        {Icon && (
+          <div style={{
+            width: '32px', height: '32px', borderRadius: 'var(--radius-sm)',
+            background: 'var(--accent-dim)', display: 'flex',
+            alignItems: 'center', justifyContent: 'center',
+          }}>
+            <Icon size={16} color="var(--accent)" />
+          </div>
+        )}
       </div>
-      <div style={{ fontSize: '1.875rem', fontWeight: '700', color: 'var(--color-text-primary)', marginBottom: '0.25rem' }}>
+
+      <div style={{ fontSize: '2rem', fontWeight: '700', lineHeight: 1, letterSpacing: '-0.03em' }}>
         {value}
       </div>
+
       {trend && (
-        <div style={{ fontSize: '0.875rem', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+        <div style={{ fontSize: '0.8125rem', display: 'flex', gap: '0.375rem', alignItems: 'center' }}>
           <span style={{
-            color: trend.startsWith('+') || trend.startsWith('↑') ? 'var(--color-success-text)' : 'var(--color-danger-text)',
-            fontWeight: '600'
+            color: isPositive ? 'var(--success)' : isNegative ? 'var(--danger)' : 'var(--text-secondary)',
+            fontWeight: '600',
           }}>
             {trend}
           </span>
-          <span style={{ color: 'var(--color-text-secondary)' }}>{trendLabel}</span>
+          <span style={{ color: 'var(--text-muted)' }}>{trendLabel}</span>
         </div>
       )}
     </div>

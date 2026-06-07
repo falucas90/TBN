@@ -1,225 +1,194 @@
 import React, { useState } from 'react';
-import AppLayout from '../components/layout/AppLayout';
-import { Card, Button, StatCard, Toggle } from '../components/ui';
-import { FormField, CurrencyInput } from '../components/forms';
-import { useToast } from '../context/ToastContext';
 import { useNavigate } from 'react-router-dom';
+import { Btn, Icon, Switch } from '../components/ui/Primitives';
 
 export default function CreateSearch() {
-  const { addToast } = useToast();
   const navigate = useNavigate();
 
-  const [alerts, setAlerts] = useState({
-    whatsapp: true,
-    email: false,
-    sms: false
-  });
-  const [alertThreshold, setAlertThreshold] = useState(3000);
+  const [alerts, setAlerts] = useState({ whatsapp: true, email: false, sms: false });
   const [dailySummary, setDailySummary] = useState(true);
-  const [minMargin, setMinMargin] = useState(2500);
   
   const [countries, setCountries] = useState({
-    germany: true,
-    france: false,
-    netherlands: false,
-    belgium: false,
-    spain: false
+    germany: true, france: false, netherlands: false, belgium: false, spain: false
   });
 
   const handleLaunch = () => {
-    addToast('Nova pesquisa iniciada com sucesso.', 'success');
-    navigate('/searches');
-  };
-
-  const handleSaveDraft = () => {
-    addToast('Pesquisa guardada nos rascunhos.', 'info');
     navigate('/searches');
   };
 
   return (
-    <AppLayout>
-      <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
-         
-         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-          <div>
-            <h1 style={{ fontSize: '1.875rem', fontWeight: '700', marginBottom: '0.25rem' }}>Criar Nova Pesquisa</h1>
-            <p style={{ color: 'var(--color-text-secondary)' }}>Configure os critérios, origens e limites de alerta.</p>
-          </div>
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <Button variant="secondary" onClick={handleSaveDraft}>Guardar Rascunho</Button>
-            <Button onClick={handleLaunch}>Iniciar Pesquisa</Button>
-          </div>
+    <div className="page">
+      <div className="page__top">
+        <div>
+          <h1 className="page__title">Criar Nova Pesquisa</h1>
+          <p className="page__sub">Configure os critérios, origens e limites de alerta.</p>
         </div>
+        <div className="row gap-3">
+          <Btn variant="ghost" onClick={handleLaunch}>Guardar Rascunho</Btn>
+          <Btn variant="primary" onClick={handleLaunch}>Iniciar Pesquisa</Btn>
+        </div>
+      </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(500px, 1fr) 350px', gap: '2rem', alignItems: 'start' }}>
+      <div className="page__body" style={{ maxWidth: '1000px', margin: '0 auto', width: '100%' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(500px, 1fr) 350px', gap: '32px', alignItems: 'start' }}>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            {/* Form sections */}
-            <Card>
-               <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1.5rem' }}>1. Critérios do Veículo</h2>
-               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-                 <FormField label="Marca" required>
-                   <select style={{ padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }}>
-                     <option>Selecionar Marca</option>
-                     <option>BMW</option>
-                     <option>Renault</option>
-                     <option>Mercedes-Benz</option>
-                     <option>Audi</option>
-                   </select>
-                 </FormField>
-                 <FormField label="Modelo" required>
-                   <select style={{ padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }}>
-                     <option>Selecionar Modelo</option>
-                     <option>Série 3</option>
-                     <option>Classe A</option>
-                     <option>Megane</option>
-                   </select>
-                 </FormField>
-                 
-                 {/* Year Min/Max */}
-                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-                   <FormField label="Ano Mín">
-                     <input type="number" defaultValue="2018" style={{ padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }} />
-                   </FormField>
-                   <FormField label="Ano Máx">
-                     <input type="number" defaultValue="2024" style={{ padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }} />
-                   </FormField>
-                 </div>
+          <div className="stack gap-6">
+            <div className="card">
+              <div className="card__body stack gap-5">
+                <h2 style={{ fontSize: '15px', fontWeight: '600' }}>1. Critérios do Veículo</h2>
+                
+                <div className="form-grid-2">
+                  <div className="field">
+                    <label className="field__label">Marca</label>
+                    <select className="select">
+                      <option>BMW</option>
+                      <option>Renault</option>
+                      <option>Mercedes-Benz</option>
+                      <option>Audi</option>
+                    </select>
+                  </div>
+                  <div className="field">
+                    <label className="field__label">Modelo</label>
+                    <select className="select">
+                      <option>Série 3</option>
+                      <option>Classe A</option>
+                      <option>Megane</option>
+                    </select>
+                  </div>
+                </div>
 
-                 {/* Mileage Min/Max */}
-                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-                   <FormField label="KMs Mín">
-                     <input type="number" defaultValue="0" style={{ padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }} />
-                   </FormField>
-                   <FormField label="KMs Máx">
-                     <input type="number" defaultValue="100000" style={{ padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }} />
-                   </FormField>
-                 </div>
+                <div className="form-grid-2">
+                  <div className="field">
+                    <label className="field__label">Ano</label>
+                    <div className="row gap-2">
+                      <input type="number" className="input" defaultValue="2018" placeholder="Mín" />
+                      <span className="muted">—</span>
+                      <input type="number" className="input" defaultValue="2024" placeholder="Máx" />
+                    </div>
+                  </div>
+                  <div className="field">
+                    <label className="field__label">Quilómetros (KMs)</label>
+                    <div className="row gap-2">
+                      <input type="number" className="input" defaultValue="0" placeholder="Mín" />
+                      <span className="muted">—</span>
+                      <input type="number" className="input" defaultValue="100000" placeholder="Máx" />
+                    </div>
+                  </div>
+                </div>
 
-                 {/* Price Min/Max */}
-                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-                   <FormField label="Preço Mín (€)">
-                     <input type="number" defaultValue="0" style={{ padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }} />
-                   </FormField>
-                   <FormField label="Preço Máx (€)">
-                     <input type="number" defaultValue="30000" style={{ padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }} />
-                   </FormField>
-                 </div>
-
-                 {/* Classic Metrics */}
-                 <FormField label="Combustível">
-                   <select style={{ padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }}>
-                     <option>Todos</option>
-                     <option>Diesel</option>
-                     <option>Gasolina</option>
-                     <option>Elétrico</option>
-                     <option>Híbrido (PHEV)</option>
-                   </select>
-                 </FormField>
-                 
-                 <FormField label="Caixa">
-                   <select style={{ padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }}>
-                     <option>Todas</option>
-                     <option>Automática</option>
-                     <option>Manual</option>
-                   </select>
-                 </FormField>
-
-                 <FormField label="Carroçaria">
-                   <select style={{ padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }}>
-                     <option>Todas</option>
-                     <option>Carrinha (Station)</option>
-                     <option>Sedan</option>
-                     <option>SUV</option>
-                   </select>
-                 </FormField>
-
-               </div>
-            </Card>
-
-            <Card>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1.5rem' }}>2. Países de Origem</h2>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-                {Object.entries({
-                  germany: 'Alemanha', france: 'França', netherlands: 'Holanda', belgium: 'Bélgica', spain: 'Espanha'
-                }).map(([key, label]) => (
-                  <label key={key} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                    <input 
-                      type="checkbox" 
-                      checked={countries[key]} 
-                      onChange={(e) => setCountries(c => ({...c, [key]: e.target.checked}))} 
-                      style={{ width: '1.125rem', height: '1.125rem', accentColor: 'var(--color-primary-teal)' }}
-                    />
-                    <span style={{ fontSize: '0.9rem', fontWeight: '500' }}>{label}</span>
-                  </label>
-                ))}
+                <div className="form-grid-2">
+                  <div className="field">
+                    <label className="field__label">Preço (€)</label>
+                    <div className="row gap-2">
+                      <input type="number" className="input" defaultValue="0" placeholder="Mín" />
+                      <span className="muted">—</span>
+                      <input type="number" className="input" defaultValue="30000" placeholder="Máx" />
+                    </div>
+                  </div>
+                  <div className="field">
+                    <label className="field__label">Combustível</label>
+                    <select className="select">
+                      <option>Todos</option>
+                      <option>Diesel</option>
+                      <option>Gasolina</option>
+                      <option>Híbrido (PHEV)</option>
+                    </select>
+                  </div>
+                </div>
               </div>
-            </Card>
+            </div>
 
-            <Card>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1.5rem' }}>3. Margem e Notificações</h2>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
-                <FormField label="Margem Mínima Esperada">
-                  <CurrencyInput value={minMargin} onChange={setMinMargin} />
-                </FormField>
-                <FormField label="Referência de Mercado (Baseline)">
-                  <select style={{ padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }}>
-                     <option>Standvirtual (Média)</option>
-                   </select>
-                </FormField>
+            <div className="card">
+              <div className="card__body stack gap-4">
+                <h2 style={{ fontSize: '15px', fontWeight: '600' }}>2. Países de Origem</h2>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
+                  {Object.entries({
+                    germany: 'Alemanha', france: 'França', netherlands: 'Holanda', belgium: 'Bélgica', spain: 'Espanha'
+                  }).map(([key, label]) => (
+                    <label key={key} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                      <input 
+                        type="checkbox" 
+                        checked={countries[key]} 
+                        onChange={(e) => setCountries(c => ({...c, [key]: e.target.checked}))} 
+                        style={{ width: '16px', height: '16px', accentColor: 'var(--emerald)' }}
+                      />
+                      <span style={{ fontSize: '13px', color: 'var(--bone)' }}>{label}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
-              <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                 
-                 <div>
-                   <h3 style={{ fontSize: '0.9rem', fontWeight: '600', marginBottom: '0.75rem' }}>Alertas Instantâneos</h3>
-                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-                     <span style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>Disparar quando a margem for superior a:</span>
-                     <div style={{ width: '120px' }}>
-                       <CurrencyInput value={alertThreshold} onChange={setAlertThreshold} />
-                     </div>
-                   </div>
-                   
-                   <div style={{ display: 'flex', gap: '1.5rem' }}>
-                     <label style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.875rem' }}>
-                       <input type="checkbox" checked={alerts.whatsapp} onChange={e => setAlerts(a => ({...a, whatsapp: e.target.checked}))}/> WhatsApp
-                     </label>
-                     <label style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.875rem' }}>
-                       <input type="checkbox" checked={alerts.email} onChange={e => setAlerts(a => ({...a, email: e.target.checked}))}/> Email
-                     </label>
-                     <label style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.875rem' }}>
-                       <input type="checkbox" checked={alerts.sms} onChange={e => setAlerts(a => ({...a, sms: e.target.checked}))}/> SMS
-                     </label>
-                   </div>
-                 </div>
+            </div>
 
-                 <Toggle label="Enviar Resumo Diário por Email" checked={dailySummary} onChange={setDailySummary} />
+            <div className="card">
+              <div className="card__body stack gap-5">
+                <h2 style={{ fontSize: '15px', fontWeight: '600' }}>3. Margem e Notificações</h2>
+                <div className="form-grid-2">
+                  <div className="field">
+                    <label className="field__label">Margem Mínima Esperada (€)</label>
+                    <input type="number" className="input" defaultValue="2500" />
+                  </div>
+                  <div className="field">
+                    <label className="field__label">Disparar Alerta a partir de (€)</label>
+                    <input type="number" className="input" defaultValue="3000" />
+                  </div>
+                </div>
+                
+                <div style={{ borderTop: '1px solid var(--hairline)', paddingTop: '20px' }}>
+                  <div className="field">
+                    <label className="field__label" style={{ marginBottom: '8px' }}>Canais de Alerta Instantâneo</label>
+                    <div className="row gap-5">
+                      <label className="row gap-2" style={{ cursor: 'pointer', fontSize: '13px' }}>
+                        <input type="checkbox" checked={alerts.whatsapp} onChange={e => setAlerts(a => ({...a, whatsapp: e.target.checked}))} style={{ accentColor: 'var(--emerald)' }}/> WhatsApp
+                      </label>
+                      <label className="row gap-2" style={{ cursor: 'pointer', fontSize: '13px' }}>
+                        <input type="checkbox" checked={alerts.email} onChange={e => setAlerts(a => ({...a, email: e.target.checked}))} style={{ accentColor: 'var(--emerald)' }}/> Email
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="row" style={{ justifyContent: 'space-between', borderTop: '1px solid var(--hairline)', paddingTop: '20px' }}>
+                  <div className="stack gap-1">
+                    <span style={{ fontSize: '13px', fontWeight: 500 }}>Resumo Diário</span>
+                    <span className="muted" style={{ fontSize: '12px' }}>Enviar email todos os dias de manhã</span>
+                  </div>
+                  <Switch checked={dailySummary} onChange={setDailySummary} />
+                </div>
               </div>
-            </Card>
+            </div>
+
           </div>
 
-          <div style={{ position: 'sticky', top: '2rem' }}>
-             <Card style={{ backgroundColor: 'var(--color-bg-page)', border: 'none' }}>
-               <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1.5rem' }}>Dimensão da Audiência</h3>
-               <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
-                 Com base nos anúncios atuais, aqui está o número de carros que correspondem aos seus critérios em bruto antes dos cálculos de margem.
-               </p>
-               <StatCard label="Anúncios Ativos Estimados" value="48" icon={null} />
-               <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.875rem' }}>
-                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                   <span style={{ color: 'var(--color-text-secondary)' }}>Resultados na Alemanha</span>
-                   <span style={{ fontWeight: '500' }}>32</span>
-                 </div>
-                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                   <span style={{ color: 'var(--color-text-secondary)' }}>Resultados na França</span>
-                   <span style={{ fontWeight: '500' }}>16</span>
-                 </div>
-               </div>
-               <Button fullWidth style={{ marginTop: '2rem' }} onClick={handleLaunch}>Iniciar Pesquisa</Button>
-             </Card>
+          <div style={{ position: 'sticky', top: '28px' }}>
+            <div className="card" style={{ background: 'transparent', border: '1px solid var(--hairline)' }}>
+              <div className="card__body stack gap-4">
+                <h3 style={{ fontSize: '15px', fontWeight: '600' }}>Audiência Estimada</h3>
+                <p style={{ color: 'var(--ash)', fontSize: '13px' }}>
+                  Anúncios correspondentes antes de aplicar os cálculos de rentabilidade:
+                </p>
+                <div className="stack gap-1">
+                  <span style={{ fontSize: '32px', fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--bone)' }}>48</span>
+                  <span className="muted" style={{ fontSize: '12px' }}>veículos totais na Europa</span>
+                </div>
+                <div className="stack gap-2" style={{ marginTop: '12px', borderTop: '1px solid var(--hairline)', paddingTop: '16px' }}>
+                  <div className="row" style={{ justifyContent: 'space-between', fontSize: '13px' }}>
+                    <span className="muted">Alemanha</span>
+                    <span className="bone" style={{ fontWeight: 500 }}>32</span>
+                  </div>
+                  <div className="row" style={{ justifyContent: 'space-between', fontSize: '13px' }}>
+                    <span className="muted">França</span>
+                    <span className="bone" style={{ fontWeight: 500 }}>16</span>
+                  </div>
+                </div>
+                <Btn variant="primary" size="lg" style={{ width: '100%', marginTop: '16px' }} onClick={handleLaunch}>
+                  Iniciar Pesquisa <Icon name="arrow" color="#FFF" />
+                </Btn>
+              </div>
+            </div>
           </div>
 
         </div>
       </div>
-    </AppLayout>
+    </div>
   );
 }
