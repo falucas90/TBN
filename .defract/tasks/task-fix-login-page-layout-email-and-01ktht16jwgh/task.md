@@ -3,7 +3,7 @@ defract:
   id: task-fix-login-page-layout-email-and-01ktht16jwgh
   type: bug
   status: active
-  stage: scope
+  stage: implementation
   phase: 0
   total_phases: 1
   priority: normal
@@ -14,6 +14,7 @@ defract:
   created_by: falucas90
   assignee: falucas90
 ---
+
 
 ## Story Brief
 
