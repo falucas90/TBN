@@ -1,23 +1,55 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '../components/ui';
 import { FormField } from '../components/forms';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 
+function mapAuthError(error) {
+  const msg = error?.message?.toLowerCase() || '';
+  if (msg.includes('invalid login credentials') || msg.includes('invalid_credentials')) {
+    return 'Credenciais inválidas. Verifique o seu email e palavra-passe.';
+  }
+  if (msg.includes('email not confirmed')) {
+    return 'Email não confirmado. Verifique a sua caixa de entrada.';
+  }
+  if (msg.includes('too many requests') || error?.status === 429) {
+    return 'Demasiadas tentativas. Tente novamente mais tarde.';
+  }
+  return 'Ocorreu um erro. Tente novamente.';
+}
+
 export default function Login() {
-  const { login } = useAuth();
+  const { isAuthenticated, login, loginGoogle } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleLogin = (e) => {
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/searches', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
+  const handleLogin = async (e) => {
     e.preventDefault();
-    const success = login(email, password);
-    if (success) {
-      navigate('/searches');
-    } else {
-      setError('Credenciais inválidas');
+    setError('');
+    setIsSubmitting(true);
+    try {
+      await login(email, password);
+    } catch (err) {
+      setError(mapAuthError(err));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleGoogle = async () => {
+    try {
+      await loginGoogle();
+    } catch (err) {
+      setError(mapAuthError(err));
     }
   };
 
@@ -90,7 +122,7 @@ export default function Login() {
                   <span style={{ position: 'absolute', right: '12px', top: '12px', fontSize: '0.875rem', color: '#666', cursor: 'pointer' }}>show</span>
                 </div>
                 <div style={{ textAlign: 'right', marginTop: '0.5rem' }}>
-                  <a href="#" style={{ color: '#0066FF', fontSize: '0.875rem', textDecoration: 'none' }}>Esqueceu-se da palavra-passe?</a>
+                  <Link to="/forgot-password" style={{ color: '#0066FF', fontSize: '0.875rem', textDecoration: 'none' }}>Esqueceu-se da palavra-passe?</Link>
                 </div>
               </FormField>
 
@@ -99,7 +131,14 @@ export default function Login() {
               )}
 
               <div style={{ marginTop: '0.5rem' }}>
-                <Button type="submit" fullWidth style={{ padding: '0.875rem', backgroundColor: '#E9F5E3', color: '#2B5B2E', border: '1px solid #C4E2BE' }}>Entrar</Button>
+                <Button
+                  type="submit"
+                  fullWidth
+                  disabled={isSubmitting}
+                  style={{ padding: '0.875rem', backgroundColor: '#E9F5E3', color: '#2B5B2E', border: '1px solid #C4E2BE' }}
+                >
+                  {isSubmitting ? 'A entrar...' : 'Entrar'}
+                </Button>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', margin: '1rem 0', color: '#999' }}>
@@ -108,7 +147,13 @@ export default function Login() {
                 <div style={{ flex: 1, height: '1px', backgroundColor: '#eee' }}></div>
               </div>
 
-              <Button type="button" variant="secondary" fullWidth style={{ padding: '0.875rem', display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
+              <Button
+                type="button"
+                variant="secondary"
+                fullWidth
+                onClick={handleGoogle}
+                style={{ padding: '0.875rem', display: 'flex', justifyContent: 'center', gap: '0.5rem' }}
+              >
                 Continuar com o Google
               </Button>
             </form>

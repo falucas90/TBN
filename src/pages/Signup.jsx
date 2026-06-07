@@ -1,10 +1,53 @@
 import React, { useState } from 'react';
 import { Card, Button, StepIndicator } from '../components/ui';
 import { FormField } from '../components/forms';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+
+function mapSignupError(error) {
+  const msg = error?.message?.toLowerCase() || '';
+  if (msg.includes('user already registered') || msg.includes('already registered')) {
+    return 'Este email já está registado.';
+  }
+  if (msg.includes('password should be at least')) {
+    return 'A palavra-passe deve ter pelo menos 6 caracteres.';
+  }
+  if (msg.includes('invalid email') || msg.includes('unable to validate email')) {
+    return 'Email inválido.';
+  }
+  return 'Ocorreu um erro no registo. Tente novamente.';
+}
 
 export default function Signup() {
+  const { signup } = useAuth();
+  const navigate = useNavigate();
   const [step, setStep] = useState(1);
+  const [nome, setNome] = useState('');
+  const [apelido, setApelido] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [company, setCompany] = useState('');
+  const [nif, setNif] = useState('');
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSignup = async () => {
+    setError('');
+    setIsSubmitting(true);
+    try {
+      await signup(email, password, {
+        full_name: `${nome} ${apelido}`.trim(),
+        company,
+        nif,
+        role: 'dealer',
+      });
+      navigate('/verify-email');
+    } catch (err) {
+      setError(mapSignupError(err));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div style={{ display: 'flex', height: '100vh', backgroundColor: 'var(--color-bg-page)' }}>
@@ -31,24 +74,78 @@ export default function Signup() {
             {step === 2 && "Detalhes da empresa"}
             {step === 3 && "Tudo pronto!"}
           </h2>
-          
+
           {step === 1 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                 <FormField label="Nome" required><input type="text" style={{ padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }} /></FormField>
-                 <FormField label="Apelido" required><input type="text" style={{ padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }} /></FormField>
+                <FormField label="Nome" required>
+                  <input
+                    type="text"
+                    value={nome}
+                    onChange={(e) => setNome(e.target.value)}
+                    style={{ padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }}
+                  />
+                </FormField>
+                <FormField label="Apelido" required>
+                  <input
+                    type="text"
+                    value={apelido}
+                    onChange={(e) => setApelido(e.target.value)}
+                    style={{ padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }}
+                  />
+                </FormField>
               </div>
-              <FormField label="Email" required><input type="email" placeholder="stand@exemplo.pt" style={{ padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }} /></FormField>
-              <FormField label="Palavra-passe" required><input type="password" placeholder="••••••••" style={{ padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }} /></FormField>
+              <FormField label="Email" required>
+                <input
+                  type="email"
+                  placeholder="stand@exemplo.pt"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  style={{ padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }}
+                />
+              </FormField>
+              <FormField label="Palavra-passe" required>
+                <input
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  style={{ padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }}
+                />
+              </FormField>
               <Button fullWidth onClick={() => setStep(2)} style={{ marginTop: '1rem' }}>Continuar</Button>
             </div>
           )}
 
           {step === 2 && (
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <FormField label="Nome da Empresa" required><input type="text" style={{ padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }} /></FormField>
-              <FormField label="NIF" required><input type="text" style={{ padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }} /></FormField>
-              <Button fullWidth onClick={() => setStep(3)} style={{ marginTop: '1rem' }}>Concluir Registo</Button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <FormField label="Nome da Empresa" required>
+                <input
+                  type="text"
+                  value={company}
+                  onChange={(e) => setCompany(e.target.value)}
+                  style={{ padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }}
+                />
+              </FormField>
+              <FormField label="NIF" required>
+                <input
+                  type="text"
+                  value={nif}
+                  onChange={(e) => setNif(e.target.value)}
+                  style={{ padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }}
+                />
+              </FormField>
+              {error && (
+                <p style={{ color: 'var(--color-danger-text)', fontSize: '0.875rem', margin: 0 }}>{error}</p>
+              )}
+              <Button
+                fullWidth
+                onClick={handleSignup}
+                disabled={isSubmitting}
+                style={{ marginTop: '1rem' }}
+              >
+                {isSubmitting ? 'A registar...' : 'Concluir Registo'}
+              </Button>
               <Button fullWidth variant="ghost" onClick={() => setStep(1)}>Voltar</Button>
             </div>
           )}
@@ -60,7 +157,7 @@ export default function Signup() {
               <Link to="/login"><Button>Ir para o Login</Button></Link>
             </div>
           )}
-          
+
           {step === 1 && (
             <div style={{ marginTop: '2rem', textAlign: 'center', fontSize: '0.875rem' }}>
               <Link to="/login" style={{ color: 'var(--color-text-secondary)', textDecoration: 'none' }}>Já tem uma conta? <span style={{ color: 'var(--color-primary-teal)', fontWeight: '600' }}>Entrar</span></Link>
