@@ -5,7 +5,7 @@
   "phase": 0,
   "totalPhases": 1,
   "createdAt": "2026-06-07T19:47:51Z",
-  "updatedAt": "2026-06-07T19:48:46Z",
+  "updatedAt": "2026-06-07T19:50:33Z",
   "events": [
     {
       "base_branch": "main",
@@ -54,24 +54,72 @@
       "timed_out": false,
       "timestamp": "2026-06-07T19:48:46Z",
       "type": "agent_exited"
+    },
+    {
+      "change_summary": "Full scope with technical detail: widen form container and align inputs to design system",
+      "revision": 2,
+      "timestamp": "2026-06-07T19:50:09Z",
+      "type": "scope_update"
+    },
+    {
+      "rationale": "UI layout fix on a single file — no new data flow, no new components, no design ambiguity (explicit numeric fix). Skip design: the change is widening a max-width value and applying an existing CSS class, not a new visual design. Skip architecture: touches one file (Login.jsx), well within existing patterns.",
+      "stages": [
+        "scope",
+        "implementation",
+        "review",
+        "release"
+      ],
+      "template": "ui-polish",
+      "tier": "trivial",
+      "timestamp": "2026-06-07T19:50:15Z",
+      "type": "workflow_classified"
+    },
+    {
+      "alternatives_considered": [],
+      "decision": "Increase form container max-width from 380px to 460px",
+      "rationale": "On a 1440px viewport the right pane is ~720px wide; 380px fills only 53% of the column, making inputs feel pinched. 460px brings it to ~64% — comfortable without feeling stretched. No min-width is set so the form still collapses gracefully below 460px.",
+      "timestamp": "2026-06-07T19:50:21Z",
+      "type": "decision"
+    },
+    {
+      "stage": "scope",
+      "summary": "Full scope written as revision 2. Single phase: widen form container max-width from 380px to 460px and apply the existing .input CSS class to both inputs. Workflow classified as ui-polish / trivial — scope → implementation → review → release. Only Login.jsx is touched.",
+      "timestamp": "2026-06-07T19:50:33Z",
+      "type": "stage_work_complete",
+      "worktree_head": "645ecc51ae9652471b31ffb16fbbfb7ba78c5184",
+      "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     }
   ],
+  "needsArchitecture": false,
+  "needsDesign": false,
+  "workflow": {
+    "tier": "trivial",
+    "template": "ui-polish",
+    "stages": [
+      "scope",
+      "implementation",
+      "review",
+      "release"
+    ],
+    "classifiedBy": "scope-agent",
+    "rationale": "UI layout fix on a single file — no new data flow, no new components, no design ambiguity (explicit numeric fix). Skip design: the change is widening a max-width value and applying an existing CSS class, not a new visual design. Skip architecture: touches one file (Login.jsx), well within existing patterns."
+  },
   "stages": {
-    "scope": {
-      "status": "in_progress",
-      "startedAt": "2026-06-07T19:48:46Z"
+    "design": {
+      "status": "skipped"
     },
     "implementation": {
       "status": "not_started"
     },
-    "design": {
-      "status": "not_started"
+    "scope": {
+      "status": "awaiting_approval",
+      "startedAt": "2026-06-07T19:48:46Z"
     },
     "review": {
       "status": "not_started"
     },
     "architecture": {
-      "status": "not_started"
+      "status": "skipped"
     },
     "release": {
       "status": "not_started"

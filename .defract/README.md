@@ -6,7 +6,7 @@ This project uses [defract](https://defract.dev) for structured AI-assisted deve
 
 | Task | Stage | Status |
 |------|-------|--------|
-| Wire up real auth backend, self-service flows, and role management | architecture | active |
+| Fix login page layout: email and password inputs too small | scope | active |
 | Add a catch-all redirect route in App.jsx | release | completed |
 | Add authentication and admin view | release | completed |
 | Add delete support to the Searches page | release | completed |
@@ -14,6 +14,7 @@ This project uses [defract](https://defract.dev) for structured AI-assisted deve
 | Audit codebase for needed improvements and fixes | release | completed |
 | Replace Mock Data with Real Data Sources | release | completed |
 | Resolve Diverged Sync on Main | release | completed |
+| Wire up real auth backend, self-service flows, and role management | release | completed |
 
 
 ## Reading without defract
