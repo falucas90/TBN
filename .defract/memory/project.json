@@ -18,11 +18,11 @@
   ],
   "usage_sweep_cursor": "2026-06-03T14:58:01Z",
   "last_emit_hashes": {
+    "mistakes.md": "b69323a13624e31e59b89012cf54158465b76789f9bf329d32101df8bcb2de38",
     "decisions.md": "7a1577dd3e0452b4c51657ed1bc4d010c4675cad1aecec2a2dc7febf4e4d833a",
     "project-facts.md": "a25a12e20141df5c38db592e489394fbaea7d2afa191e30b1e449d011b6cec84",
     "builder-preferences.md": "3330d454526848980df9e46c27aaa427d248933fad32c479bd82906eb5d8fabb",
-    "workflows.md": "eefc5d74970b514356eb6e4bab67acf9697a8d5e773987bf6355c0b1bfb85094",
-    "mistakes.md": "b69323a13624e31e59b89012cf54158465b76789f9bf329d32101df8bcb2de38"
+    "workflows.md": "eefc5d74970b514356eb6e4bab67acf9697a8d5e773987bf6355c0b1bfb85094"
   },
   "pending_external_edits": []
 }
