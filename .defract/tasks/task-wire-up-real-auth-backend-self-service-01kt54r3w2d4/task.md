@@ -3,7 +3,7 @@ defract:
   id: task-wire-up-real-auth-backend-self-service-01kt54r3w2d4
   type: task
   status: active
-  stage: architecture
+  stage: implementation
   phase: 0
   total_phases: 3
   priority: normal
@@ -14,6 +14,7 @@ defract:
   created_by: falucas90
   assignee: falucas90
 ---
+
 
 ## Story Brief
 
@@ -390,26 +391,52 @@ Full-viewport white background with a single centered spinner using the primary 
 
 ## Architecture
 
-### Open Decisions
+### Architecture Summary
 
-**1. Which authentication service should handle user accounts, login sessions, and email flows?**
+The app's authentication layer moves from hard-coded mock data to Supabase, a hosted auth service that handles email/password login, Google sign-in, session persistence, email verification, and password reset out of the box. A single Supabase client module becomes the sole entry point for all auth operations, replacing the current mock-user array. Each user's role (Dealer or Admin) is stored inside their Supabase profile metadata — no separate database table needed. Admin role changes are protected by a Supabase Edge Function that verifies the caller is an admin before it will write anything, keeping the privileged service key off the browser entirely. The three new self-service pages (forgot password, reset password, verify email) follow the same centered-card layout as the existing Login and Signup pages so no new design patterns are introduced. The existing Toggle, Button, FormField, Card, and Callout components cover all new UI needs.
 
-This choice locks in the SDK used across every phase of the implementation. Changing providers mid-build means rewriting every auth call — it gates the entire project.
+### Implementation Phases
 
-- Supabase (recommended): One package covers email/password auth, Google OAuth, email verification, password reset, and an admin API for user management. Open-source with a generous free tier and a Postgres database included.
-- Firebase Auth: Google's equivalent with the same feature set. Tighter Google Cloud ecosystem coupling; admin role operations require a Firebase Admin SDK running in a Cloud Function rather than Supabase's Edge Functions.
+### Phase 1: Core auth wire-up
+**Scope:** Users can log in and sign up with real credentials stored in Supabase. Sessions survive page refreshes. Route guards wait for session resolution before redirecting.
 
-**2. Where should each user's role (Dealer or Admin) be stored?**
+**Verification:**
+- [ ] npm install completes without errors
+- [ ] npm run dev starts without import errors or missing-module warnings
+- [ ] Logging in with a valid Supabase account navigates to /searches and the session persists after a full page refresh
+- [ ] Logging in with wrong credentials shows a Portuguese error message in-place without a page reload
+- [ ] Logging out clears the session; directly visiting /searches redirects to /login
+- [ ] Signing up with a new email redirects to /verify-email on step 2 submission
+- [ ] While the auth provider is resolving the session on first load, the spinner is visible if network is throttled in devtools
 
-The role must be available on every page load for route guards to work without an extra round-trip. The storage location also determines how easily roles can be updated and whether mutations can be locked down without additional infrastructure.
+**Estimated effort:** Large
 
-- Provider user metadata (recommended): Role is stored directly inside the auth provider's built-in user record. Available immediately on session resume with no extra database query. Mutations still require a server-side function to prevent self-promotion.
-- Separate profiles table in Supabase Postgres: Role lives in a typed SQL table with row-level security policies controlling who can write it. Cleaner for future profile fields; adds one database read per session to hydrate the role into the app.
+### Phase 2: Self-service flows
+**Scope:** Users who forget their password can reset it via email. New registrants are held on a verification-pending page with a resend option. All three new routes are publicly accessible.
 
-**3. How should the admin role-change operation be protected against abuse?**
+**Verification:**
+- [ ] Visiting /forgot-password, entering an email, and clicking 'Enviar link' shows the success Callout in-place; the email field is cleared; no page navigation occurs
+- [ ] 'Voltar ao login' link on /forgot-password navigates to /login
+- [ ] Visiting /reset-password without a Supabase recovery token shows the danger Callout immediately; no password fields are rendered
+- [ ] Visiting /reset-password with a valid token shows two password fields; entering mismatched passwords shows the inline error and keeps the submit button disabled
+- [ ] Visiting /verify-email shows the Mail icon, the user's email address, and the 'Reenviar email' button; clicking the button disables it and starts the 60-second countdown
+- [ ] 'Esqueceu-se da palavra-passe?' on the Login page navigates to /forgot-password
+- [ ] All three routes are accessible without being logged in
 
-If a non-admin user can reach the API that changes roles from their browser, they can promote themselves to admin. The service key that authorises role mutations must never be exposed client-side.
+**Estimated effort:** Medium
 
-- Supabase Edge Function (recommended): A thin server-side function holds the service_role key and validates the caller's JWT before executing the admin operation. Works regardless of which role-storage option is chosen and keeps all secrets off the client.
-- Row Level Security on a profiles table: If roles are stored in a Postgres table, a RLS policy can restrict writes to rows where the caller's current role is admin. No Edge Function required, but only applicable if the 'profiles table' option is chosen for D2.
+### Phase 3: Admin role management and cleanup
+**Scope:** Admins see a live user list and can change roles and status without touching source files. Profile saves in Settings are real. mockUsers is removed from the codebase.
+
+**Verification:**
+- [ ] grep -r 'mockUsers' src/ returns no matches
+- [ ] Visiting /admin as an admin shows a live list of Supabase users; skeleton rows are briefly visible on first load
+- [ ] Changing a user's role in the Funcao dropdown activates the Guardar button for that row only; clicking Guardar shows a success toast and resets the button to disabled
+- [ ] Toggling a user's status toggle saves immediately and shows a success toast
+- [ ] An admin changing their own role to Dealer sees the Portuguese warning toast
+- [ ] Saving profile changes in /settings sends the update to Supabase; the success toast appears only after the provider confirms the save
+- [ ] A non-admin user navigating to /admin is redirected to /searches
+- [ ] npm run lint passes with no errors
+
+**Estimated effort:** Medium
 

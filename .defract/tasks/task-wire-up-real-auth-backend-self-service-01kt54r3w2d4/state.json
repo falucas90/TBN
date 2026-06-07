@@ -1,11 +1,11 @@
 {
   "id": "task-wire-up-real-auth-backend-self-service-01kt54r3w2d4",
   "status": "active",
-  "stage": "architecture",
+  "stage": "implementation",
   "phase": 0,
   "totalPhases": 3,
   "createdAt": "2026-06-02T21:45:00Z",
-  "updatedAt": "2026-06-07T19:09:06Z",
+  "updatedAt": "2026-06-07T19:20:42Z",
   "events": [
     {
       "base_branch": "main",
@@ -233,6 +233,120 @@
       "stage": "architecture",
       "timestamp": "2026-06-07T19:09:06Z",
       "type": "stage_agent_started"
+    },
+    {
+      "change_summary": "Full architecture for Supabase auth integration, self-service flows, and admin role management",
+      "revision": 1,
+      "stage": "architecture",
+      "timestamp": "2026-06-07T19:15:38Z",
+      "type": "stage_content_updated"
+    },
+    {
+      "alternatives_considered": [
+        "Import createClient directly inside each service function — cheaper to write but creates multiple instances and makes credentials hard to change centrally"
+      ],
+      "decision": "AD-1: Single Supabase client singleton in src/lib/supabase.js — all SDK calls across authService, ResetPassword, and VerifyEmail import from this one module",
+      "rationale": "Prevents multiple client instances that would each manage their own session cache independently and risk desync. One module to update if project credentials ever change.",
+      "timestamp": "2026-06-07T19:16:05Z",
+      "type": "decision"
+    },
+    {
+      "alternatives_considered": [
+        "Separate Supabase Postgres profiles table with RLS — better for future profile fields but adds one DB read per session and requires schema migration to set up"
+      ],
+      "decision": "AD-2: Role and status stored in Supabase user_metadata (not a separate profiles table) — available immediately on session resume with no extra database round-trip",
+      "rationale": "Route guards need the role synchronously when the auth state change fires. A profiles table would require a second async query after session resolution, adding latency and complexity. The two-role model (dealer / admin) is simple enough to fit in metadata without type constraints or joins.",
+      "timestamp": "2026-06-07T19:16:08Z",
+      "type": "decision"
+    },
+    {
+      "alternatives_considered": [
+        "Row Level Security on a profiles table — only viable if role is stored in Postgres (rejected in AD-2); cannot protect user_metadata mutations via the auth admin API"
+      ],
+      "decision": "AD-3: Admin role mutations routed through a Supabase Edge Function holding the service_role key — never exposed to the browser",
+      "rationale": "The Supabase admin API (updateUserById) requires the service_role key which grants unrestricted access to all users. Putting it in the browser would allow any user to promote themselves to admin. The Edge Function validates the caller's JWT and checks their role before executing the mutation.",
+      "timestamp": "2026-06-07T19:16:15Z",
+      "type": "decision"
+    },
+    {
+      "alternatives_considered": [
+        "Call supabase.auth.getSession() at mount and then subscribe for future changes — more explicit but requires coordinating two async paths and risks a brief window where session is known but the subscription handler hasn't registered yet"
+      ],
+      "decision": "AD-4: supabase.auth.onAuthStateChange drives all AuthContext state — isLoading set to true at mount, false on first event, preventing premature route guard redirects",
+      "rationale": "Supabase fires onAuthStateChange on initial session resolution (INITIAL_SESSION event), so subscribing to it covers both cold-start and subsequent sign-in/sign-out without any manual polling or getSession() call at mount time.",
+      "timestamp": "2026-06-07T19:16:19Z",
+      "type": "decision"
+    },
+    {
+      "stage": "architecture",
+      "summary": "Full architecture complete for 3 phases: (1) Supabase SDK install + AuthContext rewrite with isLoading + Login/Signup wired to real calls + route guard loading states; (2) three new self-service pages (ForgotPassword, ResetPassword, VerifyEmail) + public routes; (3) Edge Function for admin role mutations + live Admin.jsx user table + real Settings save + mockUsers removal. 7 new files, 9 modified. All 14 requirements mapped, all 12 acceptance criteria verifiable.",
+      "timestamp": "2026-06-07T19:16:34Z",
+      "type": "stage_work_complete",
+      "worktree_head": "367bbe61f1ec4032f742b4b83f170a3a07dc18ac",
+      "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "base_branch": "main",
+      "merged_commits": 1,
+      "timestamp": "2026-06-07T19:16:44Z",
+      "type": "worktree_synced"
+    },
+    {
+      "actor": null,
+      "stage": "architecture",
+      "timestamp": "2026-06-07T19:16:42Z",
+      "type": "stage_approved"
+    },
+    {
+      "current_worktree_head": "a0a3c74e9e72c22a2a5b78d70d655ae6baee00ee",
+      "current_worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stage": "architecture",
+      "stale_worktree_head": "367bbe61f1ec4032f742b4b83f170a3a07dc18ac",
+      "stale_worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timestamp": "2026-06-07T19:16:44Z",
+      "type": "worktree_drift_detected",
+      "what_changed": "HEAD"
+    },
+    {
+      "action": "sweep",
+      "rationale": "Routine sync drift: HEAD fast-forwarded (stale HEAD is a strict ancestor of current) with a byte-identical dirty-status digest; swept forward automatically without waking an agent.",
+      "resolved_by": "auto",
+      "stage": "architecture",
+      "timestamp": "2026-06-07T19:16:44Z",
+      "type": "worktree_drift_resolved"
+    },
+    {
+      "from": "architecture",
+      "timestamp": "2026-06-07T19:16:44Z",
+      "to": "implementation",
+      "type": "stage_advanced"
+    },
+    {
+      "base_branch": "main",
+      "reason": "already_up_to_date",
+      "timestamp": "2026-06-07T19:16:44Z",
+      "type": "worktree_sync_skipped"
+    },
+    {
+      "mode": "start",
+      "session_id": "01kthr86vs0vx5hq1xknnn90ac",
+      "stage": "implementation",
+      "timestamp": "2026-06-07T19:16:44Z",
+      "type": "stage_agent_started"
+    },
+    {
+      "note": "Starting Phase 1: Core auth wire-up — installing Supabase SDK, rewriting AuthContext, wiring Login and Signup",
+      "phase": 0,
+      "stage": "implementation",
+      "timestamp": "2026-06-07T19:20:37Z",
+      "type": "work_resumed"
+    },
+    {
+      "description": "Starting Phase 1: Core auth wire-up",
+      "percentage": 0,
+      "phase": 1,
+      "timestamp": "2026-06-07T19:20:42Z",
+      "type": "progress_report"
     }
   ],
   "needsArchitecture": true,
@@ -252,66 +366,353 @@
     "rationale": "New UI pages required (forgot-password, reset-password, verify-email) → include design. Touches 4+ subsystems (AuthContext, Login, Signup, Admin, Settings, new routes) and introduces a new external dependency (auth provider SDK) with security implications → include architecture. Cross-cutting changes to 7+ files with no existing backend integration pattern to follow. Tier is full: new subsystems, external integration, 10+ files."
   },
   "stageApprovals": {
-    "scope": "2026-06-02T21:57:49Z",
-    "design": "2026-06-07T19:06:51Z"
+    "design": "2026-06-07T19:06:51Z",
+    "architecture": "2026-06-07T19:16:42Z",
+    "scope": "2026-06-02T21:57:49Z"
   },
   "stageContent": {
-    "design": "## UX Description\n\n**Problem:** Users who forget their password, register a new account, or need admin-managed roles have no working self-service paths — everything either throws silently or reads from hardcoded data.\n\n**What the user experiences:**\nA dealer who forgets their password taps a link on the login screen, enters their email, and receives a reset link by email — all without contacting support. New registrants land on a holding page that explains they must confirm their email before entering the app. Admins can open a live user table and change roles or toggle account status from a dropdown and toggle in each row.\n\n**Information hierarchy:**\nThe three self-service pages (forgot-password, reset-password, verify-email) are stripped-down centered cards — no sidebar, no app chrome — matching the Login and Signup pattern already in place. Each card shows only what is needed for that step: a single field, a single primary action, and a status message. The Admin table gains two new columns (Funcao, Acoes) at the right of the existing four, keeping the read-only columns (Nome, Email, Plano, Estado) first so they stay visible on narrow viewports before the interactive columns scroll into view. The loading shimmer on route guards is invisible unless the auth provider takes more than ~300ms to resolve — normal users will never see it.\n\n**User flows:**\n\n**Forgot password:**\n1. User clicks \"Esqueceu-se da palavra-passe?\" on Login -> navigates to /forgot-password\n2. User types email and clicks \"Enviar link\" -> spinner on button; button disabled\n3. Provider sends reset email -> page shows green confirmation banner; email field cleared; no redirect\n4. User clicks \"Voltar ao login\" -> returns to /login\n\n**Reset password (valid token):**\n1. User clicks link in email -> browser opens /reset-password?token=...\n2. Page shows two password fields; user fills them and clicks \"Redefinir palavra-passe\"\n3. Provider validates token, updates password -> success banner; link to /login shown\n4. User clicks link -> /login\n\n**Reset password (expired/invalid token):**\n1. User opens /reset-password with bad token -> page loads with error callout; no password fields shown\n2. Callout shows Portuguese message and \"Pedir novo link\" button\n3. User clicks -> navigates to /forgot-password\n\n**Email verification:**\n1. After signup -> user lands on /verify-email\n2. Page shows mailbox icon, email address, and \"Reenviar email\" button\n3. User clicks \"Reenviar email\" -> button shows spinner, then success inline message\n4. User verifies in email client -> navigates back to /login (or provider auto-redirects to /searches)\n\n**Admin role management:**\n1. Admin opens /admin -> table shows live user list with Role dropdown and Status toggle per row\n2. Admin selects new role from dropdown -> \"Guardar\" button in that row activates (not yet saved)\n3. Admin clicks \"Guardar\" -> spinner; provider API call; success toast; button resets\n4. Admin self-demotes -> warning toast: \"Vai perder acesso de administrador no proximo inicio de sessao\"\n5. Admin toggles status -> immediate save (no confirm); success toast\n\n**States and edge cases:**\n- Forgot-password empty state: \"Enviar link\" button is disabled until email field has a value\n- Forgot-password unregistered email: provider returns success regardless (security); same confirmation shown\n- Reset-password token expired: error callout shown immediately on mount; no password fields rendered\n- Reset-password passwords mismatch: inline error below confirm field; submit stays disabled\n- Verify-email resend rate-limit: \"Reenviar email\" button disabled for 60s after each click; countdown shown\n- Admin empty state: table shows \"Nenhum utilizador encontrado\" row\n- Admin loading: skeleton rows (3 placeholder rows) while fetch is in flight\n- Admin save error: error toast with provider error message in Portuguese\n- Route guard loading: full-screen white with centered spinner; shown only if auth resolution exceeds ~300ms\n- Admin self-demotion: allowed; warning toast informs them of next-login effect\n\n## ASCII Wireframes\n\n**Forgot Password page (/forgot-password):**\n```\n+-----------------------------------------------------------+\n|                                                           |\n|          +-------------------------------------+          |\n|          |  CRIVO                              |          |\n|          |                                     |          |\n|          |  Recuperar palavra-passe            |          |\n|          |  ---------------------------------  |          |\n|          |  Introduza o seu email e            |          |\n|          |  enviaremos um link de              |          |\n|          |  recuperacao.                       |          |\n|          |                                     |          |\n|          |  Email                              |          |\n|          |  +---------------------------------+|          |\n|          |  | stand@exemplo.pt               ||          |\n|          |  +---------------------------------+|          |\n|          |                                     |          |\n|          |  +---------------------------------+|          |\n|          |  |        Enviar link             ||          |\n|          |  +---------------------------------+|          |\n|          |  (disabled until email entered)     |          |\n|          |                                     |          |\n|          |  <- Voltar ao login                 |          |\n|          +-------------------------------------+          |\n|                                                           |\n|  After submit — success state:                            |\n|          +-------------------------------------+          |\n|          | [check] Email enviado               |          |\n|          | Verifique a sua caixa de entrada.   |          |\n|          +-------------------------------------+          |\n|                                                           |\n+-----------------------------------------------------------+\n```\n\nSingle centered card on plain page background, same visual weight as the Login right pane. The success state replaces the form in-place so the user has a clear endpoint without a page navigation.\n\n**Reset Password page (/reset-password) — valid token:**\n```\n+-----------------------------------------------------------+\n|                                                           |\n|          +-------------------------------------+          |\n|          |  CRIVO                              |          |\n|          |                                     |          |\n|          |  Definir nova palavra-passe         |          |\n|          |                                     |          |\n|          |  Nova palavra-passe                 |          |\n|          |  +---------------------------------+|          |\n|          |  | ........                       ||          |\n|          |  +---------------------------------+|          |\n|          |                                     |          |\n|          |  Confirmar palavra-passe            |          |\n|          |  +---------------------------------+|          |\n|          |  | ........                       ||          |\n|          |  +---------------------------------+|          |\n|          |  [!] As palavras-passe nao         |          |\n|          |      coincidem                      |          |\n|          |  (hidden until mismatch detected)   |          |\n|          |                                     |          |\n|          |  +---------------------------------+|          |\n|          |  |  Redefinir palavra-passe       ||          |\n|          |  +---------------------------------+|          |\n|          +-------------------------------------+          |\n|                                                           |\n+-----------------------------------------------------------+\n```\n\n**Reset Password page — expired/invalid token:**\n```\n+-----------------------------------------------------------+\n|                                                           |\n|          +-------------------------------------+          |\n|          |  CRIVO                              |          |\n|          |                                     |          |\n|          |  +--------------------------------+ |          |\n|          |  | [!] Link expirado ou invalido  | |          |\n|          |  |     Este link de recuperacao   | |          |\n|          |  |     ja nao e valido. Peca um   | |          |\n|          |  |     novo link para continuar.  | |          |\n|          |  +--------------------------------+ |          |\n|          |                                     |          |\n|          |  +---------------------------------+|          |\n|          |  |     Pedir novo link            ||          |\n|          |  +---------------------------------+|          |\n|          |                                     |          |\n|          |  <- Voltar ao login                 |          |\n|          +-------------------------------------+          |\n|                                                           |\n+-----------------------------------------------------------+\n```\n\nThe expired-token state renders on mount before the user can interact — no password fields are shown at all, preventing any attempt to fill them in vain. This is checked against the URL token immediately.\n\n**Verify Email page (/verify-email):**\n```\n+-----------------------------------------------------------+\n|                                                           |\n|          +-------------------------------------+          |\n|          |  CRIVO                              |          |\n|          |                                     |          |\n|          |              [envelope icon]        |          |\n|          |                                     |          |\n|          |  Verifique o seu email              |          |\n|          |  ---------------------------------  |          |\n|          |  Enviamos um link de                |          |\n|          |  confirmacao para:                  |          |\n|          |                                     |          |\n|          |  francisco@flmotors.pt              |          |\n|          |  (semibold, primary text color)     |          |\n|          |                                     |          |\n|          |  Clique no link para ativar         |          |\n|          |  a sua conta.                       |          |\n|          |                                     |          |\n|          |  +---------------------------------+|          |\n|          |  |     Reenviar email             ||          |\n|          |  +---------------------------------+|          |\n|          |  (secondary button; disabled 60s   |          |\n|          |   after each click)                 |          |\n|          |  Reenviar disponivel em 47s         |          |\n|          |  (countdown, secondary text color)  |          |\n|          |                                     |          |\n|          |  <- Voltar ao login                 |          |\n|          +-------------------------------------+          |\n|                                                           |\n+-----------------------------------------------------------+\n```\n\nThe email address is displayed so the user can confirm they are checking the right inbox. The resend button is secondary (not primary) to discourage repeated sends; a visible countdown makes the rate-limit feel intentional rather than broken.\n\n**Admin User Table — enhanced:**\n```\n+-------------------------------------------------------------------------------------+\n|  Painel de Administracao                                                            |\n|  Contas de revendedores registadas na plataforma                                    |\n|                                                                                     |\n| +-----------------------------------------------------------------------------------+\n| | Nome          Email                  Plano    Estado         Funcao   Acoes       |\n| |-----------------------------------------------------------------------------------|\n| | Francisco L.  francisco@flmotors.pt  Pro      [==] Ativo     [Dealer v] [Guardar] |\n| |-----------------------------------------------------------------------------------|\n| | Admin Crivo   admin@crivo.pt         Admin    [==] Ativo     [Admin  v] [Guardar] |\n| |-----------------------------------------------------------------------------------|\n| |                                                                                   |\n| |  Loading state (3 skeleton rows):                                                 |\n| |  [||||||||]  [||||||||||||||||||]  [||||||]  [||||||]  [||||||]  [|||||||||]      |\n| |  [||||||||]  [||||||||||||||||||]  [||||||]  [||||||]  [||||||]  [|||||||||]      |\n| |  [||||||||]  [||||||||||||||||||]  [||||||]  [||||||]  [||||||]  [|||||||||]      |\n| +-----------------------------------------------------------------------------------+\n|                                                                                     |\n|  Estado toggle: uses existing Toggle component; save is immediate on toggle         |\n|  Funcao dropdown: two options (Dealer / Admin)                                      |\n|  Guardar: activates only when Funcao value differs from loaded value for that row   |\n|                                                                                     |\n+-------------------------------------------------------------------------------------+\n```\n\n\"Guardar\" per row activates only after the dropdown value changes — this prevents accidental saves and scopes the button clearly to its row. Status toggle (Estado) saves immediately on change (lower-stakes action, consistent with the existing Toggle component pattern).\n\n**Route guard loading state:**\n```\n+-----------------------------------------------------------+\n|                                                           |\n|                                                           |\n|                                                           |\n|                       ( O )                               |\n|                    (spinning)                             |\n|                                                           |\n|                                                           |\n|                                                           |\n+-----------------------------------------------------------+\n```\n\nFull-viewport white background with a single centered spinner using the primary teal color. No text, no logo — just enough to signal the app is resolving auth state, without committing to layout that the auth result might contradict. Visible only if the session check takes longer than ~300ms.\n",
-    "architecture": "### Open Decisions\n\n**1. Which authentication service should handle user accounts, login sessions, and email flows?**\n\nThis choice locks in the SDK used across every phase of the implementation. Changing providers mid-build means rewriting every auth call — it gates the entire project.\n\n- Supabase (recommended): One package covers email/password auth, Google OAuth, email verification, password reset, and an admin API for user management. Open-source with a generous free tier and a Postgres database included.\n- Firebase Auth: Google's equivalent with the same feature set. Tighter Google Cloud ecosystem coupling; admin role operations require a Firebase Admin SDK running in a Cloud Function rather than Supabase's Edge Functions.\n\n**2. Where should each user's role (Dealer or Admin) be stored?**\n\nThe role must be available on every page load for route guards to work without an extra round-trip. The storage location also determines how easily roles can be updated and whether mutations can be locked down without additional infrastructure.\n\n- Provider user metadata (recommended): Role is stored directly inside the auth provider's built-in user record. Available immediately on session resume with no extra database query. Mutations still require a server-side function to prevent self-promotion.\n- Separate profiles table in Supabase Postgres: Role lives in a typed SQL table with row-level security policies controlling who can write it. Cleaner for future profile fields; adds one database read per session to hydrate the role into the app.\n\n**3. How should the admin role-change operation be protected against abuse?**\n\nIf a non-admin user can reach the API that changes roles from their browser, they can promote themselves to admin. The service key that authorises role mutations must never be exposed client-side.\n\n- Supabase Edge Function (recommended): A thin server-side function holds the service_role key and validates the caller's JWT before executing the admin operation. Works regardless of which role-storage option is chosen and keeps all secrets off the client.\n- Row Level Security on a profiles table: If roles are stored in a Postgres table, a RLS policy can restrict writes to rows where the caller's current role is admin. No Edge Function required, but only applicable if the 'profiles table' option is chosen for D2.\n"
+    "architecture": "### Architecture Summary\n\nThe app's authentication layer moves from hard-coded mock data to Supabase, a hosted auth service that handles email/password login, Google sign-in, session persistence, email verification, and password reset out of the box. A single Supabase client module becomes the sole entry point for all auth operations, replacing the current mock-user array. Each user's role (Dealer or Admin) is stored inside their Supabase profile metadata — no separate database table needed. Admin role changes are protected by a Supabase Edge Function that verifies the caller is an admin before it will write anything, keeping the privileged service key off the browser entirely. The three new self-service pages (forgot password, reset password, verify email) follow the same centered-card layout as the existing Login and Signup pages so no new design patterns are introduced. The existing Toggle, Button, FormField, Card, and Callout components cover all new UI needs.\n\n### Implementation Phases\n\n### Phase 1: Core auth wire-up\n**Scope:** Users can log in and sign up with real credentials stored in Supabase. Sessions survive page refreshes. Route guards wait for session resolution before redirecting.\n\n**Verification:**\n- [ ] npm install completes without errors\n- [ ] npm run dev starts without import errors or missing-module warnings\n- [ ] Logging in with a valid Supabase account navigates to /searches and the session persists after a full page refresh\n- [ ] Logging in with wrong credentials shows a Portuguese error message in-place without a page reload\n- [ ] Logging out clears the session; directly visiting /searches redirects to /login\n- [ ] Signing up with a new email redirects to /verify-email on step 2 submission\n- [ ] While the auth provider is resolving the session on first load, the spinner is visible if network is throttled in devtools\n\n**Estimated effort:** Large\n\n### Phase 2: Self-service flows\n**Scope:** Users who forget their password can reset it via email. New registrants are held on a verification-pending page with a resend option. All three new routes are publicly accessible.\n\n**Verification:**\n- [ ] Visiting /forgot-password, entering an email, and clicking 'Enviar link' shows the success Callout in-place; the email field is cleared; no page navigation occurs\n- [ ] 'Voltar ao login' link on /forgot-password navigates to /login\n- [ ] Visiting /reset-password without a Supabase recovery token shows the danger Callout immediately; no password fields are rendered\n- [ ] Visiting /reset-password with a valid token shows two password fields; entering mismatched passwords shows the inline error and keeps the submit button disabled\n- [ ] Visiting /verify-email shows the Mail icon, the user's email address, and the 'Reenviar email' button; clicking the button disables it and starts the 60-second countdown\n- [ ] 'Esqueceu-se da palavra-passe?' on the Login page navigates to /forgot-password\n- [ ] All three routes are accessible without being logged in\n\n**Estimated effort:** Medium\n\n### Phase 3: Admin role management and cleanup\n**Scope:** Admins see a live user list and can change roles and status without touching source files. Profile saves in Settings are real. mockUsers is removed from the codebase.\n\n**Verification:**\n- [ ] grep -r 'mockUsers' src/ returns no matches\n- [ ] Visiting /admin as an admin shows a live list of Supabase users; skeleton rows are briefly visible on first load\n- [ ] Changing a user's role in the Funcao dropdown activates the Guardar button for that row only; clicking Guardar shows a success toast and resets the button to disabled\n- [ ] Toggling a user's status toggle saves immediately and shows a success toast\n- [ ] An admin changing their own role to Dealer sees the Portuguese warning toast\n- [ ] Saving profile changes in /settings sends the update to Supabase; the success toast appears only after the provider confirms the save\n- [ ] A non-admin user navigating to /admin is redirected to /searches\n- [ ] npm run lint passes with no errors\n\n**Estimated effort:** Medium\n",
+    "design": "## UX Description\n\n**Problem:** Users who forget their password, register a new account, or need admin-managed roles have no working self-service paths — everything either throws silently or reads from hardcoded data.\n\n**What the user experiences:**\nA dealer who forgets their password taps a link on the login screen, enters their email, and receives a reset link by email — all without contacting support. New registrants land on a holding page that explains they must confirm their email before entering the app. Admins can open a live user table and change roles or toggle account status from a dropdown and toggle in each row.\n\n**Information hierarchy:**\nThe three self-service pages (forgot-password, reset-password, verify-email) are stripped-down centered cards — no sidebar, no app chrome — matching the Login and Signup pattern already in place. Each card shows only what is needed for that step: a single field, a single primary action, and a status message. The Admin table gains two new columns (Funcao, Acoes) at the right of the existing four, keeping the read-only columns (Nome, Email, Plano, Estado) first so they stay visible on narrow viewports before the interactive columns scroll into view. The loading shimmer on route guards is invisible unless the auth provider takes more than ~300ms to resolve — normal users will never see it.\n\n**User flows:**\n\n**Forgot password:**\n1. User clicks \"Esqueceu-se da palavra-passe?\" on Login -> navigates to /forgot-password\n2. User types email and clicks \"Enviar link\" -> spinner on button; button disabled\n3. Provider sends reset email -> page shows green confirmation banner; email field cleared; no redirect\n4. User clicks \"Voltar ao login\" -> returns to /login\n\n**Reset password (valid token):**\n1. User clicks link in email -> browser opens /reset-password?token=...\n2. Page shows two password fields; user fills them and clicks \"Redefinir palavra-passe\"\n3. Provider validates token, updates password -> success banner; link to /login shown\n4. User clicks link -> /login\n\n**Reset password (expired/invalid token):**\n1. User opens /reset-password with bad token -> page loads with error callout; no password fields shown\n2. Callout shows Portuguese message and \"Pedir novo link\" button\n3. User clicks -> navigates to /forgot-password\n\n**Email verification:**\n1. After signup -> user lands on /verify-email\n2. Page shows mailbox icon, email address, and \"Reenviar email\" button\n3. User clicks \"Reenviar email\" -> button shows spinner, then success inline message\n4. User verifies in email client -> navigates back to /login (or provider auto-redirects to /searches)\n\n**Admin role management:**\n1. Admin opens /admin -> table shows live user list with Role dropdown and Status toggle per row\n2. Admin selects new role from dropdown -> \"Guardar\" button in that row activates (not yet saved)\n3. Admin clicks \"Guardar\" -> spinner; provider API call; success toast; button resets\n4. Admin self-demotes -> warning toast: \"Vai perder acesso de administrador no proximo inicio de sessao\"\n5. Admin toggles status -> immediate save (no confirm); success toast\n\n**States and edge cases:**\n- Forgot-password empty state: \"Enviar link\" button is disabled until email field has a value\n- Forgot-password unregistered email: provider returns success regardless (security); same confirmation shown\n- Reset-password token expired: error callout shown immediately on mount; no password fields rendered\n- Reset-password passwords mismatch: inline error below confirm field; submit stays disabled\n- Verify-email resend rate-limit: \"Reenviar email\" button disabled for 60s after each click; countdown shown\n- Admin empty state: table shows \"Nenhum utilizador encontrado\" row\n- Admin loading: skeleton rows (3 placeholder rows) while fetch is in flight\n- Admin save error: error toast with provider error message in Portuguese\n- Route guard loading: full-screen white with centered spinner; shown only if auth resolution exceeds ~300ms\n- Admin self-demotion: allowed; warning toast informs them of next-login effect\n\n## ASCII Wireframes\n\n**Forgot Password page (/forgot-password):**\n```\n+-----------------------------------------------------------+\n|                                                           |\n|          +-------------------------------------+          |\n|          |  CRIVO                              |          |\n|          |                                     |          |\n|          |  Recuperar palavra-passe            |          |\n|          |  ---------------------------------  |          |\n|          |  Introduza o seu email e            |          |\n|          |  enviaremos um link de              |          |\n|          |  recuperacao.                       |          |\n|          |                                     |          |\n|          |  Email                              |          |\n|          |  +---------------------------------+|          |\n|          |  | stand@exemplo.pt               ||          |\n|          |  +---------------------------------+|          |\n|          |                                     |          |\n|          |  +---------------------------------+|          |\n|          |  |        Enviar link             ||          |\n|          |  +---------------------------------+|          |\n|          |  (disabled until email entered)     |          |\n|          |                                     |          |\n|          |  <- Voltar ao login                 |          |\n|          +-------------------------------------+          |\n|                                                           |\n|  After submit — success state:                            |\n|          +-------------------------------------+          |\n|          | [check] Email enviado               |          |\n|          | Verifique a sua caixa de entrada.   |          |\n|          +-------------------------------------+          |\n|                                                           |\n+-----------------------------------------------------------+\n```\n\nSingle centered card on plain page background, same visual weight as the Login right pane. The success state replaces the form in-place so the user has a clear endpoint without a page navigation.\n\n**Reset Password page (/reset-password) — valid token:**\n```\n+-----------------------------------------------------------+\n|                                                           |\n|          +-------------------------------------+          |\n|          |  CRIVO                              |          |\n|          |                                     |          |\n|          |  Definir nova palavra-passe         |          |\n|          |                                     |          |\n|          |  Nova palavra-passe                 |          |\n|          |  +---------------------------------+|          |\n|          |  | ........                       ||          |\n|          |  +---------------------------------+|          |\n|          |                                     |          |\n|          |  Confirmar palavra-passe            |          |\n|          |  +---------------------------------+|          |\n|          |  | ........                       ||          |\n|          |  +---------------------------------+|          |\n|          |  [!] As palavras-passe nao         |          |\n|          |      coincidem                      |          |\n|          |  (hidden until mismatch detected)   |          |\n|          |                                     |          |\n|          |  +---------------------------------+|          |\n|          |  |  Redefinir palavra-passe       ||          |\n|          |  +---------------------------------+|          |\n|          +-------------------------------------+          |\n|                                                           |\n+-----------------------------------------------------------+\n```\n\n**Reset Password page — expired/invalid token:**\n```\n+-----------------------------------------------------------+\n|                                                           |\n|          +-------------------------------------+          |\n|          |  CRIVO                              |          |\n|          |                                     |          |\n|          |  +--------------------------------+ |          |\n|          |  | [!] Link expirado ou invalido  | |          |\n|          |  |     Este link de recuperacao   | |          |\n|          |  |     ja nao e valido. Peca um   | |          |\n|          |  |     novo link para continuar.  | |          |\n|          |  +--------------------------------+ |          |\n|          |                                     |          |\n|          |  +---------------------------------+|          |\n|          |  |     Pedir novo link            ||          |\n|          |  +---------------------------------+|          |\n|          |                                     |          |\n|          |  <- Voltar ao login                 |          |\n|          +-------------------------------------+          |\n|                                                           |\n+-----------------------------------------------------------+\n```\n\nThe expired-token state renders on mount before the user can interact — no password fields are shown at all, preventing any attempt to fill them in vain. This is checked against the URL token immediately.\n\n**Verify Email page (/verify-email):**\n```\n+-----------------------------------------------------------+\n|                                                           |\n|          +-------------------------------------+          |\n|          |  CRIVO                              |          |\n|          |                                     |          |\n|          |              [envelope icon]        |          |\n|          |                                     |          |\n|          |  Verifique o seu email              |          |\n|          |  ---------------------------------  |          |\n|          |  Enviamos um link de                |          |\n|          |  confirmacao para:                  |          |\n|          |                                     |          |\n|          |  francisco@flmotors.pt              |          |\n|          |  (semibold, primary text color)     |          |\n|          |                                     |          |\n|          |  Clique no link para ativar         |          |\n|          |  a sua conta.                       |          |\n|          |                                     |          |\n|          |  +---------------------------------+|          |\n|          |  |     Reenviar email             ||          |\n|          |  +---------------------------------+|          |\n|          |  (secondary button; disabled 60s   |          |\n|          |   after each click)                 |          |\n|          |  Reenviar disponivel em 47s         |          |\n|          |  (countdown, secondary text color)  |          |\n|          |                                     |          |\n|          |  <- Voltar ao login                 |          |\n|          +-------------------------------------+          |\n|                                                           |\n+-----------------------------------------------------------+\n```\n\nThe email address is displayed so the user can confirm they are checking the right inbox. The resend button is secondary (not primary) to discourage repeated sends; a visible countdown makes the rate-limit feel intentional rather than broken.\n\n**Admin User Table — enhanced:**\n```\n+-------------------------------------------------------------------------------------+\n|  Painel de Administracao                                                            |\n|  Contas de revendedores registadas na plataforma                                    |\n|                                                                                     |\n| +-----------------------------------------------------------------------------------+\n| | Nome          Email                  Plano    Estado         Funcao   Acoes       |\n| |-----------------------------------------------------------------------------------|\n| | Francisco L.  francisco@flmotors.pt  Pro      [==] Ativo     [Dealer v] [Guardar] |\n| |-----------------------------------------------------------------------------------|\n| | Admin Crivo   admin@crivo.pt         Admin    [==] Ativo     [Admin  v] [Guardar] |\n| |-----------------------------------------------------------------------------------|\n| |                                                                                   |\n| |  Loading state (3 skeleton rows):                                                 |\n| |  [||||||||]  [||||||||||||||||||]  [||||||]  [||||||]  [||||||]  [|||||||||]      |\n| |  [||||||||]  [||||||||||||||||||]  [||||||]  [||||||]  [||||||]  [|||||||||]      |\n| |  [||||||||]  [||||||||||||||||||]  [||||||]  [||||||]  [||||||]  [|||||||||]      |\n| +-----------------------------------------------------------------------------------+\n|                                                                                     |\n|  Estado toggle: uses existing Toggle component; save is immediate on toggle         |\n|  Funcao dropdown: two options (Dealer / Admin)                                      |\n|  Guardar: activates only when Funcao value differs from loaded value for that row   |\n|                                                                                     |\n+-------------------------------------------------------------------------------------+\n```\n\n\"Guardar\" per row activates only after the dropdown value changes — this prevents accidental saves and scopes the button clearly to its row. Status toggle (Estado) saves immediately on change (lower-stakes action, consistent with the existing Toggle component pattern).\n\n**Route guard loading state:**\n```\n+-----------------------------------------------------------+\n|                                                           |\n|                                                           |\n|                                                           |\n|                       ( O )                               |\n|                    (spinning)                             |\n|                                                           |\n|                                                           |\n|                                                           |\n+-----------------------------------------------------------+\n```\n\nFull-viewport white background with a single centered spinner using the primary teal color. No text, no logo — just enough to signal the app is resolving auth state, without committing to layout that the auth result might contradict. Visible only if the session check takes longer than ~300ms.\n"
   },
   "architectureIntel": {
-    "answers": {},
-    "decisions": [
+    "diagram": "flowchart LR\n    subgraph Browser\n        Pages --> AC[AuthContext]\n        AC --> AS[authService.js]\n        AS --> SB[supabase.js]\n    end\n\n    subgraph Supabase\n        Auth[Auth Service]\n        EF[Edge Function]\n    end\n\n    SB -->|email / OAuth| Auth\n    SB -->|invoke| EF\n    EF -->|admin API| Auth\n    Auth -.->|session events| SB",
+    "pass": "full",
+    "phases": [
       {
-        "id": "D1",
-        "options": [
+        "effort": "Large",
+        "files": [
           {
-            "detail": "One package covers email/password auth, Google OAuth, email verification, password reset, and an admin API for user management. Open-source with a generous free tier and a Postgres database included.",
-            "label": "Supabase",
-            "recommended": true
+            "action": "modify",
+            "note": "Add @supabase/supabase-js to dependencies",
+            "path": "package.json"
           },
           {
-            "detail": "Google's equivalent with the same feature set. Tighter Google Cloud ecosystem coupling; admin role operations require a Firebase Admin SDK running in a Cloud Function rather than Supabase's Edge Functions.",
-            "label": "Firebase Auth"
+            "action": "create",
+            "note": "VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY — builder fills in values from the Supabase project dashboard",
+            "path": ".env"
+          },
+          {
+            "action": "create",
+            "note": "Committed template with empty placeholder values so other developers know which vars are required",
+            "path": ".env.example"
+          },
+          {
+            "action": "create",
+            "note": "createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_ANON_KEY) — single exported supabase instance",
+            "path": "src/lib/supabase.js"
+          },
+          {
+            "action": "modify",
+            "note": "Replace mockUsers import with Supabase SDK calls: loginWithCredentials → signInWithPassword; add loginWithGoogle → signInWithOAuth; logoutUser → signOut; signupUser(email, password, metadata) → signUp; add sendPasswordResetEmail and updateUserProfile stubs used in later phases",
+            "path": "src/services/authService.js"
+          },
+          {
+            "action": "modify",
+            "note": "Add isLoading state (true until first onAuthStateChange fires); subscribe to supabase.auth.onAuthStateChange to set currentUser from session.user; map user_metadata.role into currentUser.role; expose isLoading, signup, and logout that calls authService.logoutUser",
+            "path": "src/context/AuthContext.jsx"
+          },
+          {
+            "action": "modify",
+            "note": "Make handleLogin async/await; map Supabase error codes to Portuguese messages ('invalid_credentials' → 'Credenciais inválidas'); wire Google button to authService.loginWithGoogle(); change 'Esqueceu-se' anchor to a placeholder Link (finalized in Phase 2)",
+            "path": "src/pages/Login.jsx"
+          },
+          {
+            "action": "modify",
+            "note": "Add controlled form state for email and password in step 1; on 'Concluir Registo' call authService.signupUser with name/email/password/company; on success navigate to /verify-email; on error show Portuguese error message in-place",
+            "path": "src/pages/Signup.jsx"
+          },
+          {
+            "action": "modify",
+            "note": "Destructure isLoading from useAuth; in ProtectedRoute and AdminRoute render a full-viewport centered spinner while isLoading is true; evaluate isAuthenticated/role only after isLoading is false",
+            "path": "src/App.jsx"
           }
         ],
-        "what": "Which authentication service should handle user accounts, login sessions, and email flows?",
-        "why": "This choice locks in the SDK used across every phase of the implementation. Changing providers mid-build means rewriting every auth call — it gates the entire project."
+        "number": 1,
+        "outcome": "Users can log in and sign up with real credentials stored in Supabase. Sessions survive page refreshes. Route guards wait for session resolution before redirecting.",
+        "title": "Core auth wire-up",
+        "verification": [
+          "npm install completes without errors",
+          "npm run dev starts without import errors or missing-module warnings",
+          "Logging in with a valid Supabase account navigates to /searches and the session persists after a full page refresh",
+          "Logging in with wrong credentials shows a Portuguese error message in-place without a page reload",
+          "Logging out clears the session; directly visiting /searches redirects to /login",
+          "Signing up with a new email redirects to /verify-email on step 2 submission",
+          "While the auth provider is resolving the session on first load, the spinner is visible if network is throttled in devtools"
+        ]
       },
       {
-        "id": "D2",
-        "options": [
+        "effort": "Medium",
+        "files": [
           {
-            "detail": "Role is stored directly inside the auth provider's built-in user record. Available immediately on session resume with no extra database query. Mutations still require a server-side function to prevent self-promotion.",
-            "label": "Provider user metadata",
-            "recommended": true
+            "action": "modify",
+            "note": "Add resendVerificationEmail(email) → supabase.auth.resend({ type: 'signup', email }) and updatePassword(newPassword) → supabase.auth.updateUser({ password: newPassword })",
+            "path": "src/services/authService.js"
           },
           {
-            "detail": "Role lives in a typed SQL table with row-level security policies controlling who can write it. Cleaner for future profile fields; adds one database read per session to hydrate the role into the app.",
-            "label": "Separate profiles table in Supabase Postgres"
+            "action": "create",
+            "note": "Centered card layout: email input; 'Enviar link' Button disabled until field has a value; on submit call authService.sendPasswordResetEmail then replace form with success Callout; 'Voltar ao login' Link always visible",
+            "path": "src/pages/ForgotPassword.jsx"
+          },
+          {
+            "action": "create",
+            "note": "On mount subscribe to supabase.auth.onAuthStateChange for PASSWORD_RECOVERY event to validate the token; if no valid recovery session show danger Callout with 'Pedir novo link' Button and 'Voltar ao login' Link and no password fields; if valid show two password fields with mismatch inline error below confirm field; on submit call authService.updatePassword then show success Callout with Link to /login",
+            "path": "src/pages/ResetPassword.jsx"
+          },
+          {
+            "action": "create",
+            "note": "Centered card: Mail icon from lucide-react; heading 'Verifique o seu email'; display currentUser.email in semibold; secondary 'Reenviar email' Button; on click call authService.resendVerificationEmail, disable button, start 60-second countdown displayed as 'Reenviar disponível em Xs'; 'Voltar ao login' Link",
+            "path": "src/pages/VerifyEmail.jsx"
+          },
+          {
+            "action": "modify",
+            "note": "Import ForgotPassword, ResetPassword, VerifyEmail; add three public Route entries before the ProtectedRoute block: /forgot-password, /reset-password, /verify-email",
+            "path": "src/App.jsx"
+          },
+          {
+            "action": "modify",
+            "note": "Replace the 'Esqueceu-se da palavra-passe?' anchor tag with <Link to='/forgot-password'>",
+            "path": "src/pages/Login.jsx"
           }
         ],
-        "what": "Where should each user's role (Dealer or Admin) be stored?",
-        "why": "The role must be available on every page load for route guards to work without an extra round-trip. The storage location also determines how easily roles can be updated and whether mutations can be locked down without additional infrastructure."
+        "number": 2,
+        "outcome": "Users who forget their password can reset it via email. New registrants are held on a verification-pending page with a resend option. All three new routes are publicly accessible.",
+        "title": "Self-service flows",
+        "verification": [
+          "Visiting /forgot-password, entering an email, and clicking 'Enviar link' shows the success Callout in-place; the email field is cleared; no page navigation occurs",
+          "'Voltar ao login' link on /forgot-password navigates to /login",
+          "Visiting /reset-password without a Supabase recovery token shows the danger Callout immediately; no password fields are rendered",
+          "Visiting /reset-password with a valid token shows two password fields; entering mismatched passwords shows the inline error and keeps the submit button disabled",
+          "Visiting /verify-email shows the Mail icon, the user's email address, and the 'Reenviar email' button; clicking the button disables it and starts the 60-second countdown",
+          "'Esqueceu-se da palavra-passe?' on the Login page navigates to /forgot-password",
+          "All three routes are accessible without being logged in"
+        ]
       },
       {
-        "id": "D3",
-        "options": [
+        "effort": "Medium",
+        "files": [
           {
-            "detail": "A thin server-side function holds the service_role key and validates the caller's JWT before executing the admin operation. Works regardless of which role-storage option is chosen and keeps all secrets off the client.",
-            "label": "Supabase Edge Function",
-            "recommended": true
+            "action": "create",
+            "note": "Deno Edge Function using supabase-js with service_role key from Supabase secrets. Verifies caller JWT and confirms caller's role is 'admin'. Supports three actions: action='list' → supabase.auth.admin.listUsers(); action='update-role' with userId+role → updateUserById(userId, { user_metadata: { role } }); action='update-status' with userId+status → updateUserById(userId, { user_metadata: { status } }). Returns JSON.",
+            "path": "supabase/functions/update-user-role/index.ts"
           },
           {
-            "detail": "If roles are stored in a Postgres table, a RLS policy can restrict writes to rows where the caller's current role is admin. No Edge Function required, but only applicable if the 'profiles table' option is chosen for D2.",
-            "label": "Row Level Security on a profiles table"
+            "action": "modify",
+            "note": "Remove getUsers() and the mockUsers import. Add listUsers() → supabase.functions.invoke('update-user-role', { body: { action: 'list' } }); updateUserRole(userId, role) → invoke with action='update-role'; updateUserStatus(userId, status) → invoke with action='update-status'",
+            "path": "src/services/authService.js"
+          },
+          {
+            "action": "modify",
+            "note": "Replace getUsers() call with listUsers(); add isLoading state showing 3 skeleton placeholder rows while fetch is in flight; add local pendingRole state per userId; add Funcao column with a <select> (two options: Dealer / Admin); 'Guardar' button per row enabled only when pendingRole differs from loaded role; on Guardar call updateUserRole and show success or error toast; add Estado column using Toggle for immediate-save status changes with success toast; if admin changes own role to non-admin show Portuguese warning toast; add 'Nenhum utilizador encontrado' empty-state row",
+            "path": "src/pages/Admin.jsx"
+          },
+          {
+            "action": "modify",
+            "note": "Add controlled state for name and phone fields initialized from currentUser; make 'Guardar Alterações' button async — call authService.updateUserProfile({ full_name: name, phone }); show success toast only after the call resolves; show error toast if it rejects",
+            "path": "src/pages/Settings.jsx"
+          },
+          {
+            "action": "modify",
+            "note": "Remove the entire mockUsers array export. Leave mockSearches and mockAlerts untouched.",
+            "path": "src/data/mock-data.js"
           }
         ],
-        "what": "How should the admin role-change operation be protected against abuse?",
-        "why": "If a non-admin user can reach the API that changes roles from their browser, they can promote themselves to admin. The service key that authorises role mutations must never be exposed client-side."
+        "number": 3,
+        "outcome": "Admins see a live user list and can change roles and status without touching source files. Profile saves in Settings are real. mockUsers is removed from the codebase.",
+        "title": "Admin role management and cleanup",
+        "verification": [
+          "grep -r 'mockUsers' src/ returns no matches",
+          "Visiting /admin as an admin shows a live list of Supabase users; skeleton rows are briefly visible on first load",
+          "Changing a user's role in the Funcao dropdown activates the Guardar button for that row only; clicking Guardar shows a success toast and resets the button to disabled",
+          "Toggling a user's status toggle saves immediately and shows a success toast",
+          "An admin changing their own role to Dealer sees the Portuguese warning toast",
+          "Saving profile changes in /settings sends the update to Supabase; the success toast appears only after the provider confirms the save",
+          "A non-admin user navigating to /admin is redirected to /searches",
+          "npm run lint passes with no errors"
+        ]
       }
     ],
-    "pass": "decisions"
+    "scorecard": [
+      {
+        "category": "files",
+        "count": 7,
+        "items": [
+          {
+            "name": "src/lib/supabase.js",
+            "note": "Supabase client singleton"
+          },
+          {
+            "name": ".env",
+            "note": "VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY (builder must fill in values)"
+          },
+          {
+            "name": ".env.example",
+            "note": "Committed template with empty placeholder values"
+          },
+          {
+            "name": "src/pages/ForgotPassword.jsx",
+            "note": "Forgot-password page at /forgot-password"
+          },
+          {
+            "name": "src/pages/ResetPassword.jsx",
+            "note": "Reset-password page at /reset-password"
+          },
+          {
+            "name": "src/pages/VerifyEmail.jsx",
+            "note": "Email-verification holding page at /verify-email"
+          },
+          {
+            "name": "supabase/functions/update-user-role/index.ts",
+            "note": "Deno Edge Function for protected admin operations"
+          }
+        ],
+        "label": "New files"
+      },
+      {
+        "category": "changes",
+        "count": 9,
+        "items": [
+          {
+            "name": "package.json",
+            "note": "Add @supabase/supabase-js dependency"
+          },
+          {
+            "name": "src/services/authService.js",
+            "note": "Replace mock impl with Supabase SDK calls; add listUsers, updateUserRole, updateUserStatus"
+          },
+          {
+            "name": "src/context/AuthContext.jsx",
+            "note": "Add isLoading, signup, real logout, onAuthStateChange subscription, role from user_metadata"
+          },
+          {
+            "name": "src/pages/Login.jsx",
+            "note": "Async handleLogin, link to /forgot-password, wire Google OAuth"
+          },
+          {
+            "name": "src/pages/Signup.jsx",
+            "note": "Wire form to authService.signupUser, redirect to /verify-email"
+          },
+          {
+            "name": "src/pages/Admin.jsx",
+            "note": "Live user list via Edge Function, skeleton loading, Funcao dropdown, Acoes column"
+          },
+          {
+            "name": "src/pages/Settings.jsx",
+            "note": "Real profile save via Supabase; toast only after confirmed save"
+          },
+          {
+            "name": "src/App.jsx",
+            "note": "isLoading spinner in route guards; three new public routes"
+          },
+          {
+            "name": "src/data/mock-data.js",
+            "note": "Remove mockUsers export"
+          }
+        ],
+        "label": "Modified files"
+      },
+      {
+        "category": "modules",
+        "count": 2,
+        "items": [
+          {
+            "name": "src/lib/supabase.js",
+            "note": "Client singleton"
+          },
+          {
+            "name": "supabase/functions/update-user-role/index.ts",
+            "note": "Server-side Edge Function for privileged admin operations"
+          }
+        ],
+        "label": "New modules"
+      },
+      {
+        "category": "functions",
+        "count": 11,
+        "items": [
+          {
+            "name": "loginWithCredentials",
+            "note": "Rewritten to signInWithPassword"
+          },
+          {
+            "name": "loginWithGoogle",
+            "note": "New — signInWithOAuth(Google)"
+          },
+          {
+            "name": "signupUser",
+            "note": "New — signUp with name/company metadata"
+          },
+          {
+            "name": "logoutUser",
+            "note": "New — signOut"
+          },
+          {
+            "name": "sendPasswordResetEmail",
+            "note": "New — resetPasswordForEmail"
+          },
+          {
+            "name": "updatePassword",
+            "note": "New — updateUser({ password })"
+          },
+          {
+            "name": "resendVerificationEmail",
+            "note": "New — auth.resend({ type: 'signup', email })"
+          },
+          {
+            "name": "updateUserProfile",
+            "note": "New — updateUser({ data: { full_name, phone } })"
+          },
+          {
+            "name": "listUsers",
+            "note": "New — invoke Edge Function action='list'"
+          },
+          {
+            "name": "updateUserRole",
+            "note": "New — invoke Edge Function action='update-role'"
+          },
+          {
+            "name": "updateUserStatus",
+            "note": "New — invoke Edge Function action='update-status'"
+          }
+        ],
+        "label": "New / rewritten service functions"
+      },
+      {
+        "category": "reusable",
+        "count": 7,
+        "items": [
+          {
+            "name": "Button",
+            "note": "All new pages: primary, secondary, ghost variants"
+          },
+          {
+            "name": "FormField",
+            "note": "Email and password fields on auth pages"
+          },
+          {
+            "name": "Card",
+            "note": "Centered-card wrapper on self-service pages"
+          },
+          {
+            "name": "Callout",
+            "note": "Error and success banners (danger/success variants)"
+          },
+          {
+            "name": "Toggle",
+            "note": "Status toggle in Admin user table rows"
+          },
+          {
+            "name": "AppLayout",
+            "note": "Admin.jsx unchanged wrapper"
+          },
+          {
+            "name": "useToast",
+            "note": "All save confirmations and error feedback"
+          }
+        ],
+        "label": "Existing components reused"
+      }
+    ],
+    "summary": "The app's authentication layer moves from hard-coded mock data to Supabase, a hosted auth service that handles email/password login, Google sign-in, session persistence, email verification, and password reset out of the box. A single Supabase client module becomes the sole entry point for all auth operations, replacing the current mock-user array. Each user's role (Dealer or Admin) is stored inside their Supabase profile metadata — no separate database table needed. Admin role changes are protected by a Supabase Edge Function that verifies the caller is an admin before it will write anything, keeping the privileged service key off the browser entirely. The three new self-service pages (forgot password, reset password, verify email) follow the same centered-card layout as the existing Login and Signup pages so no new design patterns are introduced. The existing Toggle, Button, FormField, Card, and Callout components cover all new UI needs."
   },
   "stages": {
     "scope": {
@@ -319,26 +720,28 @@
       "approvedAt": "2026-06-02T21:57:49Z",
       "startedAt": "2026-06-02T21:53:45Z"
     },
-    "implementation": {
-      "status": "not_started"
-    },
-    "architecture": {
-      "status": "in_progress",
-      "startedAt": "2026-06-07T19:09:06Z"
-    },
     "design": {
       "status": "approved",
       "approvedAt": "2026-06-07T19:06:51Z",
       "startedAt": "2026-06-03T15:01:41Z"
     },
-    "release": {
-      "status": "not_started"
+    "implementation": {
+      "status": "in_progress",
+      "startedAt": "2026-06-07T19:16:44Z"
     },
     "review": {
       "status": "not_started"
+    },
+    "release": {
+      "status": "not_started"
+    },
+    "architecture": {
+      "status": "approved",
+      "approvedAt": "2026-06-07T19:16:42Z",
+      "startedAt": "2026-06-07T19:09:06Z"
     }
   },
   "worktreePath": "/Users/franciscolucas/Documents/TBN/.defract-worktrees/task-wire-up-real-auth-backend-self-service-01kt54r3w2d4",
   "worktreeBaseBranch": "main",
-  "worktreeLastSyncedAt": "2026-06-07T19:09:06Z"
+  "worktreeLastSyncedAt": "2026-06-07T19:16:44Z"
 }
