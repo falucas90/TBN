@@ -477,7 +477,7 @@ Post-login navigation uses `useEffect` on `isAuthenticated` in Login.jsx rather 
 
 **New files:**
 - `src/pages/ForgotPassword.jsx` — Centered-card page at `/forgot-password`. Email input with disabled submit until value entered; calls `sendPasswordResetEmail` on submit; always shows success Callout in-place (email cleared) regardless of outcome — prevents revealing whether email is registered.
-- `src/pages/ResetPassword.jsx` — Centered-card page at `/reset-password`. On mount, checks URL for `?code=` or `#access_token`; if absent, immediately shows danger Callout with "Pedir novo link" button and no password fields. If token present, subscribes to `supabase.auth.onAuthStateChange` for `PASSWORD_RECOVERY` event; on valid token shows two password fields with mismatch inline error and disabled submit; on success shows success Callout with link to `/login`.
+- `src/pages/ResetPassword.jsx` — Centered-card page at `/reset-password`. On mount, checks URL for `?code=` or `#access_token`; if absent, immediately shows danger Callout with "Pedir novo link" button and no password fields. If token present, subscribes to `supabase.auth.onAuthStateChange` for `PASSWORD_RECOVERY` event only; on valid token shows two password fields with mismatch inline error and disabled submit; on success shows success Callout with link to `/login`.
 - `src/pages/VerifyEmail.jsx` — Centered-card page at `/verify-email`. Displays Mail icon, user's email from `useAuth().currentUser`, "Reenviar email" secondary button; calls `resendVerificationEmail` on click; disables button and runs 60-second countdown after each click using `setInterval`; displays countdown as "Reenviar disponível em Xs".
 
 **Modified files:**
@@ -485,7 +485,7 @@ Post-login navigation uses `useEffect` on `isAuthenticated` in Login.jsx rather 
 
 ### Key implementation decision
 
-ResetPassword detects valid recovery tokens by checking the URL for `?code=` or `#access_token` before subscribing to `onAuthStateChange`. If no token is in the URL, the invalid state is shown immediately rather than waiting for events that will never arrive, avoiding an indefinite "checking..." screen.
+ResetPassword detects valid recovery tokens by checking the URL for `?code=` or `#access_token` before subscribing to `onAuthStateChange`. If no token is in the URL, the invalid state is shown immediately rather than waiting for events that will never arrive, avoiding an indefinite "checking..." screen. The `INITIAL_SESSION`/`SIGNED_IN` branch was removed (loop-back fix) to prevent false expired-token screens for users with an active session.
 
 ### Verification status
 
@@ -499,7 +499,7 @@ ResetPassword detects valid recovery tokens by checking the URL for `?code=` or 
 ### What was built
 
 **New files:**
-- `supabase/functions/update-user-role/index.ts` — Deno Edge Function using Supabase service_role key. Verifies caller JWT and checks caller's `user_metadata.role === 'admin'` before executing admin operations. Supports `action: 'list'` (listUsers), `action: 'update-role'` (updateUserById with role in user_metadata), and `action: 'update-status'` (updateUserById with status in user_metadata). Returns JSON with CORS headers.
+- `supabase/functions/update-user-role/index.ts` — Deno Edge Function using Supabase service_role key. Verifies caller JWT and checks caller's `app_metadata.role === 'admin'` before executing admin operations. Supports `action: 'list'` (listUsers), `action: 'update-role'` (updateUserById with role in `app_metadata`), and `action: 'update-status'` (updateUserById with status in user_metadata). Returns JSON with CORS headers.
 
 **Modified files:**
 - `src/services/authService.js` — removed `getUsers()` stub; added `listUsers()`, `updateUserRole(userId, role)`, `updateUserStatus(userId, status)` — all invoke the Edge Function via `supabase.functions.invoke`
@@ -516,4 +516,86 @@ ResetPassword detects valid recovery tokens by checking the URL for `?code=` or 
 - `grep -r 'mockUsers' src/` — CLEAN (no matches)
 - `vite build` passes cleanly — 1824 modules, zero errors
 - Lint: 107 problems (105 errors + 2 warnings) — identical to Phase 2 baseline, zero new violations
+
+## Loop-back Fix — Security: app_metadata for role storage
+
+**Triggered by:** Review finding — critical privilege escalation: any authenticated user could write `user_metadata.role = 'admin'` via the public SDK, bypassing the Edge Function's admin gate.
+
+**Changes applied:**
+
+1. `supabase/functions/update-user-role/index.ts:38` — `caller.user_metadata?.role` → `caller.app_metadata?.role` (admin gate now reads the tamper-resistant field)
+2. `supabase/functions/update-user-role/index.ts:71` — `user_metadata: { role }` → `app_metadata: { role }` (role mutations now write to the service-role-only field)
+3. `src/context/AuthContext.jsx:15` — `user.user_metadata?.role` → `user.app_metadata?.role` (session role reads consistently from `app_metadata`)
+4. `src/pages/ResetPassword.jsx:33-35` — removed `else if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN') { setStatus('invalid'); }` branch (optional fix: prevents false expired-token screen for users with an active regular session opening a valid reset link)
+
+**Verification:** `vite build` passes — 1824 modules, zero errors. Build output identical to pre-loop-back baseline.
+
+**Note for deployment:** Existing users whose role was previously set via `user_metadata` will have an empty `app_metadata.role` until an admin re-saves their role via the admin panel. Until re-saved, they will be treated as `'dealer'`.
+
+
+## Review
+
+## Verdict
+
+**Verdict:** REQUEST CHANGES
+**Files reviewed:** 15 files changed across 3 phases
+
+All 12 acceptance criteria pass and the build is clean, but a critical privilege escalation vulnerability blocks shipping: roles are stored in Supabase user_metadata, which any authenticated user can write via the public SDK, allowing a dealer to self-promote to admin. Roles must move to app_metadata before this task can release.
+
+### Automated Checks
+
+| Check | Result | Details |
+|-------|--------|---------|
+| Build | PASS | vite build: 1824 modules transformed, zero errors |
+| Lint | PASS | 107 problems — all pre-existing codebase-wide issues; zero new violations introduced by this task |
+
+### Acceptance Criteria (12/12 passed)
+
+- [x] AC-1: Logging in with a valid email and password creates a real session; the user reaches /searches and remains logged in after a full page refresh. — PASS: Login.jsx:40 calls login() → loginWithCredentials() → supabase.auth.signInWithPassword; App.jsx:29-33 useEffect on isAuthenticated navigates to /searches; Supabase SDK persists JWT in localStorage; AuthContext.jsx:12 onAuthStateChange fires INITIAL_SESSION on reload, restoring session
+- [x] AC-2: Logging in with incorrect credentials shows a Portuguese error message without a page reload. — PASS: Login.jsx:7-19 mapAuthError() maps 'invalid login credentials' → 'Credenciais inválidas. Verifique o seu email e palavra-passe.'; error displayed via state at Login.jsx:129-131 without navigation
+- [x] AC-3: Logging out clears the session; navigating directly to /searches redirects to /login. — PASS: authService.js:17-20 logoutUser() calls supabase.auth.signOut(); App.jsx:36-41 ProtectedRoute redirects to /login when !isAuthenticated after isLoading resolves
+- [x] AC-4: Registering a new account redirects the user to /verify-email; the account cannot access protected routes until verification is confirmed. — PASS: Signup.jsx:44 navigates to /verify-email on success; enforcement of verification-before-access depends on Supabase project having email confirmation enabled; VerifyEmail route is public (App.jsx:61)
+- [x] AC-5: Submitting the forgot-password form with a registered email triggers a reset email and shows a Portuguese confirmation message. — PASS: ForgotPassword.jsx:16 calls sendPasswordResetEmail (→ supabase.auth.resetPasswordForEmail); always sets submitted=true in finally block (line 21) showing Callout with 'Email enviado' / 'Verifique a sua caixa de entrada.'
+- [x] AC-6: Visiting /reset-password with a valid token allows the user to set a new password; an invalid or expired token shows a Portuguese error with a back link. — PASS: ResetPassword.jsx:17-39 checks URL for ?code= or #access_token on mount; if absent immediately sets status='invalid'; invalid state (lines 73-87) shows Callout 'Link expirado ou inválido' with 'Pedir novo link' button and '← Voltar ao login' link
+- [x] AC-7: After login, refreshing the page keeps the user logged in (session persists via the provider SDK). — PASS: Supabase SDK stores JWT in localStorage; AuthContext.jsx:11-20 onAuthStateChange fires INITIAL_SESSION on every page load, setting currentUser from the persisted session
+- [x] AC-8: An admin user sees the live user list on /admin, not the mock array. — PASS: Admin.jsx:37-47 calls listUsers() on mount; authService.js:54-60 invokes Edge Function action='list'; index.ts:55-60 calls supabaseAdmin.auth.admin.listUsers(); grep -r 'mockUsers' src/ returns no matches
+- [x] AC-9: A non-admin user attempting to visit /admin is redirected to /searches. — PASS: App.jsx:43-49 AdminRoute checks currentUser?.role !== 'admin' and returns Navigate to /searches
+- [x] AC-10: An admin can change a dealer's role to Admin in the admin panel; the change is reflected on the affected user's next login. — PASS: Admin.jsx:49-72 handleSaveRole calls updateUserRole(user.id, newRole); authService.js:62-68 invokes Edge Function action='update-role'; index.ts:63-77 calls updateUserById updating user_metadata.role — see security findings for the role storage vulnerability
+- [x] AC-11: Saving profile changes in Settings writes the updated values to the auth provider; the success toast appears only after a confirmed save. — PASS: Settings.jsx:22 calls updateUserProfile({ full_name: name, phone }) → supabase.auth.updateUser({ data: profileData }); addToast at line 23 is inside try block after the await, firing only on success
+- [x] AC-12: mockUsers is not imported anywhere in the production source tree after Phase 3 is complete. — PASS: grep -r 'mockUsers' src/ returns no matches; mock-data.js exports only mockSearches and mockAlerts
+
+### Code Quality (Refactor Review)
+
+#### Race condition
+
+- **WARNING:** `src/pages/ResetPassword.jsx:30` — onAuthStateChange fires INITIAL_SESSION before PASSWORD_RECOVERY when the user already has an active regular session. The else-if at lines 33-35 sets status='invalid' on INITIAL_SESSION, so a user with an existing session who opens a valid reset link may get the expired-token screen. Suggested fix: Remove the else-if branch that sets 'invalid' on INITIAL_SESSION/SIGNED_IN; rely solely on the URL-absence check at mount to set 'invalid' and on PASSWORD_RECOVERY to set 'valid'
+
+### Security Assessment (Security Review)
+
+#### Privilege escalation
+
+- **CRITICAL:** `supabase/functions/update-user-role/index.ts:38` — The admin gate reads caller.user_metadata?.role. Supabase user_metadata is writable by any authenticated user via supabase.auth.updateUser({ data: { role: 'admin' } }) using the public anon key. A dealer can self-promote to admin, pass this check, and invoke listUsers, updateUserRole, and updateUserStatus on any account. Remediation: Use app_metadata for roles: (1) change line 38 to caller.app_metadata?.role; (2) change line 71 from user_metadata: { role } to app_metadata: { role }; (3) change AuthContext.jsx:15 to user.app_metadata?.role. Supabase app_metadata is only writable via the service_role key
+
+#### CORS policy
+
+- **WARNING:** `supabase/functions/update-user-role/index.ts:3` — CORS header uses Access-Control-Allow-Origin: '*', allowing any origin to make cross-origin requests to this privileged admin endpoint. JWT auth provides the primary protection, but wildcard CORS removes a defense-in-depth layer. Remediation: Restrict Access-Control-Allow-Origin to the deployed application origin via an ALLOWED_ORIGIN env var instead of the wildcard
+
+### Decisions Made During Implementation
+
+- AD-2 (Architecture): Role stored in user_metadata for synchronous access on session events — this is the direct source of the privilege escalation finding; user_metadata is user-writable via the public SDK
+- AD-3 (Architecture): Admin mutations via Edge Function holding service_role key — service_role key is correctly kept server-side; the vulnerability is in the input validation, not key management
+- AD-4 (Implementation): Post-login navigation via useEffect on isAuthenticated rather than navigate() after await — correct approach to avoid race with async onAuthStateChange
+- AD-5 (Implementation): ResetPassword detects valid recovery tokens by checking URL before subscribing to onAuthStateChange — sound approach but the INITIAL_SESSION else-if branch creates a race for users with active sessions
+
+## Headline Findings
+
+- **critical** — Any authenticated dealer can self-promote to admin by calling supabase.auth.updateUser({ data: { role: 'admin' } }) — the Edge Function's admin gate at index.ts:38 reads user_metadata which is user-writable, granting full admin panel access including listing all users and changing any user's role. See `### Security Assessment`.
+- **optional** — A user with an active regular session who opens a valid password-reset link may see the expired-token error screen instead of the reset form, because INITIAL_SESSION fires before PASSWORD_RECOVERY in ResetPassword.jsx:33-35. See `### Code Quality`.
+
+## Required Changes
+
+**Blocking**
+
+- supabase/functions/update-user-role/index.ts:38 — change caller.user_metadata?.role to caller.app_metadata?.role; index.ts:71 — change user_metadata: { role } to app_metadata: { role } in the update-role action; src/context/AuthContext.jsx:15 — change user.user_metadata?.role to user.app_metadata?.role so all role reads come from the admin-only field that users cannot self-modify
+
 

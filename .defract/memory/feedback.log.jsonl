@@ -40,3 +40,6 @@
 {"entryId":"01KT558SG86V2JGF6SEZ6TH91B","taskId":"task-wire-up-real-auth-backend-self-service-01kt54r3w2d4","stage":"architecture","outcome":"noise","timestamp":"2026-06-07T19:16:29.223Z"}
 {"entryId":"01KT54Y9HD0YWCFK94E4PMSZPF","taskId":"task-wire-up-real-auth-backend-self-service-01kt54r3w2d4","stage":"architecture","outcome":"noise","timestamp":"2026-06-07T19:16:29.223Z"}
 {"entryId":"01KT557P9JJ1PZFA9FKG46GFB3","taskId":"task-wire-up-real-auth-backend-self-service-01kt54r3w2d4","stage":"architecture","outcome":"noise","timestamp":"2026-06-07T19:16:29.223Z"}
+{"entryId":"01KTHR0F0NGM1ZMRT95JJ7Z8BH","taskId":"task-wire-up-real-auth-backend-self-service-01kt54r3w2d4","stage":"review","outcome":"helpful","timestamp":"2026-06-07T19:44:21.263Z"}
+{"entryId":"01KT558SG86V2JGF6SEZ6TH91B","taskId":"task-wire-up-real-auth-backend-self-service-01kt54r3w2d4","stage":"review","outcome":"noise","timestamp":"2026-06-07T19:44:21.263Z"}
+{"entryId":"01KT54Y9HD0YWCFK94E4PMSZPF","taskId":"task-wire-up-real-auth-backend-self-service-01kt54r3w2d4","stage":"review","outcome":"noise","timestamp":"2026-06-07T19:44:21.263Z"}
