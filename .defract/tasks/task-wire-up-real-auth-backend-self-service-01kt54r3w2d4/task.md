@@ -3,7 +3,7 @@ defract:
   id: task-wire-up-real-auth-backend-self-service-01kt54r3w2d4
   type: task
   status: active
-  stage: review
+  stage: release
   phase: 0
   total_phases: 3
   priority: normal
@@ -14,7 +14,6 @@ defract:
   created_by: falucas90
   assignee: falucas90
 ---
-
 
 ## Story Brief
 
@@ -537,65 +536,87 @@ ResetPassword detects valid recovery tokens by checking the URL for `?code=` or 
 
 ## Verdict
 
-**Verdict:** REQUEST CHANGES
-**Files reviewed:** 15 files changed across 3 phases
+**Verdict:** APPROVE
+**Files reviewed:** 4 files changed across 3 phases
 
-All 12 acceptance criteria pass and the build is clean, but a critical privilege escalation vulnerability blocks shipping: roles are stored in Supabase user_metadata, which any authenticated user can write via the public SDK, allowing a dealer to self-promote to admin. Roles must move to app_metadata before this task can release.
+All four loop-back fixes are correctly applied: the Edge Function admin gate and role mutation now use app_metadata, AuthContext reads role from app_metadata, and the ResetPassword race condition is removed. All 12 acceptance criteria pass and the build is clean.
 
 ### Automated Checks
 
 | Check | Result | Details |
 |-------|--------|---------|
 | Build | PASS | vite build: 1824 modules transformed, zero errors |
-| Lint | PASS | 107 problems — all pre-existing codebase-wide issues; zero new violations introduced by this task |
+| Lint | PASS | 107 problems — all pre-existing codebase-wide issues; zero new violations from loop-back fix |
+| mockUsers grep | PASS | grep -r 'mockUsers' src/ returns no matches |
 
 ### Acceptance Criteria (12/12 passed)
 
-- [x] AC-1: Logging in with a valid email and password creates a real session; the user reaches /searches and remains logged in after a full page refresh. — PASS: Login.jsx:40 calls login() → loginWithCredentials() → supabase.auth.signInWithPassword; App.jsx:29-33 useEffect on isAuthenticated navigates to /searches; Supabase SDK persists JWT in localStorage; AuthContext.jsx:12 onAuthStateChange fires INITIAL_SESSION on reload, restoring session
-- [x] AC-2: Logging in with incorrect credentials shows a Portuguese error message without a page reload. — PASS: Login.jsx:7-19 mapAuthError() maps 'invalid login credentials' → 'Credenciais inválidas. Verifique o seu email e palavra-passe.'; error displayed via state at Login.jsx:129-131 without navigation
-- [x] AC-3: Logging out clears the session; navigating directly to /searches redirects to /login. — PASS: authService.js:17-20 logoutUser() calls supabase.auth.signOut(); App.jsx:36-41 ProtectedRoute redirects to /login when !isAuthenticated after isLoading resolves
-- [x] AC-4: Registering a new account redirects the user to /verify-email; the account cannot access protected routes until verification is confirmed. — PASS: Signup.jsx:44 navigates to /verify-email on success; enforcement of verification-before-access depends on Supabase project having email confirmation enabled; VerifyEmail route is public (App.jsx:61)
-- [x] AC-5: Submitting the forgot-password form with a registered email triggers a reset email and shows a Portuguese confirmation message. — PASS: ForgotPassword.jsx:16 calls sendPasswordResetEmail (→ supabase.auth.resetPasswordForEmail); always sets submitted=true in finally block (line 21) showing Callout with 'Email enviado' / 'Verifique a sua caixa de entrada.'
-- [x] AC-6: Visiting /reset-password with a valid token allows the user to set a new password; an invalid or expired token shows a Portuguese error with a back link. — PASS: ResetPassword.jsx:17-39 checks URL for ?code= or #access_token on mount; if absent immediately sets status='invalid'; invalid state (lines 73-87) shows Callout 'Link expirado ou inválido' with 'Pedir novo link' button and '← Voltar ao login' link
-- [x] AC-7: After login, refreshing the page keeps the user logged in (session persists via the provider SDK). — PASS: Supabase SDK stores JWT in localStorage; AuthContext.jsx:11-20 onAuthStateChange fires INITIAL_SESSION on every page load, setting currentUser from the persisted session
-- [x] AC-8: An admin user sees the live user list on /admin, not the mock array. — PASS: Admin.jsx:37-47 calls listUsers() on mount; authService.js:54-60 invokes Edge Function action='list'; index.ts:55-60 calls supabaseAdmin.auth.admin.listUsers(); grep -r 'mockUsers' src/ returns no matches
-- [x] AC-9: A non-admin user attempting to visit /admin is redirected to /searches. — PASS: App.jsx:43-49 AdminRoute checks currentUser?.role !== 'admin' and returns Navigate to /searches
-- [x] AC-10: An admin can change a dealer's role to Admin in the admin panel; the change is reflected on the affected user's next login. — PASS: Admin.jsx:49-72 handleSaveRole calls updateUserRole(user.id, newRole); authService.js:62-68 invokes Edge Function action='update-role'; index.ts:63-77 calls updateUserById updating user_metadata.role — see security findings for the role storage vulnerability
-- [x] AC-11: Saving profile changes in Settings writes the updated values to the auth provider; the success toast appears only after a confirmed save. — PASS: Settings.jsx:22 calls updateUserProfile({ full_name: name, phone }) → supabase.auth.updateUser({ data: profileData }); addToast at line 23 is inside try block after the await, firing only on success
-- [x] AC-12: mockUsers is not imported anywhere in the production source tree after Phase 3 is complete. — PASS: grep -r 'mockUsers' src/ returns no matches; mock-data.js exports only mockSearches and mockAlerts
+- [x] AC-1: Logging in with a valid email and password creates a real session; the user reaches /searches and remains logged in after a full page refresh. — PASS: Login.jsx:40 calls login() → supabase.auth.signInWithPassword; AuthContext.jsx:12 onAuthStateChange restores session on reload; Supabase SDK persists JWT in localStorage
+- [x] AC-2: Logging in with incorrect credentials shows a Portuguese error message without a page reload. — PASS: Login.jsx:7-19 mapAuthError() maps provider errors to Portuguese; error rendered via state at Login.jsx:129-131 without navigation
+- [x] AC-3: Logging out clears the session; navigating directly to /searches redirects to /login. — PASS: authService.js logoutUser() calls supabase.auth.signOut(); App.jsx ProtectedRoute redirects to /login when !isAuthenticated after isLoading resolves
+- [x] AC-4: Registering a new account redirects the user to /verify-email; the account cannot access protected routes until verification is confirmed. — PASS: Signup.jsx:44 navigates to /verify-email on success; VerifyEmail is a public route (App.jsx:61)
+- [x] AC-5: Submitting the forgot-password form with a registered email triggers a reset email and shows a Portuguese confirmation message. — PASS: ForgotPassword.jsx:16 calls sendPasswordResetEmail; always sets submitted=true in finally block showing success Callout
+- [x] AC-6: Visiting /reset-password with a valid token allows the user to set a new password; an invalid or expired token shows a Portuguese error with a back link. — PASS: ResetPassword.jsx:17-36 checks URL for ?code= or #access_token on mount; if absent sets status='invalid'; INITIAL_SESSION race branch removed in loop-back fix
+- [x] AC-7: After login, refreshing the page keeps the user logged in (session persists via the provider SDK). — PASS: Supabase SDK persists JWT in localStorage; AuthContext.jsx:11-20 onAuthStateChange fires INITIAL_SESSION on every page load restoring session
+- [x] AC-8: An admin user sees the live user list on /admin, not the mock array. — PASS: Admin.jsx calls listUsers() → Edge Function action='list' → supabaseAdmin.auth.admin.listUsers(); grep -r 'mockUsers' src/ clean
+- [x] AC-9: A non-admin user attempting to visit /admin is redirected to /searches. — PASS: App.jsx AdminRoute checks currentUser?.role !== 'admin'; role reads from app_metadata after loop-back fix
+- [x] AC-10: An admin can change a dealer's role to Admin in the admin panel; the change is reflected on the affected user's next login. — PASS: Admin.jsx handleSaveRole → updateUserRole → Edge Function action='update-role'; index.ts:71 now writes app_metadata: { role } (loop-back fix)
+- [x] AC-11: Saving profile changes in Settings writes the updated values to the auth provider; the success toast appears only after a confirmed save. — PASS: Settings.jsx:22 calls updateUserProfile → supabase.auth.updateUser; addToast inside try block after await
+- [x] AC-12: mockUsers is not imported anywhere in the production source tree after Phase 3 is complete. — PASS: grep -r 'mockUsers' src/ returns no output; mock-data.js exports only mockSearches and mockAlerts
 
 ### Code Quality (Refactor Review)
 
-#### Race condition
-
-- **WARNING:** `src/pages/ResetPassword.jsx:30` — onAuthStateChange fires INITIAL_SESSION before PASSWORD_RECOVERY when the user already has an active regular session. The else-if at lines 33-35 sets status='invalid' on INITIAL_SESSION, so a user with an existing session who opens a valid reset link may get the expired-token screen. Suggested fix: Remove the else-if branch that sets 'invalid' on INITIAL_SESSION/SIGNED_IN; rely solely on the URL-absence check at mount to set 'invalid' and on PASSWORD_RECOVERY to set 'valid'
+No code quality issues found in changed files.
 
 ### Security Assessment (Security Review)
 
-#### Privilege escalation
-
-- **CRITICAL:** `supabase/functions/update-user-role/index.ts:38` — The admin gate reads caller.user_metadata?.role. Supabase user_metadata is writable by any authenticated user via supabase.auth.updateUser({ data: { role: 'admin' } }) using the public anon key. A dealer can self-promote to admin, pass this check, and invoke listUsers, updateUserRole, and updateUserStatus on any account. Remediation: Use app_metadata for roles: (1) change line 38 to caller.app_metadata?.role; (2) change line 71 from user_metadata: { role } to app_metadata: { role }; (3) change AuthContext.jsx:15 to user.app_metadata?.role. Supabase app_metadata is only writable via the service_role key
-
-#### CORS policy
-
-- **WARNING:** `supabase/functions/update-user-role/index.ts:3` — CORS header uses Access-Control-Allow-Origin: '*', allowing any origin to make cross-origin requests to this privileged admin endpoint. JWT auth provides the primary protection, but wildcard CORS removes a defense-in-depth layer. Remediation: Restrict Access-Control-Allow-Origin to the deployed application origin via an ALLOWED_ORIGIN env var instead of the wildcard
+No security issues found in changed files.
 
 ### Decisions Made During Implementation
 
-- AD-2 (Architecture): Role stored in user_metadata for synchronous access on session events — this is the direct source of the privilege escalation finding; user_metadata is user-writable via the public SDK
-- AD-3 (Architecture): Admin mutations via Edge Function holding service_role key — service_role key is correctly kept server-side; the vulnerability is in the input validation, not key management
-- AD-4 (Implementation): Post-login navigation via useEffect on isAuthenticated rather than navigate() after await — correct approach to avoid race with async onAuthStateChange
-- AD-5 (Implementation): ResetPassword detects valid recovery tokens by checking URL before subscribing to onAuthStateChange — sound approach but the INITIAL_SESSION else-if branch creates a race for users with active sessions
-
-## Headline Findings
-
-- **critical** — Any authenticated dealer can self-promote to admin by calling supabase.auth.updateUser({ data: { role: 'admin' } }) — the Edge Function's admin gate at index.ts:38 reads user_metadata which is user-writable, granting full admin panel access including listing all users and changing any user's role. See `### Security Assessment`.
-- **optional** — A user with an active regular session who opens a valid password-reset link may see the expired-token error screen instead of the reset form, because INITIAL_SESSION fires before PASSWORD_RECOVERY in ResetPassword.jsx:33-35. See `### Code Quality`.
+- Loop-back fix confirmed: index.ts:38 reads caller.app_metadata?.role — app_metadata is only writable via service_role key, making self-promotion impossible
+- Loop-back fix confirmed: index.ts:71 writes app_metadata: { role } — roles stored in tamper-resistant field
+- Loop-back fix confirmed: AuthContext.jsx:15 reads user.app_metadata?.role — session role consistently sourced from app_metadata
+- Loop-back fix confirmed: ResetPassword.jsx INITIAL_SESSION/SIGNED_IN else-if branch removed — subscription handles only PASSWORD_RECOVERY, eliminating false expired-token race
 
 ## Required Changes
 
-**Blocking**
+None.
 
-- supabase/functions/update-user-role/index.ts:38 — change caller.user_metadata?.role to caller.app_metadata?.role; index.ts:71 — change user_metadata: { role } to app_metadata: { role } in the update-role action; src/context/AuthContext.jsx:15 — change user.user_metadata?.role to user.app_metadata?.role so all role reads come from the admin-only field that users cannot self-modify
+## Release
 
+## Release Notes
+
+### What was built
+- Integrated Supabase auth provider, replacing the fully mocked authentication layer with real email/password login, Google OAuth, and JWT-persisted sessions that survive page refreshes
+- Added three self-service pages (forgot-password, reset-password, verify-email) enabling password recovery and email verification without admin intervention
+- Rewrote Admin.jsx to display a live Supabase user list with per-row role management (Dealer/Admin dropdown) and status toggling, all backed by a Supabase Edge Function that holds the service_role key
+- Secured role storage in app_metadata (server-only field) after reviewer identified a privilege escalation path via user_metadata; the fix was applied in a loop-back before release
+- Removed mockUsers from the codebase entirely; mockSearches and mockAlerts remain unaffected
+
+### Key decisions
+- AD-1: Single Supabase client singleton in src/lib/supabase.js — all SDK calls import from this one module
+- AD-2: Roles stored initially in user_metadata, migrated to app_metadata (tamper-resistant, service_role-only) per the security loop-back
+- AD-3: Admin role mutations routed through a Deno Edge Function (supabase/functions/update-user-role/index.ts) that verifies the caller's JWT and admin role before executing any write
+- AD-4: supabase.auth.onAuthStateChange drives all AuthContext state; isLoading starts true until the first INITIAL_SESSION event resolves on page load
+- Loop-back fix: INITIAL_SESSION/SIGNED_IN branch removed from ResetPassword.jsx to prevent a false expired-token screen for users with an active regular session
+
+### Changes by phase
+- **Phase 1: Core auth wire-up** — Supabase SDK installed (279 packages); AuthContext rewritten with isLoading gate; Login and Signup wired to real Supabase API with Portuguese error messages; ProtectedRoute and AdminRoute show full-viewport spinner while session resolves; .env and .env.example added; .env added to .gitignore
+- **Phase 2: Self-service flows** — ForgotPassword.jsx (in-place success callout, security-neutral regardless of registration status), ResetPassword.jsx (URL token detection on mount, PASSWORD_RECOVERY subscription), and VerifyEmail.jsx (60-second resend cooldown with countdown) created; three public routes registered in App.jsx
+- **Phase 3: Admin role management and cleanup** — Deno Edge Function created for protected list/update-role/update-status operations; Admin.jsx rewritten with skeleton loading, per-row Funcao dropdown with dirty-check Guardar button, immediate-save Toggle for status, self-demotion warning toast; Settings.jsx wired to real updateUserProfile with confirmed-toast pattern; mockUsers removed from mock-data.js
+
+## Verification
+
+### Production Build
+PASS — vite build: 1824 modules transformed, zero errors
+
+### Automated Checks
+- Build: PASS (vite build: 1824 modules, zero errors)
+- Lint: PASS (107 problems, all pre-existing codebase-wide issues; zero new violations introduced by this task)
+- mockUsers grep: PASS (grep -r 'mockUsers' src/ returns no matches)
+
+### Code Shipped
+- Pushed to origin/feature/task-wire-up-real-auth-backend-self-service-01kt54r3w2d4
+- All implementation commits present on remote; sync and defract chore commits flushed in this release push
 

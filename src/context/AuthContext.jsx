@@ -1,29 +1,44 @@
-import { createContext, useContext, useState } from 'react';
-import { loginWithCredentials } from '../services/authService';
+import { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
+import { loginWithCredentials, loginWithGoogle, logoutUser, signupUser } from '../services/authService';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      const user = session?.user ?? null;
+      setCurrentUser(
+        user ? { ...user, role: user.app_metadata?.role || 'dealer' } : null
+      );
+      setIsLoading(false);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   const login = async (email, password) => {
-    const user = await loginWithCredentials(email, password);
-    if (user) {
-      setCurrentUser(user);
-      setIsAuthenticated(true);
-      return true;
-    }
-    return false;
+    await loginWithCredentials(email, password);
   };
 
-  const logout = () => {
-    setCurrentUser(null);
-    setIsAuthenticated(false);
+  const loginGoogle = async () => {
+    await loginWithGoogle();
   };
+
+  const signup = async (email, password, metadata) => {
+    await signupUser(email, password, metadata);
+  };
+
+  const logout = async () => {
+    await logoutUser();
+  };
+
+  const isAuthenticated = !!currentUser;
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, currentUser, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, currentUser, isLoading, login, loginGoogle, signup, logout }}>
       {children}
     </AuthContext.Provider>
   );

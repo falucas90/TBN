@@ -5,48 +5,77 @@ import { FormField, CurrencyInput } from '../components/forms';
 import { Save, Download, Trash2, Mail, Building } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
+import { updateUserProfile } from '../services/authService';
 
 export default function Settings() {
   const { addToast } = useToast();
   const { currentUser } = useAuth();
+  const [name, setName] = useState(currentUser?.user_metadata?.full_name || currentUser?.name || '');
+  const [phone, setPhone] = useState(currentUser?.user_metadata?.phone || '');
   const [transportCost, setTransportCost] = useState(currentUser?.defaultTransportCost ?? 800);
   const [minMargin, setMinMargin] = useState(2000);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+
+  async function handleSaveProfile() {
+    setIsSavingProfile(true);
+    try {
+      await updateUserProfile({ full_name: name, phone });
+      addToast('Alterações de perfil guardadas com sucesso.', 'success');
+    } catch (err) {
+      addToast(err.message || 'Erro ao guardar alterações.', 'error');
+    } finally {
+      setIsSavingProfile(false);
+    }
+  }
 
   return (
     <AppLayout>
       <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto', width: '100%' }}>
         <h1 style={{ fontSize: '1.875rem', fontWeight: '700', marginBottom: '2rem' }}>Definições</h1>
-        
+
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          
+
           <Card>
             <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1.5rem' }}>Perfil da Conta</h2>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
               <FormField label="Nome Completo">
-                <input type="text" defaultValue={currentUser?.name} style={{
-                  padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', fontSize: '0.875rem', fontFamily: 'inherit', outline: 'none'
-                }} />
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  style={{
+                    padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', fontSize: '0.875rem', fontFamily: 'inherit', outline: 'none', width: '100%', boxSizing: 'border-box'
+                  }}
+                />
               </FormField>
               <FormField label="Nome da Empresa">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.625rem 0' }}>
                   <Building size={18} style={{ color: 'var(--color-text-secondary)' }} />
-                  <span style={{ fontWeight: '500' }}>{currentUser?.company}</span>
+                  <span style={{ fontWeight: '500' }}>{currentUser?.user_metadata?.company || currentUser?.company || '—'}</span>
                 </div>
               </FormField>
               <FormField label="Endereço de Email">
-                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.625rem 0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.625rem 0' }}>
                   <Mail size={18} style={{ color: 'var(--color-text-secondary)' }} />
                   <span style={{ fontWeight: '500' }}>{currentUser?.email}</span>
                 </div>
               </FormField>
               <FormField label="Telefone / WhatsApp">
-                <input type="text" defaultValue="+351 912 345 678" style={{
-                  padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', fontSize: '0.875rem', fontFamily: 'inherit', outline: 'none'
-                }} />
+                <input
+                  type="text"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+351 912 345 678"
+                  style={{
+                    padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', fontSize: '0.875rem', fontFamily: 'inherit', outline: 'none', width: '100%', boxSizing: 'border-box'
+                  }}
+                />
               </FormField>
             </div>
             <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
-              <Button onClick={() => addToast('Alterações de perfil guardadas com sucesso.', 'success')}><Save size={16} /> Guardar Alterações</Button>
+              <Button onClick={handleSaveProfile} disabled={isSavingProfile}>
+                <Save size={16} /> {isSavingProfile ? 'A guardar…' : 'Guardar Alterações'}
+              </Button>
             </div>
           </Card>
 
@@ -62,7 +91,7 @@ export default function Settings() {
               <FormField label="Margem Mínima Alvo (Padrão)">
                 <CurrencyInput value={minMargin} onChange={setMinMargin} />
               </FormField>
-              
+
               <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--color-border)' }}>
                 <FormField label="Canal de Notificação Preferido">
                   <select style={{ padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }}>
