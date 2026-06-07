@@ -30,8 +30,6 @@ export default function ResetPassword() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') {
         setStatus('valid');
-      } else if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN') {
-        setStatus('invalid');
       }
     });
 

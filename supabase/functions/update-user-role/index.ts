@@ -35,7 +35,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const callerRole = caller.user_metadata?.role;
+    const callerRole = caller.app_metadata?.role;
     if (callerRole !== 'admin') {
       return new Response(JSON.stringify({ error: 'Acesso negado — apenas administradores' }), {
         status: 403,
@@ -68,7 +68,7 @@ Deno.serve(async (req) => {
         });
       }
       const { data, error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
-        user_metadata: { role },
+        app_metadata: { role },
       });
       if (error) throw error;
       return new Response(JSON.stringify({ user: data.user }), {

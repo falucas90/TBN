@@ -12,7 +12,7 @@ export function AuthProvider({ children }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       const user = session?.user ?? null;
       setCurrentUser(
-        user ? { ...user, role: user.user_metadata?.role || 'dealer' } : null
+        user ? { ...user, role: user.app_metadata?.role || 'dealer' } : null
       );
       setIsLoading(false);
     });
