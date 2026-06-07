@@ -5,6 +5,9 @@ import { ToastProvider } from './context/ToastContext';
 // Pages
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
+import VerifyEmail from './pages/VerifyEmail';
 import Searches from './pages/Searches';
 import CreateSearch from './pages/CreateSearch';
 import AlertHistory from './pages/AlertHistory';
@@ -53,6 +56,9 @@ function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/verify-email" element={<VerifyEmail />} />
 
             {/* Protected Routes */}
             <Route path="/" element={<ProtectedRoute><Searches /></ProtectedRoute>} />
