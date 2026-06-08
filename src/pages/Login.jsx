@@ -96,7 +96,7 @@ export default function Login() {
       {/* Right Pane (Form) */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
-          <div style={{ width: '100%', maxWidth: '380px' }}>
+          <div style={{ width: '100%', maxWidth: '460px' }}>
             <h2 style={{ fontSize: '1.75rem', fontWeight: '700', marginBottom: '0.5rem' }}>Bem-vindo de volta</h2>
             <p style={{ color: 'var(--color-text-secondary)', marginBottom: '2.5rem' }}>Aceda à sua conta</p>
 
@@ -104,20 +104,20 @@ export default function Login() {
               <FormField label="Email" required>
                 <input
                   type="email"
+                  className="input"
                   placeholder="stand@exemplo.pt"
                   value={email}
                   onChange={(e) => { setEmail(e.target.value); setError(''); }}
-                  style={{ padding: '0.75rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none', width: '100%' }}
                 />
               </FormField>
               <FormField label="Palavra-passe" required>
                 <div style={{ position: 'relative' }}>
                   <input
                     type="password"
+                    className="input"
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => { setPassword(e.target.value); setError(''); }}
-                    style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }}
                   />
                   <span style={{ position: 'absolute', right: '12px', top: '12px', fontSize: '0.875rem', color: '#666', cursor: 'pointer' }}>show</span>
                 </div>

@@ -15,7 +15,6 @@ defract:
   assignee: falucas90
 ---
 
-
 ## Story Brief
 
 Promoted from backlog item `bli-i-think-the-12`.
@@ -159,4 +158,29 @@ No security issues found in changed files.
 ## Required Changes
 
 None.
+
+## Release
+
+## Release Notes
+
+### What was built
+- Login page form container widened from 380px to 460px so email and password inputs occupy a comfortable proportion of the right panel column
+- Email input aligned to design system by applying the `.input` CSS class from `global.css`, removing redundant inline styles (border, padding, borderRadius, outline, width)
+- Password input aligned to design system in the same way; the wrapping `div` retains `position: relative` for the "show" overlay
+- Both inputs now inherit consistent height (36px), padding, focus ring (emerald border + slate background), and placeholder colour from the shared `.input` class
+
+### Key decisions
+- Increase form container max-width from 380px to 460px — comfortable on a half-screen column without stretching on smaller viewports
+- Apply the existing `.input` CSS class to both inputs instead of maintaining parallel inline styles — avoids style conflicts and aligns with the design system
+
+### Changes by phase
+- **Phase 1: Widen form container and align inputs to design system** — `src/pages/Login.jsx` only: maxWidth raised from 380px to 460px on the form wrapper; `className="input"` added to both email and password inputs; redundant inline style properties removed; password wrapper `position: relative` preserved
+
+## Verification
+
+| Check | Result |
+|-------|--------|
+| Approved review | PASS — Verdict: APPROVE, 4/4 acceptance criteria, 2026-06-08T22:52:08Z |
+| Production build | PASS — vite build succeeded, 1824 modules transformed |
+| Code pushed | PASS — branch pushed to origin |
 

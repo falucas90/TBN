@@ -1,11 +1,11 @@
 {
   "id": "task-fix-login-page-layout-email-and-01ktht16jwgh",
-  "status": "active",
+  "status": "completed",
   "stage": "release",
   "phase": 1,
   "totalPhases": 1,
   "createdAt": "2026-06-07T19:47:51Z",
-  "updatedAt": "2026-06-08T22:52:08Z",
+  "updatedAt": "2026-06-08T22:53:48Z",
   "events": [
     {
       "base_branch": "main",
@@ -388,6 +388,50 @@
       "stage": "release",
       "timestamp": "2026-06-08T22:52:08Z",
       "type": "stage_agent_started"
+    },
+    {
+      "change_summary": "Release validated — build passes, code pushed",
+      "revision": 1,
+      "stage": "release",
+      "timestamp": "2026-06-08T22:52:57Z",
+      "type": "stage_content_updated"
+    },
+    {
+      "alternatives_considered": [],
+      "decision": "Release complete — task done",
+      "rationale": "Production build passes, review approved on 2026-06-08T22:52:08Z, code committed (e4e7be0) and pushed to origin",
+      "timestamp": "2026-06-08T22:53:01Z",
+      "type": "decision"
+    },
+    {
+      "stage": "release",
+      "summary": "Release complete. Production build passes (1824 modules, 0 errors), review approved 4/4 criteria on 2026-06-08, code pushed to origin as feature/task-fix-login-page-layout-email-and-01ktht16jwgh.",
+      "timestamp": "2026-06-08T22:53:09Z",
+      "type": "stage_work_complete",
+      "worktree_head": "e4e7be0f35ba4eb3870619d1e8c9ce1a4afb0928",
+      "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "base_branch": "main",
+      "files_changed": 1,
+      "lines_added": 3,
+      "lines_removed": 3,
+      "timestamp": "2026-06-08T22:53:45Z",
+      "type": "worktree_merged"
+    },
+    {
+      "timestamp": "2026-06-08T22:53:46Z",
+      "type": "worktree_removed"
+    },
+    {
+      "branch": "feature/task-fix-login-page-layout-email-and-01ktht16jwgh",
+      "timestamp": "2026-06-08T22:53:48Z",
+      "type": "remote_branch_deleted"
+    },
+    {
+      "actor": null,
+      "timestamp": "2026-06-08T22:53:48Z",
+      "type": "task_completed"
     }
   ],
   "needsArchitecture": false,
@@ -409,9 +453,11 @@
     "implementation": "2026-06-08T22:50:24Z",
     "scope": "2026-06-07T19:56:41Z"
   },
+  "completedAt": "2026-06-08T22:53:48Z",
   "stageContent": {
+    "implementation": "## Phase 1: Widen form container and align inputs to design system\n\n**Files changed:** `src/pages/Login.jsx`\n\n**Changes made:**\n- Form wrapper `maxWidth` increased from `380px` to `460px` (line 99)\n- Email input: added `className=\"input\"`, removed inline `style` prop (border, padding, borderRadius, outline, width — all covered by `.input`)\n- Password input: added `className=\"input\"`, removed inline `style` prop (same redundant properties); `position: relative` on the wrapping `div` preserved for the \"show\" overlay\n\n**No deviations from plan.** The `.input` class in `global.css` provides `width: 100%; height: 36px; padding: 0 12px; border; border-radius; outline; focus ring (emerald border + slate background)` — all properties removed from inline styles.\n",
     "review": "## Verdict\n\n**Verdict:** APPROVE\n**Files reviewed:** 1 files changed across 1 phases\n\nAll four acceptance criteria pass. The form container max-width is correctly widened to 460px and both inputs carry the `.input` CSS class, removing redundant inline styles. No new lint errors introduced; production build succeeds.\n\n### Automated Checks\n\n| Check | Result | Details |\n|-------|--------|---------|\n| Lint | PASS | 0 new errors; 107 pre-existing errors unchanged |\n| Production build | PASS | vite build succeeded — 1824 modules transformed |\n\n### Acceptance Criteria (4/4 passed)\n\n- [x] AC-1: On a 1440px viewport, the email and password inputs are each visually wider than 420px (previously constrained to ~350px by the 380px container minus padding). — PASS: Login.jsx:99 — maxWidth changed from 380px to 460px. On a 1440px viewport the right pane is ~720px, so the container reaches its 460px max; both inputs carry className='input' (width: 100%), rendering at 460px > 420px.\n- [x] AC-2: Both inputs display the emerald focus ring (border-color: var(--emerald); background: var(--slate)) on focus, matching the .input:focus rule in global.css. — PASS: Login.jsx:107 and 117 — className='input' applied to email and password inputs. global.css:83 — .input:focus sets border-color: var(--emerald); background: var(--slate).\n- [x] AC-3: The 'show' span overlay on the password field remains correctly positioned after the style change. — PASS: Login.jsx:114 — wrapping div retains style={{ position: 'relative' }}. Login.jsx:122 — span retains position: absolute, right: 12px, top: 12px; vertically centered within the 36px input height.\n- [x] AC-4: The left branding panel, footer links, and error message paragraph are unchanged. — PASS: git diff shows only three hunks changed (maxWidth on line 99, className+style on email input, className+style on password input). Left pane (lines 58–94), footer (lines 167–175), and error paragraph (lines 129–131) are byte-identical to pre-change.\n\n### Code Quality (Refactor Review)\n\nNo code quality issues found in changed files.\n\n### Security Assessment (Security Review)\n\nNo security issues found in changed files.\n\n### Decisions Made During Implementation\n\n- Increase form container max-width from 380px to 460px — enough to feel spacious on a half-screen column without stretching on smaller viewports.\n- Apply the existing .input CSS class from global.css to both inputs, removing redundant inline style properties (border, padding, borderRadius, outline, width) to avoid conflicts.\n\n## Required Changes\n\nNone.\n",
-    "implementation": "## Phase 1: Widen form container and align inputs to design system\n\n**Files changed:** `src/pages/Login.jsx`\n\n**Changes made:**\n- Form wrapper `maxWidth` increased from `380px` to `460px` (line 99)\n- Email input: added `className=\"input\"`, removed inline `style` prop (border, padding, borderRadius, outline, width — all covered by `.input`)\n- Password input: added `className=\"input\"`, removed inline `style` prop (same redundant properties); `position: relative` on the wrapping `div` preserved for the \"show\" overlay\n\n**No deviations from plan.** The `.input` class in `global.css` provides `width: 100%; height: 36px; padding: 0 12px; border; border-radius; outline; focus ring (emerald border + slate background)` — all properties removed from inline styles.\n"
+    "release": "## Release Notes\n\n### What was built\n- Login page form container widened from 380px to 460px so email and password inputs occupy a comfortable proportion of the right panel column\n- Email input aligned to design system by applying the `.input` CSS class from `global.css`, removing redundant inline styles (border, padding, borderRadius, outline, width)\n- Password input aligned to design system in the same way; the wrapping `div` retains `position: relative` for the \"show\" overlay\n- Both inputs now inherit consistent height (36px), padding, focus ring (emerald border + slate background), and placeholder colour from the shared `.input` class\n\n### Key decisions\n- Increase form container max-width from 380px to 460px — comfortable on a half-screen column without stretching on smaller viewports\n- Apply the existing `.input` CSS class to both inputs instead of maintaining parallel inline styles — avoids style conflicts and aligns with the design system\n\n### Changes by phase\n- **Phase 1: Widen form container and align inputs to design system** — `src/pages/Login.jsx` only: maxWidth raised from 380px to 460px on the form wrapper; `className=\"input\"` added to both email and password inputs; redundant inline style properties removed; password wrapper `position: relative` preserved\n\n## Verification\n\n| Check | Result |\n|-------|--------|\n| Approved review | PASS — Verdict: APPROVE, 4/4 acceptance criteria, 2026-06-08T22:52:08Z |\n| Production build | PASS — vite build succeeded, 1824 modules transformed |\n| Code pushed | PASS — branch pushed to origin |\n"
   },
   "stages": {
     "scope": {
@@ -419,29 +465,27 @@
       "approvedAt": "2026-06-07T19:56:41Z",
       "startedAt": "2026-06-07T19:48:46Z"
     },
-    "release": {
-      "status": "in_progress",
-      "startedAt": "2026-06-08T22:52:08Z"
+    "architecture": {
+      "status": "skipped"
     },
     "implementation": {
       "status": "approved",
       "approvedAt": "2026-06-08T22:50:24Z",
       "startedAt": "2026-06-08T22:47:25Z"
     },
-    "design": {
-      "status": "skipped"
-    },
-    "architecture": {
-      "status": "skipped"
+    "release": {
+      "status": "awaiting_approval",
+      "startedAt": "2026-06-08T22:52:08Z"
     },
     "review": {
       "status": "approved",
       "approvedAt": "2026-06-08T22:52:08Z",
       "startedAt": "2026-06-08T22:50:24Z"
+    },
+    "design": {
+      "status": "skipped"
     }
   },
-  "worktreePath": "/Users/franciscolucas/Documents/TBN/.defract-worktrees/task-fix-login-page-layout-email-and-01ktht16jwgh",
-  "worktreeBaseBranch": "main",
   "worktreeLastSyncedAt": "2026-06-08T22:52:08Z",
   "reviewPayload": {
     "verdict": "approve",
