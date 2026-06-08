@@ -37,6 +37,7 @@ export function AuthProvider({ children }) {
 
   const logout = async () => {
     await logoutUser();
+    setCurrentUser(null);
   };
 
   const isAuthenticated = !!currentUser;
