@@ -5,7 +5,7 @@ export default function AppLayout({ children }) {
   const [collapsed, setCollapsed] = useState(false);
   return (
     <div className="app-frame">
-      <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
+      <Sidebar isCollapsed={collapsed} setIsCollapsed={setCollapsed} />
       {children}
     </div>
   );

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { Card, Badge, Button } from '../components/ui';
 import { getAlerts } from '../services/alertsService';
@@ -15,27 +15,27 @@ export default function AlertHistory() {
   const [searchText, setSearchText] = useState('');
 
   useEffect(() => {
-    getAlerts().then(setAlerts);
-  }, []);
+    getAlerts().then(setAlerts).catch(() => addToast('Erro ao carregar alertas.', 'danger'));
+  }, [addToast]);
 
-  const alertsWithISV = alerts.map(alert => {
+  const alertsWithISV = useMemo(() => alerts.map(alert => {
     const { isvPayable } = calculateISV(alert.cc, alert.co2, alert.fuelType, alert.ageYears, alert.flags.includes('PHEV'), false);
     const totalCost = alert.priceOriginal + isvPayable + alert.transportEst;
     const marginEst = alert.marketPrice - totalCost;
     return { ...alert, isvPayable, totalCost, marginEst };
-  });
+  }), [alerts]);
 
-  const filteredAlerts = alertsWithISV
+  const filteredAlerts = useMemo(() => alertsWithISV
     .filter(a => filterBrand === 'all' || a.carTitle.toLowerCase().includes(filterBrand))
     .filter(a => filterMargin === 'all' || a.marginEst >= parseInt(filterMargin))
-    .filter(a => !searchText || a.carTitle.toLowerCase().includes(searchText.toLowerCase()));
+    .filter(a => !searchText || a.carTitle.toLowerCase().includes(searchText.toLowerCase())),
+  [alertsWithISV, filterBrand, filterMargin, searchText]);
 
-  // Group by date
-  const groupedAlerts = filteredAlerts.reduce((acc, alert) => {
+  const groupedAlerts = useMemo(() => filteredAlerts.reduce((acc, alert) => {
     if (!acc[alert.date]) acc[alert.date] = [];
     acc[alert.date].push(alert);
     return acc;
-  }, {});
+  }, {}), [filteredAlerts]);
 
   return (
     <AppLayout>

@@ -28,7 +28,7 @@ export default function CurrencyInput({ value, onChange, ...props }) {
       <input
         type="number"
         value={value}
-        onChange={e => onChange(e.target.value)}
+        onChange={e => onChange(e.target.value === '' ? '' : Number(e.target.value))}
         onFocus={handleFocus}
         onBlur={handleBlur}
         style={{

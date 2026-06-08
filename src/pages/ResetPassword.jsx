@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button, Callout } from '../components/ui';
 import { FormField } from '../components/forms';
-import { supabase } from '../lib/supabase';
+import { supabase, supabaseConfigured } from '../lib/supabase';
 import { updatePassword } from '../services/authService';
 
 export default function ResetPassword() {
@@ -23,6 +23,11 @@ export default function ResetPassword() {
       hash.includes('type=recovery');
 
     if (!hasToken) {
+      setStatus('invalid');
+      return;
+    }
+
+    if (!supabaseConfigured) {
       setStatus('invalid');
       return;
     }

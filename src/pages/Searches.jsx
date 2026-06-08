@@ -12,26 +12,37 @@ export default function Searches() {
   const [searches, setSearches] = useState(undefined);
 
   useEffect(() => {
-    getSearches().then(setSearches);
-  }, []);
+    getSearches().then(setSearches).catch(() => {
+      addToast('Erro ao carregar pesquisas.', 'danger');
+      setSearches([]);
+    });
+  }, [addToast]);
 
-  const toggleSearchStatus = (id) => {
-    setSearches(prev => prev.map(s => {
-      if (s.id === id) {
-        const isPausing = s.status === 'active';
-        const newStatus = isPausing ? 'paused' : 'active';
-        addToast(isPausing ? 'Pesquisa pausada.' : 'Pesquisa retomada com sucesso.', isPausing ? 'warn' : 'success');
-        updateSearch(id, { status: newStatus });
-        return { ...s, status: newStatus };
-      }
-      return s;
-    }));
+  const toggleSearchStatus = async (id) => {
+    const prev = searches.find(s => s.id === id);
+    if (!prev) return;
+    const isPausing = prev.status === 'active';
+    const newStatus = isPausing ? 'paused' : 'active';
+    setSearches(all => all.map(s => s.id === id ? { ...s, status: newStatus } : s));
+    try {
+      await updateSearch(id, { status: newStatus });
+      addToast(isPausing ? 'Pesquisa pausada.' : 'Pesquisa retomada com sucesso.', isPausing ? 'warn' : 'success');
+    } catch {
+      setSearches(all => all.map(s => s.id === id ? { ...s, status: prev.status } : s));
+      addToast('Erro ao atualizar pesquisa.', 'danger');
+    }
   };
 
-  const deleteSearch = (id) => {
-    deleteSearchById(id);
+  const deleteSearch = async (id) => {
+    const snapshot = searches;
     setSearches(prev => prev.filter(s => s.id !== id));
-    addToast('Pesquisa eliminada.', 'warn');
+    try {
+      await deleteSearchById(id);
+      addToast('Pesquisa eliminada.', 'warn');
+    } catch {
+      setSearches(snapshot);
+      addToast('Erro ao eliminar pesquisa.', 'danger');
+    }
   };
 
   if (searches === undefined) return null;
