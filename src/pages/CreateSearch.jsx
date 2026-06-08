@@ -1,18 +1,26 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Btn, Icon, Switch } from '../components/ui/Primitives';
+import { useToast } from '../context/ToastContext';
 
 export default function CreateSearch() {
   const navigate = useNavigate();
+  const { addToast } = useToast();
 
   const [alerts, setAlerts] = useState({ whatsapp: true, email: false, sms: false });
   const [dailySummary, setDailySummary] = useState(true);
-  
+
   const [countries, setCountries] = useState({
     germany: true, france: false, netherlands: false, belgium: false, spain: false
   });
 
   const handleLaunch = () => {
+    addToast('Pesquisa iniciada com sucesso!', 'success');
+    navigate('/searches');
+  };
+
+  const handleSaveDraft = () => {
+    addToast('Rascunho guardado.', 'info');
     navigate('/searches');
   };
 
@@ -24,7 +32,7 @@ export default function CreateSearch() {
           <p className="page__sub">Configure os critérios, origens e limites de alerta.</p>
         </div>
         <div className="row gap-3">
-          <Btn variant="ghost" onClick={handleLaunch}>Guardar Rascunho</Btn>
+          <Btn variant="ghost" onClick={handleSaveDraft}>Guardar Rascunho</Btn>
           <Btn variant="primary" onClick={handleLaunch}>Iniciar Pesquisa</Btn>
         </div>
       </div>

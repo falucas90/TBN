@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '../components/ui';
 import { FormField } from '../components/forms';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { useNavigate, Link } from 'react-router-dom';
 
 function mapAuthError(error) {
@@ -20,9 +21,11 @@ function mapAuthError(error) {
 
 export default function Login() {
   const { isAuthenticated, login, loginGoogle } = useAuth();
+  const { addToast } = useToast();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -113,13 +116,18 @@ export default function Login() {
               <FormField label="Palavra-passe" required>
                 <div style={{ position: 'relative' }}>
                   <input
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     className="input"
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => { setPassword(e.target.value); setError(''); }}
                   />
-                  <span style={{ position: 'absolute', right: '12px', top: '12px', fontSize: '0.875rem', color: '#666', cursor: 'pointer' }}>show</span>
+                  <span
+                    onClick={() => setShowPassword(v => !v)}
+                    style={{ position: 'absolute', right: '12px', top: '12px', fontSize: '0.875rem', color: '#666', cursor: 'pointer', userSelect: 'none' }}
+                  >
+                    {showPassword ? 'hide' : 'show'}
+                  </span>
                 </div>
                 <div style={{ textAlign: 'right', marginTop: '0.5rem' }}>
                   <Link to="/forgot-password" style={{ color: '#0066FF', fontSize: '0.875rem', textDecoration: 'none' }}>Esqueceu-se da palavra-passe?</Link>
@@ -168,9 +176,9 @@ export default function Login() {
         <div style={{ padding: '1.5rem', display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', color: '#666', borderTop: '1px solid #eee' }}>
           <div>© 2026 Crivo</div>
           <div style={{ display: 'flex', gap: '1rem' }}>
-            <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>Termos</a>
-            <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>Privacidade</a>
-            <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>Suporte</a>
+            <button onClick={() => addToast('Termos de serviço em breve.', 'info')} style={{ background: 'none', border: 'none', padding: 0, color: 'inherit', fontSize: 'inherit', cursor: 'pointer', textDecoration: 'none' }}>Termos</button>
+            <button onClick={() => addToast('Política de privacidade em breve.', 'info')} style={{ background: 'none', border: 'none', padding: 0, color: 'inherit', fontSize: 'inherit', cursor: 'pointer', textDecoration: 'none' }}>Privacidade</button>
+            <button onClick={() => addToast('Para suporte, contacte support@crivo.pt', 'info')} style={{ background: 'none', border: 'none', padding: 0, color: 'inherit', fontSize: 'inherit', cursor: 'pointer', textDecoration: 'none' }}>Suporte</button>
           </div>
         </div>
       </div>
