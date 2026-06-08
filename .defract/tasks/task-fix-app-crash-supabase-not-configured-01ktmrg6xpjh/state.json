@@ -1,0 +1,62 @@
+{
+  "id": "task-fix-app-crash-supabase-not-configured-01ktmrg6xpjh",
+  "status": "active",
+  "stage": "scope",
+  "phase": 0,
+  "totalPhases": 1,
+  "createdAt": "2026-06-08T23:18:49Z",
+  "updatedAt": "2026-06-08T23:22:53Z",
+  "events": [
+    {
+      "base_branch": "main",
+      "branch": "feature/task-fix-app-crash-supabase-not-configured-01ktmrg6xpjh",
+      "path": "/Users/franciscolucas/Documents/TBN/.defract-worktrees/task-fix-app-crash-supabase-not-configured-01ktmrg6xpjh",
+      "timestamp": "2026-06-08T23:18:49Z",
+      "type": "worktree_created"
+    },
+    {
+      "mode": "start",
+      "session_id": "01ktmrg6y3vt8c31ev6wkqevw0",
+      "stage": "scope",
+      "timestamp": "2026-06-08T23:18:50Z",
+      "type": "stage_agent_started"
+    },
+    {
+      "change_summary": "Intent check: graceful fallback when Supabase env vars are missing",
+      "revision": 1,
+      "timestamp": "2026-06-08T23:22:48Z",
+      "type": "scope_update"
+    },
+    {
+      "stage": "scope",
+      "summary": "Intent check pushed (revision 1): app falls back to mock auth and data when Supabase env vars are missing, instead of crashing on startup.",
+      "timestamp": "2026-06-08T23:22:53Z",
+      "type": "stage_work_complete",
+      "worktree_head": "b1c8038b17fd81ade812af3c9f8fa4c94eb2ae3d",
+      "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "stages": {
+    "implementation": {
+      "status": "not_started"
+    },
+    "release": {
+      "status": "not_started"
+    },
+    "architecture": {
+      "status": "not_started"
+    },
+    "scope": {
+      "status": "awaiting_approval",
+      "startedAt": "2026-06-08T23:18:50Z"
+    },
+    "design": {
+      "status": "not_started"
+    },
+    "review": {
+      "status": "not_started"
+    }
+  },
+  "worktreePath": "/Users/franciscolucas/Documents/TBN/.defract-worktrees/task-fix-app-crash-supabase-not-configured-01ktmrg6xpjh",
+  "worktreeBaseBranch": "main"
+}
