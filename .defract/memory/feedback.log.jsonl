@@ -68,3 +68,7 @@
 {"entryId":"01KTHR0F0NGM1ZMRT95JJ7Z8BH","taskId":"task-fix-login-page-layout-email-and-01ktht16jwgh","stage":"review","outcome":"noise","timestamp":"2026-06-08T22:52:00.382Z"}
 {"entryId":"01KT558SG86V2JGF6SEZ6TH91B","taskId":"task-fix-login-page-layout-email-and-01ktht16jwgh","stage":"release","outcome":"helpful","timestamp":"2026-06-08T22:53:05.845Z"}
 {"entryId":"01KT54YWVD4MNT4ZBE0CRCNGX7","taskId":"task-fix-login-page-layout-email-and-01ktht16jwgh","stage":"release","outcome":"helpful","timestamp":"2026-06-08T22:53:05.845Z"}
+{"entryId":"01KTMPSC45J3QX9QVF0CRYQT4D","taskId":"task-fix-app-crash-supabase-not-configured-01ktmrg6xpjh","stage":"scope","outcome":"helpful","timestamp":"2026-06-08T23:25:35.900Z"}
+{"entryId":"01KTMQG0C0XM8WE7YRMGNQHMW4","taskId":"task-fix-app-crash-supabase-not-configured-01ktmrg6xpjh","stage":"scope","outcome":"helpful","timestamp":"2026-06-08T23:25:35.900Z"}
+{"entryId":"01KTHR0F0NGM1ZMRT95JJ7Z8BH","taskId":"task-fix-app-crash-supabase-not-configured-01ktmrg6xpjh","stage":"scope","outcome":"noise","timestamp":"2026-06-08T23:25:35.900Z"}
+{"entryId":"01KT558SG86V2JGF6SEZ6TH91B","taskId":"task-fix-app-crash-supabase-not-configured-01ktmrg6xpjh","stage":"scope","outcome":"noise","timestamp":"2026-06-08T23:25:35.900Z"}

@@ -37,14 +37,14 @@
       "timestamp": "2026-06-08T23:01:18.136006+00:00"
     }
   ],
-  "usage_sweep_cursor": "2026-06-08T22:52:08Z",
+  "usage_sweep_cursor": "2026-06-08T23:26:05Z",
   "feedback_sweep_cursor": "2026-06-07T19:49:43.383Z",
   "last_emit_hashes": {
+    "decisions.md": "f868d67411d1610f9e7806f91c9c376c80ce2ab4df81e340471cf27f86f0ecaf",
     "workflows.md": "62ea54f92c72ac8eca5e84449761715a1d4b7a8fddbc8ed2dcd91c4b4217fbf9",
-    "builder-preferences.md": "3330d454526848980df9e46c27aaa427d248933fad32c479bd82906eb5d8fabb",
-    "project-facts.md": "f8bb7df4be7a6d031ef9080fe8038870b19d5d893772accde4238a80ccd86b3c",
     "mistakes.md": "b69323a13624e31e59b89012cf54158465b76789f9bf329d32101df8bcb2de38",
-    "decisions.md": "f868d67411d1610f9e7806f91c9c376c80ce2ab4df81e340471cf27f86f0ecaf"
+    "project-facts.md": "f8bb7df4be7a6d031ef9080fe8038870b19d5d893772accde4238a80ccd86b3c",
+    "builder-preferences.md": "3330d454526848980df9e46c27aaa427d248933fad32c479bd82906eb5d8fabb"
   },
   "pending_external_edits": []
 }

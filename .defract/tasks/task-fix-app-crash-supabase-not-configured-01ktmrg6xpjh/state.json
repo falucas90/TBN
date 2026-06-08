@@ -1,11 +1,11 @@
 {
   "id": "task-fix-app-crash-supabase-not-configured-01ktmrg6xpjh",
   "status": "active",
-  "stage": "scope",
-  "phase": 0,
+  "stage": "review",
+  "phase": 1,
   "totalPhases": 1,
   "createdAt": "2026-06-08T23:18:49Z",
-  "updatedAt": "2026-06-08T23:22:53Z",
+  "updatedAt": "2026-06-08T23:28:50Z",
   "events": [
     {
       "base_branch": "main",
@@ -34,29 +34,318 @@
       "type": "stage_work_complete",
       "worktree_head": "b1c8038b17fd81ade812af3c9f8fa4c94eb2ae3d",
       "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "base_branch": "main",
+      "merged_commits": 1,
+      "timestamp": "2026-06-08T23:23:37Z",
+      "type": "worktree_synced"
+    },
+    {
+      "mode": "approve_initial",
+      "session_id": "01ktmrrzv3gct6bd4mv3xxsqcg",
+      "stage": "scope",
+      "timestamp": "2026-06-08T23:23:37Z",
+      "type": "stage_agent_started"
+    },
+    {
+      "change_summary": "Full scope: crash root cause identified, 3-file fix in one phase, no architecture needed",
+      "revision": 2,
+      "timestamp": "2026-06-08T23:25:12Z",
+      "type": "scope_update"
+    },
+    {
+      "rationale": "Bug fix in 3 files — no new UI components (skip design), change is confined to the Supabase init layer and auth context with no new system boundaries (skip architecture). A standard bug-fix pipeline is correct.",
+      "stages": [
+        "scope",
+        "implementation",
+        "review",
+        "release"
+      ],
+      "template": "bug-fix",
+      "tier": "standard",
+      "timestamp": "2026-06-08T23:25:17Z",
+      "type": "workflow_classified"
+    },
+    {
+      "alternatives_considered": [],
+      "decision": "Guard `createClient` with an env-var presence check (not try/catch) and export a `supabaseConfigured` boolean as the shared signal",
+      "rationale": "A pre-call guard makes the intent readable and avoids catching errors that shouldn't be suppressed. Exporting `supabaseConfigured` gives AuthContext and any future callers a single source of truth rather than each re-checking the env vars independently.",
+      "timestamp": "2026-06-08T23:25:23Z",
+      "type": "decision"
+    },
+    {
+      "alternatives_considered": [],
+      "decision": "AuthContext falls back to a mock dealer user (not `null`, not unauthenticated) when Supabase is unconfigured",
+      "rationale": "The previous dev state was `useState(true)` — always authenticated. Restoring equivalent ergonomics means all protected routes render immediately in unconfigured mode. Using `null` would redirect every route to `/login`, which is unhelpful for local development. The mock user has role `'dealer'` (not `'admin'`) so the admin route still redirects as expected.",
+      "timestamp": "2026-06-08T23:25:29Z",
+      "type": "decision"
+    },
+    {
+      "stage": "scope",
+      "summary": "Full scope written as revision 2. Root cause confirmed: `createClient(undefined, undefined)` throws synchronously at module load, crashing before React mounts. Fix is a single phase across 3 files — supabase.js (null-guard + supabaseConfigured flag), AuthContext.jsx (mock dealer fallback when unconfigured), authService.js (null guards on all Supabase calls). Workflow classified as bug-fix, standard tier, no design or architecture stages needed.",
+      "timestamp": "2026-06-08T23:25:40Z",
+      "type": "stage_work_complete",
+      "worktree_head": "e6efc403db1e5bee4039ff189ace569fa6d8f7b0",
+      "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "base_branch": "main",
+      "reason": "already_up_to_date",
+      "timestamp": "2026-06-08T23:26:05Z",
+      "type": "worktree_sync_skipped"
+    },
+    {
+      "actor": null,
+      "stage": "scope",
+      "timestamp": "2026-06-08T23:26:04Z",
+      "type": "stage_approved"
+    },
+    {
+      "from": "scope",
+      "timestamp": "2026-06-08T23:26:05Z",
+      "to": "implementation",
+      "type": "stage_advanced"
+    },
+    {
+      "base_branch": "main",
+      "reason": "already_up_to_date",
+      "timestamp": "2026-06-08T23:26:05Z",
+      "type": "worktree_sync_skipped"
+    },
+    {
+      "mode": "start",
+      "session_id": "01ktmrxftqbvaz3t838qxgb10n",
+      "stage": "implementation",
+      "timestamp": "2026-06-08T23:26:05Z",
+      "type": "stage_agent_started"
+    },
+    {
+      "exit_code": 143,
+      "session_id": "01ktmrrzv3gct6bd4mv3xxsqcg",
+      "timed_out": false,
+      "timestamp": "2026-06-08T23:26:05Z",
+      "type": "agent_exited"
+    },
+    {
+      "note": "Starting Phase 1: Guard Supabase client, restore mock auth fallback, add null guards to authService",
+      "phase": 0,
+      "stage": "implementation",
+      "timestamp": "2026-06-08T23:26:20Z",
+      "type": "work_resumed"
+    },
+    {
+      "description": "Starting phase 1: Guard the Supabase client and restore mock auth fallback",
+      "percentage": 0,
+      "phase": 1,
+      "timestamp": "2026-06-08T23:26:43Z",
+      "type": "progress_report"
+    },
+    {
+      "description": "Running verification checks",
+      "percentage": 60,
+      "phase": 1,
+      "timestamp": "2026-06-08T23:27:15Z",
+      "type": "progress_report"
+    },
+    {
+      "description": "Running full check suite",
+      "percentage": 80,
+      "phase": 1,
+      "timestamp": "2026-06-08T23:27:57Z",
+      "type": "progress_report"
+    },
+    {
+      "details": "No automated test suite in this project. ESLint baseline: 107 pre-existing problems (105 errors, 2 warnings) — delta from our changes is 0 new errors. All three changed files (supabase.js, AuthContext.jsx, authService.js) are clean.",
+      "failed": 0,
+      "passed": 0,
+      "phase": 0,
+      "skipped": 0,
+      "timestamp": "2026-06-08T23:28:01Z",
+      "type": "test_results"
+    },
+    {
+      "description": "Phase 1 implementation complete — awaiting approval",
+      "percentage": 100,
+      "phase": 1,
+      "timestamp": "2026-06-08T23:28:04Z",
+      "type": "progress_report"
+    },
+    {
+      "change_summary": "Phase 1 complete: Guard the Supabase client and restore mock auth fallback",
+      "revision": 1,
+      "stage": "implementation",
+      "timestamp": "2026-06-08T23:28:15Z",
+      "type": "stage_content_updated"
+    },
+    {
+      "details": "No automated test suite. Lint check (npm run lint) passed with 0 new errors introduced by this change — the pre-existing baseline of 107 problems is unchanged. Delta = 0, which satisfies acceptance criterion AC4.",
+      "failed": 0,
+      "passed": 1,
+      "phase": 0,
+      "skipped": 0,
+      "timestamp": "2026-06-08T23:28:28Z",
+      "type": "test_results"
+    },
+    {
+      "artifacts_created": [
+        "src/lib/supabase.js",
+        "src/context/AuthContext.jsx",
+        "src/services/authService.js"
+      ],
+      "phase": 0,
+      "summary": "Guard supabase.js with env-var presence check and supabaseConfigured export; AuthContext falls back to MOCK_USER synchronously when unconfigured; all 11 authService functions return early when supabase is null.",
+      "timestamp": "2026-06-08T23:28:31Z",
+      "type": "phase_completed"
+    },
+    {
+      "items": [
+        {
+          "description": "Ensure no `.env` file is present (rename or delete it if it exists), then run `npm run dev` and open the app — confirm the Searches page renders with mock data, no white screen, and no console errors."
+        },
+        {
+          "description": "With no `.env`, navigate to `/alerts` and `/settings` — confirm both pages load and display mock data without errors."
+        },
+        {
+          "description": "With no `.env`, navigate to `/admin` — confirm it redirects to `/searches` (the mock user has role `'dealer'`, not `'admin'`, so `AdminRoute` should redirect)."
+        },
+        {
+          "description": "With no `.env`, open the Settings page and click the logout button — confirm no unhandled error or crash in the browser console."
+        },
+        {
+          "description": "Restore a valid `.env` (with `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` set), restart `npm run dev`, and attempt login with real credentials — confirm Supabase auth is called (check the Network tab for requests to your Supabase URL or check the Supabase dashboard for the auth event)."
+        },
+        {
+          "description": "Run `npm run lint` and confirm the problem count is 107 (the pre-existing baseline) — no new errors introduced."
+        }
+      ],
+      "phase": 0,
+      "phase_title": "Guard the Supabase client and restore mock auth fallback",
+      "timestamp": "2026-06-08T23:28:40Z",
+      "type": "manual_tests"
+    },
+    {
+      "agent_phase": 1,
+      "phase_title": "Guard the Supabase client and restore mock auth fallback",
+      "server_phase": 0,
+      "timestamp": "2026-06-08T23:28:44Z",
+      "type": "phase_drift_detected"
+    },
+    {
+      "phase": 0,
+      "phase_title": "Guard the Supabase client and restore mock auth fallback",
+      "timestamp": "2026-06-08T23:28:44Z",
+      "type": "phase_awaiting_approval",
+      "worktree_head": "e6efc403db1e5bee4039ff189ace569fa6d8f7b0",
+      "worktree_status_digest": "e108da82a7598c09a129b22b5dbe91815b9dfbe46d1c935650834abcddf40342"
+    },
+    {
+      "approved_by": "user",
+      "phase": 0,
+      "phase_title": "Guard the Supabase client and restore mock auth fallback",
+      "timestamp": "2026-06-08T23:28:50Z",
+      "type": "phase_approved"
+    },
+    {
+      "checked_indices": [],
+      "phase": 0,
+      "timestamp": "2026-06-08T23:28:50Z",
+      "type": "manual_tests_checks_persisted"
+    },
+    {
+      "stage": "implementation",
+      "summary": "All phases approved — implementation ready for review.",
+      "timestamp": "2026-06-08T23:28:50Z",
+      "type": "stage_work_complete",
+      "worktree_head": "338b366df1d0c3508fa3b46f1f463f362f563e64",
+      "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "base_branch": "main",
+      "reason": "already_up_to_date",
+      "timestamp": "2026-06-08T23:28:50Z",
+      "type": "worktree_sync_skipped"
+    },
+    {
+      "actor": null,
+      "stage": "implementation",
+      "timestamp": "2026-06-08T23:28:50Z",
+      "type": "stage_approved"
+    },
+    {
+      "from": "implementation",
+      "timestamp": "2026-06-08T23:28:50Z",
+      "to": "review",
+      "type": "stage_advanced"
+    },
+    {
+      "base_branch": "main",
+      "reason": "already_up_to_date",
+      "timestamp": "2026-06-08T23:28:50Z",
+      "type": "worktree_sync_skipped"
+    },
+    {
+      "mode": "start",
+      "session_id": "01ktms2hjfc78x5y351j28p1e6",
+      "stage": "review",
+      "timestamp": "2026-06-08T23:28:50Z",
+      "type": "stage_agent_started"
+    },
+    {
+      "exit_code": 143,
+      "session_id": "01ktmrxftqbvaz3t838qxgb10n",
+      "timed_out": false,
+      "timestamp": "2026-06-08T23:28:50Z",
+      "type": "agent_exited"
     }
   ],
+  "needsArchitecture": false,
+  "needsDesign": false,
+  "workflow": {
+    "tier": "standard",
+    "template": "bug-fix",
+    "stages": [
+      "scope",
+      "implementation",
+      "review",
+      "release"
+    ],
+    "classifiedBy": "scope-agent",
+    "rationale": "Bug fix in 3 files — no new UI components (skip design), change is confined to the Supabase init layer and auth context with no new system boundaries (skip architecture). A standard bug-fix pipeline is correct."
+  },
+  "stageApprovals": {
+    "implementation": "2026-06-08T23:28:50Z",
+    "scope": "2026-06-08T23:26:04Z"
+  },
+  "stageContent": {
+    "implementation": "## Phase 1: Guard the Supabase client and restore mock auth fallback\n\n### Files Changed\n\n**`src/lib/supabase.js`**\n- Added `supabaseConfigured` boolean export: `!!(supabaseUrl && supabaseAnonKey)` — both vars must be non-empty strings\n- `supabase` is now conditionally created: `createClient(...)` only when `supabaseConfigured` is true, otherwise `null`\n\n**`src/context/AuthContext.jsx`**\n- Imports `supabaseConfigured` from `../lib/supabase`\n- `MOCK_USER` constant added: `{ id: 'mock', email: 'dev@local', role: 'dealer' }`\n- `currentUser` initialises to `MOCK_USER` (not `null`) when unconfigured — synchronous, no effect needed\n- `isLoading` initialises to `false` when unconfigured — synchronous, no effect needed\n- `useEffect` early-returns when `!supabaseConfigured`, skipping the `onAuthStateChange` subscription entirely\n\n**`src/services/authService.js`**\n- Added `if (!supabase) return;` guard at the top of all 11 functions that call `supabase.*`\n- `listUsers` returns `[]` when unconfigured (useful stub); all others return `undefined`\n- Real path (supabase non-null) is unchanged\n\n### Deviations from Plan\n\nNone. Implementation follows the spec exactly.\n\n### Lint Delta\n\n0 new errors. Pre-existing baseline: 107 problems (all in files outside the three changed files, or already present in AuthContext.jsx before this fix)."
+  },
   "stages": {
     "implementation": {
-      "status": "not_started"
+      "status": "approved",
+      "approvedAt": "2026-06-08T23:28:50Z",
+      "startedAt": "2026-06-08T23:26:05Z"
+    },
+    "scope": {
+      "status": "approved",
+      "approvedAt": "2026-06-08T23:26:04Z",
+      "startedAt": "2026-06-08T23:23:37Z"
+    },
+    "design": {
+      "status": "skipped"
     },
     "release": {
       "status": "not_started"
     },
-    "architecture": {
-      "status": "not_started"
-    },
-    "scope": {
-      "status": "awaiting_approval",
-      "startedAt": "2026-06-08T23:18:50Z"
-    },
-    "design": {
-      "status": "not_started"
-    },
     "review": {
-      "status": "not_started"
+      "status": "in_progress",
+      "startedAt": "2026-06-08T23:28:50Z"
+    },
+    "architecture": {
+      "status": "skipped"
     }
   },
   "worktreePath": "/Users/franciscolucas/Documents/TBN/.defract-worktrees/task-fix-app-crash-supabase-not-configured-01ktmrg6xpjh",
-  "worktreeBaseBranch": "main"
+  "worktreeBaseBranch": "main",
+  "worktreeLastSyncedAt": "2026-06-08T23:28:50Z"
 }

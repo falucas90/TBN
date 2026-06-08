@@ -6,6 +6,7 @@ This project uses [defract](https://defract.dev) for structured AI-assisted deve
 
 | Task | Stage | Status |
 |------|-------|--------|
+| Fix app crash: Supabase not configured | scope | active |
 | Add a catch-all redirect route in App.jsx | release | completed |
 | Add authentication and admin view | release | completed |
 | Add delete support to the Searches page | release | completed |
