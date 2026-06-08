@@ -12,6 +12,7 @@ labels:
 groomingStatus: completed
 createdAt: 2026-06-07T19:50:23Z
 groomedAt: 2026-06-07T19:50:53Z
+promotedTaskId: task-evaluate-app-security-01ktmt058jcn
 events:
 - type: grooming_started
   timestamp: 2026-06-07T19:50:23Z
