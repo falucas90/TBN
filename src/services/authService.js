@@ -1,12 +1,14 @@
 import { supabase } from '../lib/supabase';
 
 export async function loginWithCredentials(email, password) {
+  if (!supabase) return;
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) throw error;
   return data.user;
 }
 
 export async function loginWithGoogle() {
+  if (!supabase) return;
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: { redirectTo: window.location.origin + '/searches' },
@@ -15,11 +17,13 @@ export async function loginWithGoogle() {
 }
 
 export async function logoutUser() {
+  if (!supabase) return;
   const { error } = await supabase.auth.signOut();
   if (error) throw error;
 }
 
 export async function signupUser(email, password, metadata) {
+  if (!supabase) return;
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -30,6 +34,7 @@ export async function signupUser(email, password, metadata) {
 }
 
 export async function sendPasswordResetEmail(email) {
+  if (!supabase) return;
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: window.location.origin + '/reset-password',
   });
@@ -37,21 +42,25 @@ export async function sendPasswordResetEmail(email) {
 }
 
 export async function updatePassword(newPassword) {
+  if (!supabase) return;
   const { error } = await supabase.auth.updateUser({ password: newPassword });
   if (error) throw error;
 }
 
 export async function resendVerificationEmail(email) {
+  if (!supabase) return;
   const { error } = await supabase.auth.resend({ type: 'signup', email });
   if (error) throw error;
 }
 
 export async function updateUserProfile(profileData) {
+  if (!supabase) return;
   const { error } = await supabase.auth.updateUser({ data: profileData });
   if (error) throw error;
 }
 
 export async function listUsers() {
+  if (!supabase) return [];
   const { data, error } = await supabase.functions.invoke('update-user-role', {
     body: { action: 'list' },
   });
@@ -60,6 +69,7 @@ export async function listUsers() {
 }
 
 export async function updateUserRole(userId, role) {
+  if (!supabase) return;
   const { data, error } = await supabase.functions.invoke('update-user-role', {
     body: { action: 'update-role', userId, role },
   });
@@ -68,6 +78,7 @@ export async function updateUserRole(userId, role) {
 }
 
 export async function updateUserStatus(userId, status) {
+  if (!supabase) return;
   const { data, error } = await supabase.functions.invoke('update-user-role', {
     body: { action: 'update-status', userId, status },
   });

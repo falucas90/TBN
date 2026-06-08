@@ -1,11 +1,11 @@
 {
   "id": "task-fix-app-crash-supabase-not-configured-01ktmrg6xpjh",
-  "status": "active",
-  "stage": "review",
+  "status": "completed",
+  "stage": "release",
   "phase": 1,
   "totalPhases": 1,
   "createdAt": "2026-06-08T23:18:49Z",
-  "updatedAt": "2026-06-08T23:28:50Z",
+  "updatedAt": "2026-06-08T23:33:12Z",
   "events": [
     {
       "base_branch": "main",
@@ -297,6 +297,137 @@
       "timed_out": false,
       "timestamp": "2026-06-08T23:28:50Z",
       "type": "agent_exited"
+    },
+    {
+      "details": "No automated test suite. ESLint (npm run lint): 107 problems (105 errors, 2 warnings) — all pre-existing, delta = 0 new errors from this change. Lint check passes.",
+      "failed": 0,
+      "passed": 1,
+      "phase": 1,
+      "skipped": 0,
+      "timestamp": "2026-06-08T23:30:24Z",
+      "type": "test_results"
+    },
+    {
+      "change_summary": "APPROVE: All five acceptance criteria pass. The three-file fix correctly guards Supabase client initialisation, restores mock auth ergonomics synchronously, and ensures every authService function returns silently when unconfigured. The real (configured) path is unchanged. Lint delta is zero.",
+      "revision": 1,
+      "stage": "review",
+      "timestamp": "2026-06-08T23:30:49Z",
+      "type": "stage_content_updated"
+    },
+    {
+      "alternatives_considered": [],
+      "decision": "Review verdict: APPROVE",
+      "rationale": "5/5 acceptance criteria passed, 1/1 automated checks passed (lint delta = 0). All three changed files implement the spec exactly: supabase.js exports supabaseConfigured boolean and null client when env vars absent; AuthContext.jsx falls back to MOCK_USER synchronously; authService.js guards all 11 functions with if (!supabase) return. No security issues, no code quality findings, real path is unchanged.",
+      "timestamp": "2026-06-08T23:30:53Z",
+      "type": "decision"
+    },
+    {
+      "stage": "review",
+      "summary": "APPROVE — all 5 ACs pass, lint delta 0, implementation is clean. Three files changed: supabase.js guards createClient with env-var check and exports supabaseConfigured; AuthContext.jsx falls back to MOCK_USER synchronously when unconfigured; authService.js guards all 11 functions. Ready for release.",
+      "timestamp": "2026-06-08T23:31:05Z",
+      "type": "stage_work_complete",
+      "worktree_head": "338b366df1d0c3508fa3b46f1f463f362f563e64",
+      "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "base_branch": "main",
+      "merged_commits": 1,
+      "timestamp": "2026-06-08T23:31:30Z",
+      "type": "worktree_synced"
+    },
+    {
+      "actor": null,
+      "stage": "review",
+      "timestamp": "2026-06-08T23:31:26Z",
+      "type": "stage_approved"
+    },
+    {
+      "current_worktree_head": "f4cfd80904da50ed604b3e2fda0ad1cdf161c382",
+      "current_worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stage": "review",
+      "stale_worktree_head": "338b366df1d0c3508fa3b46f1f463f362f563e64",
+      "stale_worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timestamp": "2026-06-08T23:31:30Z",
+      "type": "worktree_drift_detected",
+      "what_changed": "HEAD"
+    },
+    {
+      "action": "sweep",
+      "rationale": "Routine sync drift: HEAD fast-forwarded (stale HEAD is a strict ancestor of current) with a byte-identical dirty-status digest; swept forward automatically without waking an agent.",
+      "resolved_by": "auto",
+      "stage": "review",
+      "timestamp": "2026-06-08T23:31:30Z",
+      "type": "worktree_drift_resolved"
+    },
+    {
+      "from": "review",
+      "timestamp": "2026-06-08T23:31:30Z",
+      "to": "release",
+      "type": "stage_advanced"
+    },
+    {
+      "base_branch": "main",
+      "reason": "already_up_to_date",
+      "timestamp": "2026-06-08T23:31:30Z",
+      "type": "worktree_sync_skipped"
+    },
+    {
+      "mode": "start",
+      "session_id": "01ktms7daswctxd1phywc50ddw",
+      "stage": "release",
+      "timestamp": "2026-06-08T23:31:30Z",
+      "type": "stage_agent_started"
+    },
+    {
+      "note": "Running production build, then pushing committed implementation to remote",
+      "phase": 1,
+      "stage": "release",
+      "timestamp": "2026-06-08T23:31:57Z",
+      "type": "work_resumed"
+    },
+    {
+      "change_summary": "Release validated — production build passes, code pushed to remote",
+      "revision": 1,
+      "stage": "release",
+      "timestamp": "2026-06-08T23:32:33Z",
+      "type": "stage_content_updated"
+    },
+    {
+      "alternatives_considered": [],
+      "decision": "Release complete — task done",
+      "rationale": "Production build passes (vite build, 1.24s, no errors). Review approved on 2026-06-08T23:31:26Z — 5/5 acceptance criteria passed, lint delta 0. Implementation committed as 338b366 during phase 1. Branch pushed to origin successfully.",
+      "timestamp": "2026-06-08T23:32:38Z",
+      "type": "decision"
+    },
+    {
+      "stage": "release",
+      "summary": "Production build passes (vite build, 1.24s). Review approved 2026-06-08 with 5/5 ACs. Implementation committed as 338b366 during phase 1; branch pushed to origin. Three files changed: supabase.js guards createClient with env-var check and exports supabaseConfigured; AuthContext.jsx falls back to MOCK_USER synchronously; authService.js guards all 11 functions. Lint delta 0.",
+      "timestamp": "2026-06-08T23:32:55Z",
+      "type": "stage_work_complete",
+      "worktree_head": "f4cfd80904da50ed604b3e2fda0ad1cdf161c382",
+      "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "base_branch": "main",
+      "files_changed": 3,
+      "lines_added": 23,
+      "lines_removed": 4,
+      "timestamp": "2026-06-08T23:33:09Z",
+      "type": "worktree_merged"
+    },
+    {
+      "timestamp": "2026-06-08T23:33:10Z",
+      "type": "worktree_removed"
+    },
+    {
+      "branch": "feature/task-fix-app-crash-supabase-not-configured-01ktmrg6xpjh",
+      "timestamp": "2026-06-08T23:33:12Z",
+      "type": "remote_branch_deleted"
+    },
+    {
+      "actor": null,
+      "timestamp": "2026-06-08T23:33:12Z",
+      "type": "task_completed"
     }
   ],
   "needsArchitecture": false,
@@ -315,37 +446,96 @@
   },
   "stageApprovals": {
     "implementation": "2026-06-08T23:28:50Z",
-    "scope": "2026-06-08T23:26:04Z"
+    "scope": "2026-06-08T23:26:04Z",
+    "review": "2026-06-08T23:31:26Z"
   },
+  "completedAt": "2026-06-08T23:33:12Z",
   "stageContent": {
-    "implementation": "## Phase 1: Guard the Supabase client and restore mock auth fallback\n\n### Files Changed\n\n**`src/lib/supabase.js`**\n- Added `supabaseConfigured` boolean export: `!!(supabaseUrl && supabaseAnonKey)` — both vars must be non-empty strings\n- `supabase` is now conditionally created: `createClient(...)` only when `supabaseConfigured` is true, otherwise `null`\n\n**`src/context/AuthContext.jsx`**\n- Imports `supabaseConfigured` from `../lib/supabase`\n- `MOCK_USER` constant added: `{ id: 'mock', email: 'dev@local', role: 'dealer' }`\n- `currentUser` initialises to `MOCK_USER` (not `null`) when unconfigured — synchronous, no effect needed\n- `isLoading` initialises to `false` when unconfigured — synchronous, no effect needed\n- `useEffect` early-returns when `!supabaseConfigured`, skipping the `onAuthStateChange` subscription entirely\n\n**`src/services/authService.js`**\n- Added `if (!supabase) return;` guard at the top of all 11 functions that call `supabase.*`\n- `listUsers` returns `[]` when unconfigured (useful stub); all others return `undefined`\n- Real path (supabase non-null) is unchanged\n\n### Deviations from Plan\n\nNone. Implementation follows the spec exactly.\n\n### Lint Delta\n\n0 new errors. Pre-existing baseline: 107 problems (all in files outside the three changed files, or already present in AuthContext.jsx before this fix)."
+    "implementation": "## Phase 1: Guard the Supabase client and restore mock auth fallback\n\n### Files Changed\n\n**`src/lib/supabase.js`**\n- Added `supabaseConfigured` boolean export: `!!(supabaseUrl && supabaseAnonKey)` — both vars must be non-empty strings\n- `supabase` is now conditionally created: `createClient(...)` only when `supabaseConfigured` is true, otherwise `null`\n\n**`src/context/AuthContext.jsx`**\n- Imports `supabaseConfigured` from `../lib/supabase`\n- `MOCK_USER` constant added: `{ id: 'mock', email: 'dev@local', role: 'dealer' }`\n- `currentUser` initialises to `MOCK_USER` (not `null`) when unconfigured — synchronous, no effect needed\n- `isLoading` initialises to `false` when unconfigured — synchronous, no effect needed\n- `useEffect` early-returns when `!supabaseConfigured`, skipping the `onAuthStateChange` subscription entirely\n\n**`src/services/authService.js`**\n- Added `if (!supabase) return;` guard at the top of all 11 functions that call `supabase.*`\n- `listUsers` returns `[]` when unconfigured (useful stub); all others return `undefined`\n- Real path (supabase non-null) is unchanged\n\n### Deviations from Plan\n\nNone. Implementation follows the spec exactly.\n\n### Lint Delta\n\n0 new errors. Pre-existing baseline: 107 problems (all in files outside the three changed files, or already present in AuthContext.jsx before this fix).",
+    "release": "## Release Notes\n\n### What was built\n- Added a credential presence check to `src/lib/supabase.js` so `createClient` is only called when both `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are non-empty strings; exports `supabaseConfigured` boolean and a `null` client when unconfigured\n- Updated `AuthContext.jsx` to import `supabaseConfigured` and synchronously initialise `currentUser` to a mock dealer object and `isLoading` to `false` when unconfigured, skipping the Supabase `onAuthStateChange` subscription entirely\n- Added `if (!supabase) return;` null guards to all 11 functions in `src/services/authService.js` that call Supabase, ensuring they silently no-op instead of throwing in unconfigured mode\n- The real (configured) path through all three files is unchanged — no behaviour regression when Supabase credentials are present\n\n### Key decisions\n- Guard `createClient` with an env-var presence check (not try/catch) and export a `supabaseConfigured` boolean as the shared signal — makes intent readable and avoids catching errors that should not be suppressed\n- AuthContext falls back to a mock dealer user (not null, not unauthenticated) when Supabase is unconfigured — restores the previous `useState(true)` dev ergonomics without permanently hardcoding authenticated state\n- `authService` null guards use strict `if (!supabase) return` — a misconfigured but non-null client still reaches Supabase calls and can throw\n\n### Changes by phase\n- **Phase 1: Guard the Supabase client and restore mock auth fallback** — Three files changed: `supabase.js` exports `supabaseConfigured` boolean and conditional `null` client; `AuthContext.jsx` synchronously falls back to `MOCK_USER` when unconfigured; `authService.js` guards all 11 functions with early null-return. Lint delta: 0 new errors. All 5 acceptance criteria verified.\n\n## Verification\n\n### Production Build\nPASS — `vite build` completed in 1.24s, 253 kB JS bundle (76 kB gzip), no errors.\n\n### Code Pushed\nBranch `feature/task-fix-app-crash-supabase-not-configured-01ktmrg6xpjh` pushed to `origin` — new remote branch created with upstream tracking set.\n",
+    "review": "## Verdict\n\n**Verdict:** APPROVE\n**Files reviewed:** 3 files changed across 1 phases\n\nAll five acceptance criteria pass. The three-file fix correctly guards Supabase client initialisation, restores mock auth ergonomics synchronously, and ensures every authService function returns silently when unconfigured. The real (configured) path is unchanged. Lint delta is zero.\n\n### Automated Checks\n\n| Check | Result | Details |\n|-------|--------|---------|\n| Lint (npm run lint) | PASS | 107 problems — all pre-existing baseline; delta = 0 new errors from the three changed files |\n\n### Acceptance Criteria (5/5 passed)\n\n- [x] AC-1: Starting `npm run dev` with no `.env` file produces no console errors and renders the app — verified by deleting or renaming `.env` and confirming the Searches page loads — PASS: No .env present in worktree (only .env.example). supabase.js:6 computes supabaseConfigured = false when both env vars are absent; supabase.js:8-10 exports null instead of calling createClient. AuthContext.jsx:10 initialises currentUser to MOCK_USER synchronously; AuthContext.jsx:11 initialises isLoading to false; AuthContext.jsx:14 early-returns from useEffect, skipping the Supabase subscription. isAuthenticated = !!MOCK_USER = true at line 42, so ProtectedRoute renders the Searches page normally.\n- [x] AC-2: All protected pages (`/searches`, `/alerts`, `/settings`, `/admin`) are reachable and display mock data in unconfigured mode — PASS: AuthContext.jsx:42 — isAuthenticated is true (MOCK_USER is truthy), so ProtectedRoute allows /searches, /alerts, /settings. App.jsx:43-47 — AdminRoute checks role !== 'admin'; mock user role is 'dealer' so /admin redirects to /searches, which is the specified correct behaviour per task edge cases.\n- [x] AC-3: Starting `npm run dev` with valid Supabase credentials in `.env` produces the same behaviour as before this fix — login, logout, and signup flows reach Supabase unchanged — PASS: supabase.js:8-10 — when supabaseConfigured is true, createClient is called normally. AuthContext.jsx:10 — currentUser initialises to null (configured path); line 11 — isLoading initialises to true; lines 13-24 — full onAuthStateChange subscription runs unchanged. authService.js — all null guards are strict checks (if (!supabase) return); a non-null supabase object passes through to all Supabase calls unchanged.\n- [x] AC-4: `npm run lint` reports zero new ESLint errors compared to the pre-fix baseline (delta = 0, regardless of total count) — PASS: npm run lint output: 107 problems (105 errors, 2 warnings) — identical to the stated baseline. None of the three changed files (supabase.js, AuthContext.jsx, authService.js) contribute new lint errors.\n- [x] AC-5: In unconfigured mode, calling login or logout from the UI does not throw an unhandled error — PASS: authService.js:4 (loginWithCredentials), :20 (logoutUser) — if (!supabase) return; returns undefined silently. AuthContext.jsx:38-40 — logout() calls await logoutUser(); awaiting undefined is a no-op. All 11 authService functions carry the same guard so any UI-triggered auth call is a silent no-op when unconfigured.\n\n### Code Quality (Refactor Review)\n\nNo code quality issues found in changed files.\n\n### Security Assessment (Security Review)\n\nNo security issues found in changed files.\n\n### Decisions Made During Implementation\n\n- Guard createClient with an env-var presence check (not try/catch) and export a supabaseConfigured boolean as the shared signal — makes intent readable and avoids catching errors that should not be suppressed\n- AuthContext falls back to a mock dealer user (not null, not unauthenticated) when Supabase is unconfigured — restores the previous useState(true) dev ergonomics without permanently hardcoding authenticated state\n- authService null guards are if (!supabase) return — strict null check so a misconfigured but non-null client still reaches Supabase calls and can throw\n\n## Required Changes\n\nNone.\n"
   },
   "stages": {
-    "implementation": {
-      "status": "approved",
-      "approvedAt": "2026-06-08T23:28:50Z",
-      "startedAt": "2026-06-08T23:26:05Z"
+    "design": {
+      "status": "skipped"
     },
     "scope": {
       "status": "approved",
       "approvedAt": "2026-06-08T23:26:04Z",
       "startedAt": "2026-06-08T23:23:37Z"
     },
-    "design": {
-      "status": "skipped"
-    },
-    "release": {
-      "status": "not_started"
-    },
-    "review": {
-      "status": "in_progress",
-      "startedAt": "2026-06-08T23:28:50Z"
-    },
     "architecture": {
       "status": "skipped"
+    },
+    "implementation": {
+      "status": "approved",
+      "approvedAt": "2026-06-08T23:28:50Z",
+      "startedAt": "2026-06-08T23:26:05Z"
+    },
+    "review": {
+      "status": "approved",
+      "approvedAt": "2026-06-08T23:31:26Z",
+      "startedAt": "2026-06-08T23:28:50Z"
+    },
+    "release": {
+      "status": "awaiting_approval",
+      "startedAt": "2026-06-08T23:31:30Z"
     }
   },
-  "worktreePath": "/Users/franciscolucas/Documents/TBN/.defract-worktrees/task-fix-app-crash-supabase-not-configured-01ktmrg6xpjh",
-  "worktreeBaseBranch": "main",
-  "worktreeLastSyncedAt": "2026-06-08T23:28:50Z"
+  "worktreeLastSyncedAt": "2026-06-08T23:31:30Z",
+  "reviewPayload": {
+    "verdict": "approve",
+    "summary": "All five acceptance criteria pass. The three-file fix correctly guards Supabase client initialisation, restores mock auth ergonomics synchronously, and ensures every authService function returns silently when unconfigured. The real (configured) path is unchanged. Lint delta is zero.",
+    "filesReviewedCount": 3,
+    "phasesReviewedCount": 1,
+    "automatedChecks": [
+      {
+        "name": "Lint (npm run lint)",
+        "result": "pass",
+        "detail": "107 problems — all pre-existing baseline; delta = 0 new errors from the three changed files"
+      }
+    ],
+    "acceptanceCriteria": [
+      {
+        "acId": "AC-1",
+        "text": "Starting `npm run dev` with no `.env` file produces no console errors and renders the app — verified by deleting or renaming `.env` and confirming the Searches page loads",
+        "status": "pass",
+        "evidence": "No .env present in worktree (only .env.example). supabase.js:6 computes supabaseConfigured = false when both env vars are absent; supabase.js:8-10 exports null instead of calling createClient. AuthContext.jsx:10 initialises currentUser to MOCK_USER synchronously; AuthContext.jsx:11 initialises isLoading to false; AuthContext.jsx:14 early-returns from useEffect, skipping the Supabase subscription. isAuthenticated = !!MOCK_USER = true at line 42, so ProtectedRoute renders the Searches page normally."
+      },
+      {
+        "acId": "AC-2",
+        "text": "All protected pages (`/searches`, `/alerts`, `/settings`, `/admin`) are reachable and display mock data in unconfigured mode",
+        "status": "pass",
+        "evidence": "AuthContext.jsx:42 — isAuthenticated is true (MOCK_USER is truthy), so ProtectedRoute allows /searches, /alerts, /settings. App.jsx:43-47 — AdminRoute checks role !== 'admin'; mock user role is 'dealer' so /admin redirects to /searches, which is the specified correct behaviour per task edge cases."
+      },
+      {
+        "acId": "AC-3",
+        "text": "Starting `npm run dev` with valid Supabase credentials in `.env` produces the same behaviour as before this fix — login, logout, and signup flows reach Supabase unchanged",
+        "status": "pass",
+        "evidence": "supabase.js:8-10 — when supabaseConfigured is true, createClient is called normally. AuthContext.jsx:10 — currentUser initialises to null (configured path); line 11 — isLoading initialises to true; lines 13-24 — full onAuthStateChange subscription runs unchanged. authService.js — all null guards are strict checks (if (!supabase) return); a non-null supabase object passes through to all Supabase calls unchanged."
+      },
+      {
+        "acId": "AC-4",
+        "text": "`npm run lint` reports zero new ESLint errors compared to the pre-fix baseline (delta = 0, regardless of total count)",
+        "status": "pass",
+        "evidence": "npm run lint output: 107 problems (105 errors, 2 warnings) — identical to the stated baseline. None of the three changed files (supabase.js, AuthContext.jsx, authService.js) contribute new lint errors."
+      },
+      {
+        "acId": "AC-5",
+        "text": "In unconfigured mode, calling login or logout from the UI does not throw an unhandled error",
+        "status": "pass",
+        "evidence": "authService.js:4 (loginWithCredentials), :20 (logoutUser) — if (!supabase) return; returns undefined silently. AuthContext.jsx:38-40 — logout() calls await logoutUser(); awaiting undefined is a no-op. All 11 authService functions carry the same guard so any UI-triggered auth call is a silent no-op when unconfigured."
+      }
+    ],
+    "headlineFindings": [],
+    "requiredChanges": [],
+    "codeQualityFindings": [],
+    "securityFindings": [],
+    "decisions": [
+      "Guard createClient with an env-var presence check (not try/catch) and export a supabaseConfigured boolean as the shared signal — makes intent readable and avoids catching errors that should not be suppressed",
+      "AuthContext falls back to a mock dealer user (not null, not unauthenticated) when Supabase is unconfigured — restores the previous useState(true) dev ergonomics without permanently hardcoding authenticated state",
+      "authService null guards are if (!supabase) return — strict null check so a misconfigured but non-null client still reaches Supabase calls and can throw"
+    ],
+    "revision": 1
+  }
 }

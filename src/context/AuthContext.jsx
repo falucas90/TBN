@@ -1,14 +1,18 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
+import { supabase, supabaseConfigured } from '../lib/supabase';
 import { loginWithCredentials, loginWithGoogle, logoutUser, signupUser } from '../services/authService';
 
 const AuthContext = createContext(null);
 
+const MOCK_USER = { id: 'mock', email: 'dev@local', role: 'dealer' };
+
 export function AuthProvider({ children }) {
-  const [currentUser, setCurrentUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState(supabaseConfigured ? null : MOCK_USER);
+  const [isLoading, setIsLoading] = useState(supabaseConfigured);
 
   useEffect(() => {
+    if (!supabaseConfigured) return;
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       const user = session?.user ?? null;
       setCurrentUser(

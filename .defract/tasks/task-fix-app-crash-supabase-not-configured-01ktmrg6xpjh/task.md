@@ -3,7 +3,7 @@ defract:
   id: task-fix-app-crash-supabase-not-configured-01ktmrg6xpjh
   type: bug
   status: active
-  stage: review
+  stage: release
   phase: 0
   total_phases: 1
   priority: normal
@@ -14,7 +14,6 @@ defract:
   created_by: falucas90
   assignee: falucas90
 ---
-
 
 ## Story Brief
 
@@ -152,3 +151,71 @@ None. Implementation follows the spec exactly.
 ### Lint Delta
 
 0 new errors. Pre-existing baseline: 107 problems (all in files outside the three changed files, or already present in AuthContext.jsx before this fix).
+
+## Review
+
+## Verdict
+
+**Verdict:** APPROVE
+**Files reviewed:** 3 files changed across 1 phases
+
+All five acceptance criteria pass. The three-file fix correctly guards Supabase client initialisation, restores mock auth ergonomics synchronously, and ensures every authService function returns silently when unconfigured. The real (configured) path is unchanged. Lint delta is zero.
+
+### Automated Checks
+
+| Check | Result | Details |
+|-------|--------|---------|
+| Lint (npm run lint) | PASS | 107 problems — all pre-existing baseline; delta = 0 new errors from the three changed files |
+
+### Acceptance Criteria (5/5 passed)
+
+- [x] AC-1: Starting `npm run dev` with no `.env` file produces no console errors and renders the app — verified by deleting or renaming `.env` and confirming the Searches page loads — PASS: No .env present in worktree (only .env.example). supabase.js:6 computes supabaseConfigured = false when both env vars are absent; supabase.js:8-10 exports null instead of calling createClient. AuthContext.jsx:10 initialises currentUser to MOCK_USER synchronously; AuthContext.jsx:11 initialises isLoading to false; AuthContext.jsx:14 early-returns from useEffect, skipping the Supabase subscription. isAuthenticated = !!MOCK_USER = true at line 42, so ProtectedRoute renders the Searches page normally.
+- [x] AC-2: All protected pages (`/searches`, `/alerts`, `/settings`, `/admin`) are reachable and display mock data in unconfigured mode — PASS: AuthContext.jsx:42 — isAuthenticated is true (MOCK_USER is truthy), so ProtectedRoute allows /searches, /alerts, /settings. App.jsx:43-47 — AdminRoute checks role !== 'admin'; mock user role is 'dealer' so /admin redirects to /searches, which is the specified correct behaviour per task edge cases.
+- [x] AC-3: Starting `npm run dev` with valid Supabase credentials in `.env` produces the same behaviour as before this fix — login, logout, and signup flows reach Supabase unchanged — PASS: supabase.js:8-10 — when supabaseConfigured is true, createClient is called normally. AuthContext.jsx:10 — currentUser initialises to null (configured path); line 11 — isLoading initialises to true; lines 13-24 — full onAuthStateChange subscription runs unchanged. authService.js — all null guards are strict checks (if (!supabase) return); a non-null supabase object passes through to all Supabase calls unchanged.
+- [x] AC-4: `npm run lint` reports zero new ESLint errors compared to the pre-fix baseline (delta = 0, regardless of total count) — PASS: npm run lint output: 107 problems (105 errors, 2 warnings) — identical to the stated baseline. None of the three changed files (supabase.js, AuthContext.jsx, authService.js) contribute new lint errors.
+- [x] AC-5: In unconfigured mode, calling login or logout from the UI does not throw an unhandled error — PASS: authService.js:4 (loginWithCredentials), :20 (logoutUser) — if (!supabase) return; returns undefined silently. AuthContext.jsx:38-40 — logout() calls await logoutUser(); awaiting undefined is a no-op. All 11 authService functions carry the same guard so any UI-triggered auth call is a silent no-op when unconfigured.
+
+### Code Quality (Refactor Review)
+
+No code quality issues found in changed files.
+
+### Security Assessment (Security Review)
+
+No security issues found in changed files.
+
+### Decisions Made During Implementation
+
+- Guard createClient with an env-var presence check (not try/catch) and export a supabaseConfigured boolean as the shared signal — makes intent readable and avoids catching errors that should not be suppressed
+- AuthContext falls back to a mock dealer user (not null, not unauthenticated) when Supabase is unconfigured — restores the previous useState(true) dev ergonomics without permanently hardcoding authenticated state
+- authService null guards are if (!supabase) return — strict null check so a misconfigured but non-null client still reaches Supabase calls and can throw
+
+## Required Changes
+
+None.
+
+## Release
+
+## Release Notes
+
+### What was built
+- Added a credential presence check to `src/lib/supabase.js` so `createClient` is only called when both `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are non-empty strings; exports `supabaseConfigured` boolean and a `null` client when unconfigured
+- Updated `AuthContext.jsx` to import `supabaseConfigured` and synchronously initialise `currentUser` to a mock dealer object and `isLoading` to `false` when unconfigured, skipping the Supabase `onAuthStateChange` subscription entirely
+- Added `if (!supabase) return;` null guards to all 11 functions in `src/services/authService.js` that call Supabase, ensuring they silently no-op instead of throwing in unconfigured mode
+- The real (configured) path through all three files is unchanged — no behaviour regression when Supabase credentials are present
+
+### Key decisions
+- Guard `createClient` with an env-var presence check (not try/catch) and export a `supabaseConfigured` boolean as the shared signal — makes intent readable and avoids catching errors that should not be suppressed
+- AuthContext falls back to a mock dealer user (not null, not unauthenticated) when Supabase is unconfigured — restores the previous `useState(true)` dev ergonomics without permanently hardcoding authenticated state
+- `authService` null guards use strict `if (!supabase) return` — a misconfigured but non-null client still reaches Supabase calls and can throw
+
+### Changes by phase
+- **Phase 1: Guard the Supabase client and restore mock auth fallback** — Three files changed: `supabase.js` exports `supabaseConfigured` boolean and conditional `null` client; `AuthContext.jsx` synchronously falls back to `MOCK_USER` when unconfigured; `authService.js` guards all 11 functions with early null-return. Lint delta: 0 new errors. All 5 acceptance criteria verified.
+
+## Verification
+
+### Production Build
+PASS — `vite build` completed in 1.24s, 253 kB JS bundle (76 kB gzip), no errors.
+
+### Code Pushed
+Branch `feature/task-fix-app-crash-supabase-not-configured-01ktmrg6xpjh` pushed to `origin` — new remote branch created with upstream tracking set.
+
