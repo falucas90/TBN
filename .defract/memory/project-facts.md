@@ -5,6 +5,11 @@
 
 ## Conventions
 
+- [01KTMPRVRQ2XD7XT7XDAPV1240] **Use `undefined` (not `[]`) as the initial state value for async-loaded lists ...** -- Use `undefined` (not `[]`) as the initial state value for async-loaded lists to prevent a one-frame empty-state flash. When a component loads data via `useEffect` → async service call, initialise state with `useState(undefined)` and add an early `if (items === undefined) return null` guard before the render. In Searches.jsx this pattern was applied correctly; AlertHistory.jsx was flagged in review for using `useState([])`, which can briefly show the "no alerts" empty-state message before `getAlerts()` resolves.
+
+**Why:** The Promise microtask resolves after the first paint, so `useState([])` causes the empty-state branch to render for exactly one frame — visible as a flash on slower machines or in dev mode.
+
+**How to apply:** Whenever a page or component fetches its list data asynchronously on mount, default to the `undefined` sentinel. Add a single early-return `null` (not a spinner) since mock-backed services resolve immediately — only add a loading indicator when the service may take >200ms. [source: task-replace-mock-data-with-real-data-sources-01kt54r89hd3, importance: 0.6]
 - [01KT5586RHEPFFB3TR5PX9V2J0] **When extending mock data to provide inputs to a calculator, add only the raw ...** -- When extending mock data to provide inputs to a calculator, add only the raw input fields the calculator needs — do not update derived/computed output fields. For autoseek's mockAlerts, the ISV wiring required adding `cc`, `co2`, `fuelType`, and `ageYears` to each entry; the existing `isvEst`, `totalCost`, and `marginEst` fields were left in place but are superseded at render time by computed values.
 
 **Why:** Updating derived fields in mock data creates a sync hazard — the mock values would need to be kept in sync with the calculator manually. Raw inputs are stable; computed outputs belong at render time.

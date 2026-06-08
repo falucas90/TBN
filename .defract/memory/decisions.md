@@ -12,4 +12,9 @@
 **Why:** Computing at render time avoids mutating the mock data shape beyond adding the required calculator inputs (cc, co2, fuelType, ageYears). It ensures displayed values automatically reflect spec data changes without additional sync logic between the mock data and displayed output.
 
 **How to apply:** If adding or modifying alert cards in autoseek, do not read alert.isvEst, alert.totalCost, or alert.marginEst for display — always compute them via calculateISV and arithmetic in the component. [source: task-audit-codebase-for-needed-improvements-01kt545bmfg1, importance: 0.7]
+- [01KTMPSC45J3QX9QVF0CRYQT4D] **Service functions in autoseek's `src/services/` layer are async from day one,...** -- Service functions in autoseek's `src/services/` layer are async from day one, even when the bodies only wrap mock arrays. The pattern: `export async function getSearches() { return [...mockSearches]; }` — not `return mockSearches`. This means swapping in real network calls (REST, Supabase) requires editing only the service function body; all consuming components already `await` the call and require no signature changes.
+
+**Why:** The real backend for autoseek had not been decided at time of writing (REST API vs. Supabase vs. other). Async signatures are the stable contract that survives any backend choice. A sync service that later becomes async would require adding `await` and `useEffect` to every consumer.
+
+**How to apply:** All new service functions in `src/services/` must return Promises. Do not use synchronous signatures even when the current implementation is trivially synchronous. [source: task-replace-mock-data-with-real-data-sources-01kt54r89hd3, importance: 0.6]
 

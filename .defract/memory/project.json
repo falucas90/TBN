@@ -21,16 +21,23 @@
       "entriesUpdated": 0,
       "taskId": "task-add-authentication-and-admin-view-01kt54czr1xn",
       "timestamp": "2026-06-07T19:12:47.324041+00:00"
+    },
+    {
+      "entriesArchived": 0,
+      "entriesCreated": 3,
+      "entriesUpdated": 0,
+      "taskId": "task-replace-mock-data-with-real-data-sources-01kt54r89hd3",
+      "timestamp": "2026-06-08T22:48:56.983530+00:00"
     }
   ],
-  "usage_sweep_cursor": "2026-06-07T19:56:43Z",
+  "usage_sweep_cursor": "2026-06-08T22:52:08Z",
   "feedback_sweep_cursor": "2026-06-07T19:49:43.383Z",
   "last_emit_hashes": {
-    "builder-preferences.md": "3330d454526848980df9e46c27aaa427d248933fad32c479bd82906eb5d8fabb",
+    "decisions.md": "f868d67411d1610f9e7806f91c9c376c80ce2ab4df81e340471cf27f86f0ecaf",
     "mistakes.md": "b69323a13624e31e59b89012cf54158465b76789f9bf329d32101df8bcb2de38",
-    "workflows.md": "33bd4205fb5357fe1b2b3d6f79f26c04478361cc5035722c5f699346a3142178",
-    "project-facts.md": "a25a12e20141df5c38db592e489394fbaea7d2afa191e30b1e449d011b6cec84",
-    "decisions.md": "f44b8c295b2558847e1ca54802ad5360a7cc72243331f5f24a8731c331ec2c80"
+    "builder-preferences.md": "3330d454526848980df9e46c27aaa427d248933fad32c479bd82906eb5d8fabb",
+    "workflows.md": "2f0c814d4830508b286056c8c8fa635931756de8439ad511d54a9cb97443a6ec",
+    "project-facts.md": "af5b280fdb6da86f14f200fa4cbe47494ca6b78d4394e418d2a27151db8c8a91"
   },
   "pending_external_edits": []
 }

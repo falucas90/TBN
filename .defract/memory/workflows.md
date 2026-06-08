@@ -2,6 +2,11 @@
 
 ## Workflows
 
+- [01KTMPS3JASNK074J40SP7Q4BD] **When introducing a service abstraction layer over a data source, grep ALL fil...** -- When introducing a service abstraction layer over a data source, grep ALL files in the codebase for direct imports of that source before starting implementation — the phase plan often lists only the "obvious" consumers and misses others. In this task the phase plan listed `AuthContext.jsx`, `Searches.jsx`, and `AlertHistory.jsx` as the three consumers of `mock-data.js`, but `Admin.jsx` had a direct `mockUsers` import not listed in the plan. It was caught during implementation via R7 grep, but it required an unplanned deviation.
+
+**Why:** Phase plans are written from a reading of the most-trafficked files. Ad-hoc imports (especially in pages added after the initial scaffold) are invisible to the planner without an explicit grep.
+
+**How to apply:** At the start of any service-layer introduction task, run `grep -r "from.*<source-module>" src/` and compare the matches against the phase plan's file list. Add any missing consumers to the plan before writing code. [source: task-replace-mock-data-with-real-data-sources-01kt54r89hd3, importance: 0.6]
 - [01KT557E0XWJWDJVV92TJXD7QR] **During audit or scope tasks that rely on a project profile, always do a live ...** -- During audit or scope tasks that rely on a project profile, always do a live codebase read to verify which items are actually implemented before writing the scope. Project profiles can be stale. In this audit task, 2 of 4 items in the intent check (brand/margin filters, catch-all route) were already correctly implemented in the live code — scoping them as "broken" would have produced a no-op implementation phase.
 
 **Why:** The project profile used to generate the intent check was out of date. A live read of AlertHistory.jsx and App.jsx confirmed both items were in place before any implementation work started.

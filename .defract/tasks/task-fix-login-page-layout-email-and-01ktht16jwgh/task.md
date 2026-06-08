@@ -3,7 +3,7 @@ defract:
   id: task-fix-login-page-layout-email-and-01ktht16jwgh
   type: bug
   status: active
-  stage: implementation
+  stage: release
   phase: 0
   total_phases: 1
   priority: normal
@@ -106,3 +106,57 @@ The login page form area is too narrow, making the email and password fields fee
 The `.input` class in `global.css` sets `height: 36px` and `padding: 0 12px`. The current inline inputs use `padding: '0.75rem'` (12px top/bottom) with no explicit height, so the visual height change will be subtle — the switch standardises on the design system value. If the builder prefers a taller input (e.g. 42–44px for a more prominent login feel), a small inline `style={{ height: '42px' }}` override on top of `.input` is the right approach rather than modifying the shared class.
 
 The `.login-shell`, `.login-left`, and `.login-right` classes in `global.css` lines 222–224 are correct structural equivalents of the current inline layout, but migrating to them is out of scope for this fix — it would touch the entire page structure and belongs in a separate cleanup task.
+
+## Implementation Notes
+
+## Phase 1: Widen form container and align inputs to design system
+
+**Files changed:** `src/pages/Login.jsx`
+
+**Changes made:**
+- Form wrapper `maxWidth` increased from `380px` to `460px` (line 99)
+- Email input: added `className="input"`, removed inline `style` prop (border, padding, borderRadius, outline, width — all covered by `.input`)
+- Password input: added `className="input"`, removed inline `style` prop (same redundant properties); `position: relative` on the wrapping `div` preserved for the "show" overlay
+
+**No deviations from plan.** The `.input` class in `global.css` provides `width: 100%; height: 36px; padding: 0 12px; border; border-radius; outline; focus ring (emerald border + slate background)` — all properties removed from inline styles.
+
+## Review
+
+## Verdict
+
+**Verdict:** APPROVE
+**Files reviewed:** 1 files changed across 1 phases
+
+All four acceptance criteria pass. The form container max-width is correctly widened to 460px and both inputs carry the `.input` CSS class, removing redundant inline styles. No new lint errors introduced; production build succeeds.
+
+### Automated Checks
+
+| Check | Result | Details |
+|-------|--------|---------|
+| Lint | PASS | 0 new errors; 107 pre-existing errors unchanged |
+| Production build | PASS | vite build succeeded — 1824 modules transformed |
+
+### Acceptance Criteria (4/4 passed)
+
+- [x] AC-1: On a 1440px viewport, the email and password inputs are each visually wider than 420px (previously constrained to ~350px by the 380px container minus padding). — PASS: Login.jsx:99 — maxWidth changed from 380px to 460px. On a 1440px viewport the right pane is ~720px, so the container reaches its 460px max; both inputs carry className='input' (width: 100%), rendering at 460px > 420px.
+- [x] AC-2: Both inputs display the emerald focus ring (border-color: var(--emerald); background: var(--slate)) on focus, matching the .input:focus rule in global.css. — PASS: Login.jsx:107 and 117 — className='input' applied to email and password inputs. global.css:83 — .input:focus sets border-color: var(--emerald); background: var(--slate).
+- [x] AC-3: The 'show' span overlay on the password field remains correctly positioned after the style change. — PASS: Login.jsx:114 — wrapping div retains style={{ position: 'relative' }}. Login.jsx:122 — span retains position: absolute, right: 12px, top: 12px; vertically centered within the 36px input height.
+- [x] AC-4: The left branding panel, footer links, and error message paragraph are unchanged. — PASS: git diff shows only three hunks changed (maxWidth on line 99, className+style on email input, className+style on password input). Left pane (lines 58–94), footer (lines 167–175), and error paragraph (lines 129–131) are byte-identical to pre-change.
+
+### Code Quality (Refactor Review)
+
+No code quality issues found in changed files.
+
+### Security Assessment (Security Review)
+
+No security issues found in changed files.
+
+### Decisions Made During Implementation
+
+- Increase form container max-width from 380px to 460px — enough to feel spacious on a half-screen column without stretching on smaller viewports.
+- Apply the existing .input CSS class from global.css to both inputs, removing redundant inline style properties (border, padding, borderRadius, outline, width) to avoid conflicts.
+
+## Required Changes
+
+None.
+
