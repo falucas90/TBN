@@ -2,6 +2,11 @@
 
 ## Decisions
 
+- [01KTMSCV0TZC9XAQ9V9AYHVG0B] **When a third-party client (e** -- When a third-party client (e.g. Supabase) is conditionally initialized based on env vars, export both a potentially-null client AND a named boolean flag (`supabaseConfigured`) from the client module. Consumers import the flag and branch on it rather than re-checking env vars independently. The guard is a pre-call env-var presence check (both vars must be non-empty strings), not a try/catch — try/catch would silently swallow errors that should propagate in misconfigured-but-present scenarios.
+
+**Why:** When `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` were absent, `createClient(undefined, undefined)` threw synchronously at module load, crashing before React mounted. The `supabaseConfigured` boolean gives all consumers (AuthContext, service functions, future callers) a single source of truth rather than each re-checking env vars independently.
+
+**How to apply:** In `src/lib/supabase.js` and any future client module: `export const supabaseConfigured = !!(url && key); export const client = supabaseConfigured ? createClient(url, key) : null;`. All consumers branch on the boolean, not on the client being null directly. [source: task-fix-app-crash-supabase-not-configured-01ktmrg6xpjh, importance: 0.7]. [source: task-fix-app-crash-supabase-not-configured-01ktmrg6xpjh, importance: 0.7]
 - [01KTHR0F0NGM1ZMRT95JJ7Z8BH] **Keep `ProtectedRoute` single-responsibility (isAuthenticated check only) and ...** -- Keep `ProtectedRoute` single-responsibility (isAuthenticated check only) and add a separate `AdminRoute` guard for role-based access. `AdminRoute` checks `isAuthenticated` first (redirect to `/login`), then checks `currentUser?.role === 'admin'` (redirect to `/searches`). This avoids adding a role prop to every non-admin `ProtectedRoute` call and keeps the two concerns cleanly separated.
 
 **Why:** When the admin panel was added, the alternative of extending `ProtectedRoute` with a role prop was rejected because it would have required threading that prop through every existing protected route — even those that don't need role checks — just to keep the API consistent.
