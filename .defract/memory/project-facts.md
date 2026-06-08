@@ -16,6 +16,13 @@
 
 **How to apply:** Before adding computed result fields to mock data, ask whether they can instead be derived at render time from the raw inputs. If yes, add only the inputs. [source: task-audit-codebase-for-needed-improvements-01kt545bmfg1, importance: 0.6]
 - [01KT54YF6HG67XZYK1A3E4ESFE] **Use 'warn' toast type for semi-destructive or permanent actions (pause, delete), not 'error'** -- ToastContext maps 'warn' to `var(--color-warn-bg)` / `var(--color-warn-text)`. The convention in this project is: 'warn' signals something permanent happened without implying failure, while 'error' is reserved for actual failures. Both the existing toggleSearchStatus (pause) and the new deleteSearch use `addToast('...', 'warn')`. [source: task-add-delete-support-to-the-searches-page-01kt2g5b99gx, importance: 0.6]. [source: task-add-delete-support-to-the-searches-page-01kt2g5b99gx, importance: 0.6]
+- [01KTMQG0C0XM8WE7YRMGNQHMW4] **This project has 107 pre-existing ESLint errors that exist across the codebas...** -- This project has 107 pre-existing ESLint errors that exist across the codebase before any new work. These are not introduced by any specific task and are not blockers. The correct success criterion for lint checks is **0 new errors** — not 0 total errors.
+
+The errors are spread across multiple files; one known pre-existing warning is an unused-var on `Login.jsx` line 1 (a React import artefact).
+
+**Why:** Review agents and CI checks that see "107 errors" without this context may incorrectly flag the lint step as failed or attribute the errors to the current change.
+
+**How to apply:** When running or reporting lint results in this project, capture the error count before and after. Report PASS if delta = 0, regardless of total count. Do not attempt to fix pre-existing errors unless the task explicitly scopes that work. [source: task-fix-login-page-layout-email-and-01ktht16jwgh, importance: 0.6]
 
 ## Patterns
 
