@@ -5,7 +5,7 @@
   "phase": 0,
   "totalPhases": 1,
   "createdAt": "2026-06-08T23:45:01Z",
-  "updatedAt": "2026-06-08T23:45:01Z",
+  "updatedAt": "2026-06-08T23:48:55Z",
   "events": [
     {
       "base_branch": "main",
@@ -20,14 +20,39 @@
       "stage": "scope",
       "timestamp": "2026-06-08T23:45:01Z",
       "type": "stage_agent_started"
+    },
+    {
+      "change_summary": "Intent check: security audit scope covering auth, access control, data handling, and client-side risks",
+      "revision": 1,
+      "timestamp": "2026-06-08T23:45:37Z",
+      "type": "scope_update"
+    },
+    {
+      "stage": "scope",
+      "summary": "Intent check pushed as revision 1 — covers auth flows, access control, data handling, and client-side risks; excludes live exploitation, third-party service internals, and writing fixes.",
+      "timestamp": "2026-06-08T23:45:41Z",
+      "type": "stage_work_complete",
+      "worktree_head": "3c9fd88fc36709d4a6316a859160d6bc067500d3",
+      "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "base_branch": "main",
+      "merged_commits": 2,
+      "timestamp": "2026-06-08T23:48:54Z",
+      "type": "worktree_synced"
+    },
+    {
+      "mode": "approve_initial",
+      "session_id": "01ktmt79qpefhf7fxdr0jzxe5y",
+      "stage": "scope",
+      "timestamp": "2026-06-08T23:48:55Z",
+      "type": "stage_agent_started"
     }
   ],
   "stages": {
-    "implementation": {
-      "status": "not_started"
-    },
-    "release": {
-      "status": "not_started"
+    "scope": {
+      "status": "in_progress",
+      "startedAt": "2026-06-08T23:48:55Z"
     },
     "review": {
       "status": "not_started"
@@ -35,14 +60,17 @@
     "design": {
       "status": "not_started"
     },
-    "architecture": {
+    "release": {
       "status": "not_started"
     },
-    "scope": {
-      "status": "in_progress",
-      "startedAt": "2026-06-08T23:45:01Z"
+    "implementation": {
+      "status": "not_started"
+    },
+    "architecture": {
+      "status": "not_started"
     }
   },
   "worktreePath": "/Users/franciscolucas/Documents/TBN/.defract-worktrees/task-evaluate-app-security-01ktmt058jcn",
-  "worktreeBaseBranch": "main"
+  "worktreeBaseBranch": "main",
+  "worktreeLastSyncedAt": "2026-06-08T23:48:54Z"
 }
