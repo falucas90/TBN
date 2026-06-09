@@ -42,7 +42,7 @@ export default function Admin() {
         data.forEach((u) => { initial[u.id] = u.user_metadata?.role || 'dealer'; });
         setPendingRoles(initial);
       })
-      .catch(() => addToast('Erro ao carregar utilizadores.', 'error'))
+      .catch(() => addToast('Erro ao carregar utilizadores.', 'danger'))
       .finally(() => setIsLoading(false));
   }, [addToast]);
 
@@ -65,7 +65,7 @@ export default function Admin() {
         addToast('Função do utilizador atualizada com sucesso.', 'success');
       }
     } catch (err) {
-      addToast(err.message || 'Erro ao atualizar função.', 'error');
+      addToast(err.message || 'Erro ao atualizar função.', 'danger');
     } finally {
       setSavingRows((prev) => ({ ...prev, [user.id]: false }));
     }
@@ -88,7 +88,7 @@ export default function Admin() {
         'success'
       );
     } catch (err) {
-      addToast(err.message || 'Erro ao atualizar estado.', 'error');
+      addToast(err.message || 'Erro ao atualizar estado.', 'danger');
     }
   }
 

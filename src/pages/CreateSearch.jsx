@@ -100,7 +100,24 @@ export default function CreateSearch() {
     avgMargin: Number(minMargin),
   });
 
+  function validateForm() {
+    if (Number(minYear) > Number(maxYear)) {
+      addToast('O ano mínimo não pode ser superior ao ano máximo.', 'warn');
+      return false;
+    }
+    if (Number(minKm) > Number(maxKm)) {
+      addToast('A quilometragem mínima não pode ser superior à máxima.', 'warn');
+      return false;
+    }
+    if (!Object.values(countries).some(Boolean)) {
+      addToast('Selecione pelo menos um país de origem.', 'warn');
+      return false;
+    }
+    return true;
+  }
+
   const handleLaunch = async () => {
+    if (!validateForm()) return;
     setIsSubmitting(true);
     try {
       if (isEdit) {

@@ -1,0 +1,38 @@
+import { supabase, supabaseConfigured } from '../lib/supabase';
+import { mapProfile } from '../lib/mappers';
+
+export async function getProfile() {
+  if (!supabaseConfigured) return null;
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single();
+  if (error) throw error;
+  return mapProfile(data);
+}
+
+export async function updateProfile(patch) {
+  if (!supabaseConfigured) return;
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+
+  const dbPatch = {};
+  if (patch.fullName !== undefined)            dbPatch.full_name = patch.fullName;
+  if (patch.phone !== undefined)               dbPatch.phone = patch.phone;
+  if (patch.defaultTransportCost !== undefined) dbPatch.default_transport_cost = patch.defaultTransportCost;
+  if (patch.minMargin !== undefined)           dbPatch.min_margin = patch.minMargin;
+  if (patch.notifChannel !== undefined)        dbPatch.notif_channel = patch.notifChannel;
+
+  const { error } = await supabase
+    .from('profiles')
+    .upsert({ id: user.id, ...dbPatch });
+  if (error) throw error;
+
+  // Keep auth metadata in sync for display name
+  if (patch.fullName !== undefined) {
+    await supabase.auth.updateUser({ data: { full_name: patch.fullName } });
+  }
+}

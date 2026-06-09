@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
+import ErrorBoundary from './components/ui/ErrorBoundary';
 
 // Pages
 import Login from './pages/Login';
@@ -51,6 +52,7 @@ function AdminRoute({ children }) {
 
 function App() {
   return (
+    <ErrorBoundary>
     <AuthProvider>
       <ToastProvider>
         <BrowserRouter>
@@ -74,6 +76,7 @@ function App() {
         </BrowserRouter>
       </ToastProvider>
     </AuthProvider>
+    </ErrorBoundary>
   );
 }
 

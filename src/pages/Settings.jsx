@@ -1,50 +1,67 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { Card, Button } from '../components/ui';
 import { FormField, CurrencyInput } from '../components/forms';
 import { Save, Download, Trash2, Mail, Building } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
-import { updateUserProfile } from '../services/authService';
-
-const DEFAULTS_KEY = 'crivo_defaults';
+import { getProfile, updateProfile } from '../services/profilesService';
 
 export default function Settings() {
   const { addToast } = useToast();
   const { currentUser } = useAuth();
-  const [name, setName] = useState(currentUser?.user_metadata?.full_name || currentUser?.name || '');
+
+  const [name, setName] = useState(currentUser?.user_metadata?.full_name || '');
   const [phone, setPhone] = useState(currentUser?.user_metadata?.phone || '');
-  const saved = (() => { try { return JSON.parse(localStorage.getItem(DEFAULTS_KEY) || '{}'); } catch { return {}; } })();
-  const [transportCost, setTransportCost] = useState(saved.transportCost ?? currentUser?.defaultTransportCost ?? 800);
-  const [minMargin, setMinMargin] = useState(saved.minMargin ?? 2000);
-  const [notifChannel, setNotifChannel] = useState(saved.notifChannel ?? 'WhatsApp');
+  const [transportCost, setTransportCost] = useState(800);
+  const [minMargin, setMinMargin] = useState(2000);
+  const [notifChannel, setNotifChannel] = useState('WhatsApp');
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isSavingDefaults, setIsSavingDefaults] = useState(false);
+
+  // Load profile from Supabase (falls back to defaults if not configured)
+  useEffect(() => {
+    getProfile().then(profile => {
+      if (!profile) return;
+      if (profile.fullName) setName(profile.fullName);
+      if (profile.phone) setPhone(profile.phone);
+      setTransportCost(profile.defaultTransportCost);
+      setMinMargin(profile.minMargin);
+      setNotifChannel(profile.notifChannel);
+    }).catch(() => {});
+  }, []);
+
+  async function handleSaveProfile() {
+    if (!name.trim()) { addToast('O nome não pode estar vazio.', 'warn'); return; }
+    setIsSavingProfile(true);
+    try {
+      await updateProfile({ fullName: name.trim(), phone });
+      addToast('Perfil guardado com sucesso.', 'success');
+    } catch (err) {
+      addToast(err.message || 'Erro ao guardar perfil.', 'danger');
+    } finally {
+      setIsSavingProfile(false);
+    }
+  }
 
   async function handleSaveDefaults() {
     setIsSavingDefaults(true);
     try {
-      localStorage.setItem(DEFAULTS_KEY, JSON.stringify({ transportCost, minMargin, notifChannel }));
-      await updateUserProfile({ defaultTransportCost: transportCost, minMargin, notifChannel });
+      await updateProfile({ defaultTransportCost: transportCost, minMargin, notifChannel });
       addToast('Definições padrão guardadas.', 'success');
-    } catch {
-      addToast('Erro ao guardar definições.', 'danger');
+    } catch (err) {
+      addToast(err.message || 'Erro ao guardar definições.', 'danger');
     } finally {
       setIsSavingDefaults(false);
     }
   }
 
-  async function handleSaveProfile() {
-    setIsSavingProfile(true);
-    try {
-      await updateUserProfile({ full_name: name, phone });
-      addToast('Alterações de perfil guardadas com sucesso.', 'success');
-    } catch (err) {
-      addToast(err.message || 'Erro ao guardar alterações.', 'danger');
-    } finally {
-      setIsSavingProfile(false);
-    }
-  }
+  const inputStyle = {
+    height: '36px', padding: '0 12px', borderRadius: 'var(--r-md)',
+    border: '1px solid var(--hairline)', fontSize: '13px', fontFamily: 'inherit',
+    outline: 'none', width: '100%', boxSizing: 'border-box',
+    background: 'var(--graphite)', color: 'var(--bone)',
+  };
 
   return (
     <AppLayout>
@@ -56,20 +73,13 @@ export default function Settings() {
           <Card>
             <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1.5rem' }}>Perfil da Conta</h2>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-              <FormField label="Nome Completo">
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  style={{
-                    height: '36px', padding: '0 12px', borderRadius: 'var(--r-md)', border: '1px solid var(--hairline)', fontSize: '13px', fontFamily: 'inherit', outline: 'none', width: '100%', boxSizing: 'border-box', background: 'var(--graphite)', color: 'var(--bone)'
-                  }}
-                />
+              <FormField label="Nome Completo" required>
+                <input type="text" value={name} onChange={e => setName(e.target.value)} style={inputStyle} />
               </FormField>
               <FormField label="Nome da Empresa">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.625rem 0' }}>
                   <Building size={18} style={{ color: 'var(--ash)' }} />
-                  <span style={{ fontWeight: '500' }}>{currentUser?.user_metadata?.company || currentUser?.company || '—'}</span>
+                  <span style={{ fontWeight: '500' }}>{currentUser?.user_metadata?.company || '—'}</span>
                 </div>
               </FormField>
               <FormField label="Endereço de Email">
@@ -79,15 +89,8 @@ export default function Settings() {
                 </div>
               </FormField>
               <FormField label="Telefone / WhatsApp">
-                <input
-                  type="text"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+351 912 345 678"
-                  style={{
-                    height: '36px', padding: '0 12px', borderRadius: 'var(--r-md)', border: '1px solid var(--hairline)', fontSize: '13px', fontFamily: 'inherit', outline: 'none', width: '100%', boxSizing: 'border-box', background: 'var(--graphite)', color: 'var(--bone)'
-                  }}
-                />
+                <input type="text" value={phone} onChange={e => setPhone(e.target.value)}
+                  placeholder="+351 912 345 678" style={inputStyle} />
               </FormField>
             </div>
             <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
@@ -100,7 +103,7 @@ export default function Settings() {
           <Card>
             <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>Padrões de Cálculo & Notificações</h2>
             <p style={{ color: 'var(--ash)', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
-              Defina as configurações padrão a serem usadas na aplicação caso não existam dados exatos.
+              Configurações padrão usadas nos cálculos de margem quando não existem dados exatos.
             </p>
             <div style={{ maxWidth: '300px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <FormField label="Custo de Transporte Padrão">
@@ -109,14 +112,9 @@ export default function Settings() {
               <FormField label="Margem Mínima Alvo (Padrão)">
                 <CurrencyInput value={minMargin} onChange={setMinMargin} />
               </FormField>
-
               <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--hairline)' }}>
                 <FormField label="Canal de Notificação Preferido">
-                  <select
-                    value={notifChannel}
-                    onChange={e => setNotifChannel(e.target.value)}
-                    className="select"
-                  >
+                  <select value={notifChannel} onChange={e => setNotifChannel(e.target.value)} className="select">
                     <option>WhatsApp</option>
                     <option>Email</option>
                     <option>SMS</option>
@@ -125,18 +123,24 @@ export default function Settings() {
               </div>
             </div>
             <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
-              <Button onClick={handleSaveDefaults} disabled={isSavingDefaults}><Save size={16} /> {isSavingDefaults ? 'A guardar…' : 'Guardar Padrões'}</Button>
+              <Button onClick={handleSaveDefaults} disabled={isSavingDefaults}>
+                <Save size={16} /> {isSavingDefaults ? 'A guardar…' : 'Guardar Padrões'}
+              </Button>
             </div>
           </Card>
 
           <Card style={{ border: '1px solid var(--coral)' }}>
             <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--coral)' }}>Zona de Perigo</h2>
             <p style={{ color: 'var(--ash)', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
-              Ações irreversíveis relacionadas com a sua conta e os seus dados.
+              Ações irreversíveis relacionadas com a sua conta e dados.
             </p>
             <div style={{ display: 'flex', gap: '1rem' }}>
-              <Button variant="secondary" onClick={() => addToast('Exportação de dados iniciada.', 'info')}><Download size={16} /> Exportar Dados (JSON)</Button>
-              <Button variant="danger" onClick={() => addToast('Tem a certeza? Esta ação requer confirmação.', 'error')}><Trash2 size={16} /> Eliminar Conta</Button>
+              <Button variant="secondary" onClick={() => addToast('Exportação de dados iniciada.', 'info')}>
+                <Download size={16} /> Exportar Dados (JSON)
+              </Button>
+              <Button variant="danger" onClick={() => addToast('Para eliminar a conta contacte suporte@crivo.pt', 'warn')}>
+                <Trash2 size={16} /> Eliminar Conta
+              </Button>
             </div>
           </Card>
 

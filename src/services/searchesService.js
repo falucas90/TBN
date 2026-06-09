@@ -1,34 +1,94 @@
+import { supabase, supabaseConfigured } from '../lib/supabase';
+import { mapSearch } from '../lib/mappers';
 import { mockSearches } from '../data/mock-data';
 
-const searches = [...mockSearches];
+// In-memory store for dev/mock mode
+const mockStore = [...mockSearches];
 
-export function getSearches() {
-  return Promise.resolve([...searches]);
+export async function getSearches() {
+  if (!supabaseConfigured) return [...mockStore];
+  const { data, error } = await supabase
+    .from('searches')
+    .select('*')
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return data.map(mapSearch);
 }
 
-export function getSearchById(id) {
-  const search = searches.find(s => s.id === Number(id));
-  return Promise.resolve(search ?? null);
-}
-
-export function createSearch(data) {
-  const newSearch = { ...data, id: Date.now() };
-  searches.push(newSearch);
-  return Promise.resolve(newSearch);
-}
-
-export function updateSearch(id, patch) {
-  const index = searches.findIndex(s => s.id === id);
-  if (index !== -1) {
-    searches[index] = { ...searches[index], ...patch };
+export async function getSearchById(id) {
+  if (!supabaseConfigured) {
+    return mockStore.find(s => String(s.id) === String(id)) ?? null;
   }
-  return Promise.resolve(searches[index] ?? null);
+  const { data, error } = await supabase
+    .from('searches')
+    .select('*')
+    .eq('id', id)
+    .single();
+  if (error) throw error;
+  return mapSearch(data);
 }
 
-export function deleteSearch(id) {
-  const index = searches.findIndex(s => s.id === id);
-  if (index !== -1) {
-    searches.splice(index, 1);
+export async function createSearch(payload) {
+  if (!supabaseConfigured) {
+    const row = { ...payload, id: Date.now() };
+    mockStore.push(row);
+    return row;
   }
-  return Promise.resolve();
+  const { data: { user } } = await supabase.auth.getUser();
+  const { data, error } = await supabase
+    .from('searches')
+    .insert({
+      user_id: user.id,
+      title: payload.title,
+      status: payload.status,
+      criteria: payload.criteria,
+      sources: payload.sources,
+      min_margin: payload.minMargin,
+      alert_threshold: payload.alertThreshold,
+      alert_channels: payload.alertChannels,
+      daily_summary: payload.dailySummary,
+      matches_today: payload.matchesToday ?? 0,
+      avg_margin: payload.avgMargin ?? payload.minMargin,
+    })
+    .select()
+    .single();
+  if (error) throw error;
+  return mapSearch(data);
+}
+
+export async function updateSearch(id, payload) {
+  if (!supabaseConfigured) {
+    const idx = mockStore.findIndex(s => String(s.id) === String(id));
+    if (idx !== -1) mockStore[idx] = { ...mockStore[idx], ...payload };
+    return mockStore[idx] ?? null;
+  }
+  const patch = {};
+  if (payload.title !== undefined)          patch.title = payload.title;
+  if (payload.status !== undefined)         patch.status = payload.status;
+  if (payload.criteria !== undefined)       patch.criteria = payload.criteria;
+  if (payload.sources !== undefined)        patch.sources = payload.sources;
+  if (payload.minMargin !== undefined)      patch.min_margin = payload.minMargin;
+  if (payload.alertThreshold !== undefined) patch.alert_threshold = payload.alertThreshold;
+  if (payload.alertChannels !== undefined)  patch.alert_channels = payload.alertChannels;
+  if (payload.dailySummary !== undefined)   patch.daily_summary = payload.dailySummary;
+  if (payload.matchesToday !== undefined)   patch.matches_today = payload.matchesToday;
+  if (payload.avgMargin !== undefined)      patch.avg_margin = payload.avgMargin;
+  const { data, error } = await supabase
+    .from('searches')
+    .update(patch)
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return mapSearch(data);
+}
+
+export async function deleteSearch(id) {
+  if (!supabaseConfigured) {
+    const idx = mockStore.findIndex(s => String(s.id) === String(id));
+    if (idx !== -1) mockStore.splice(idx, 1);
+    return;
+  }
+  const { error } = await supabase.from('searches').delete().eq('id', id);
+  if (error) throw error;
 }

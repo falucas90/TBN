@@ -46,7 +46,15 @@ export default function Searches() {
     }
   };
 
-  if (searches === undefined) return null;
+  if (searches === undefined) return (
+    <AppLayout>
+      <div style={{ padding: '2rem', maxWidth: '900px', margin: '0 auto', width: '100%' }}>
+        {[1, 2, 3].map(i => (
+          <div key={i} style={{ height: '100px', background: 'var(--graphite)', borderRadius: 'var(--r-lg)', marginBottom: '1rem', animation: 'pulse 1.5s ease-in-out infinite', opacity: 0.6 }} />
+        ))}
+      </div>
+    </AppLayout>
+  );
 
   const activeSearches = searches.filter(s => s.status === 'active');
   const matchesToday = activeSearches.reduce((sum, s) => sum + s.matchesToday, 0);
