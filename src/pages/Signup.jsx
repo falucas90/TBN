@@ -3,6 +3,7 @@ import { Card, Button, StepIndicator } from '../components/ui';
 import { FormField } from '../components/forms';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { supabaseConfigured } from '../lib/supabase';
 
 function mapSignupError(error) {
   const msg = error?.message?.toLowerCase() || '';
@@ -35,6 +36,10 @@ export default function Signup() {
     setError('');
     setIsSubmitting(true);
     try {
+      if (!supabaseConfigured) {
+        setStep(3);
+        return;
+      }
       await signup(email, password, {
         full_name: `${nome} ${apelido}`.trim(),
         company,

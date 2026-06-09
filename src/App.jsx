@@ -13,6 +13,7 @@ import CreateSearch from './pages/CreateSearch';
 import AlertHistory from './pages/AlertHistory';
 import Settings from './pages/Settings';
 import Admin from './pages/Admin';
+import NotFound from './pages/NotFound';
 
 function AuthLoadingSpinner() {
   return (
@@ -68,7 +69,7 @@ function App() {
             <Route path="/alerts" element={<ProtectedRoute><AlertHistory /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
             <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
       </ToastProvider>

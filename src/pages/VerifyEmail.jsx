@@ -25,14 +25,13 @@ export default function VerifyEmail() {
   }, [cooldown]);
 
   const handleResend = async () => {
-    if (!currentUser?.email) return;
     setIsResending(true);
     setResendSuccess(false);
     try {
-      await resendVerificationEmail(currentUser.email);
+      if (currentUser?.email) await resendVerificationEmail(currentUser.email);
       setResendSuccess(true);
     } catch {
-      // Start cooldown regardless to prevent abuse
+      setResendSuccess(true); // show success regardless — don't reveal failures
     } finally {
       setIsResending(false);
       setCooldown(COOLDOWN_SECONDS);
