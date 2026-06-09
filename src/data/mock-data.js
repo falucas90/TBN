@@ -35,6 +35,7 @@ export const mockAlerts = [
   {
     id: 101,
     date: 'Today',
+    searchId: 1,
     carTitle: '2021 BMW 320e Touring M-Sport',
     platform: 'Mobile.de',
     listingUrl: 'https://www.mobile.de',
@@ -53,6 +54,7 @@ export const mockAlerts = [
   {
     id: 102,
     date: 'Yesterday',
+    searchId: 2,
     carTitle: '2020 Volvo V60 T6 Recharge',
     platform: 'AutoScout24',
     listingUrl: 'https://www.autoscout24.com',

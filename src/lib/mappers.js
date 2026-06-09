@@ -21,18 +21,19 @@ export function mapAlert(row) {
   return {
     id: row.id,
     date: row.date,
-    carTitle: row.car_title,
+    searchId: row.search_id ?? row.searchId,
+    carTitle: row.car_title ?? row.carTitle,
     platform: row.platform,
-    listingUrl: row.listing_url,
-    priceOriginal: row.price_original,
+    listingUrl: row.listing_url ?? row.listingUrl,
+    priceOriginal: row.price_original ?? row.priceOriginal,
     cc: row.cc,
     co2: row.co2,
-    fuelType: row.fuel_type,
-    ageYears: row.age_years,
-    transportEst: row.transport_est,
-    marketPrice: row.market_price,
+    fuelType: row.fuel_type ?? row.fuelType,
+    ageYears: row.age_years ?? row.ageYears,
+    transportEst: row.transport_est ?? row.transportEst,
+    marketPrice: row.market_price ?? row.marketPrice,
     flags: row.flags ?? [],
-    createdAt: row.created_at,
+    createdAt: row.created_at ?? row.createdAt,
   };
 }
 
