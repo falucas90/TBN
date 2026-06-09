@@ -23,7 +23,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
   return (
     <aside style={{
       width,
-      backgroundColor: '#F4F2EB',
+      backgroundColor: 'var(--slate)',
       borderRight: '1px solid var(--hairline)',
       display: 'flex',
       flexDirection: 'column',
@@ -94,8 +94,8 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
                   textDecoration: 'none',
                   fontSize: '13px',
                   fontWeight: isActive ? '500' : '400',
-                  color: isActive ? 'var(--bone)' : 'var(--ash)',
-                  backgroundColor: isActive ? 'var(--slate-2)' : 'transparent',
+                  color: isActive ? 'var(--emerald)' : 'var(--ash)',
+                  backgroundColor: isActive ? 'var(--emerald-12)' : 'transparent',
                   borderLeft: `2px solid ${isActive ? 'var(--emerald)' : 'transparent'}`,
                   marginLeft: '-2px',
                   whiteSpace: 'nowrap',

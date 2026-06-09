@@ -57,128 +57,107 @@ export default function Login() {
   };
 
   return (
-    <div style={{ display: 'flex', height: '100vh', backgroundColor: '#fff', color: '#111' }}>
-      {/* Left Pane (Beige/Brand) */}
-      <div style={{
-        flex: 1, backgroundColor: '#F6F5F2', padding: '4rem',
-        display: 'flex', flexDirection: 'column', justifyContent: 'space-between'
-      }}>
+    <div className="login-shell">
+      {/* Left Pane */}
+      <div className="login-left">
         <div>
           <div style={{
-            border: '1px solid #D6D5D1', padding: '0.6rem 2rem',
-            borderRadius: '6px', display: 'inline-block', fontWeight: '700',
-            fontSize: '1rem', backgroundColor: '#fff', marginBottom: '4rem'
+            border: '1px solid var(--hairline)', padding: '0.6rem 2rem',
+            borderRadius: 'var(--r-md)', display: 'inline-block', fontWeight: 600,
+            fontSize: 'var(--fs-md)', background: 'var(--graphite)', marginBottom: '4rem',
+            letterSpacing: '0.05em',
           }}>
             CRIVO
           </div>
 
-          <h1 style={{ fontSize: '2.5rem', fontWeight: '700', marginBottom: '1.25rem', maxWidth: '460px', lineHeight: '1.2' }}>
+          <h1 style={{ fontSize: 'var(--fs-3xl)', fontWeight: 600, marginBottom: '1.25rem', maxWidth: 460, lineHeight: 'var(--lh-tight)', letterSpacing: 'var(--tracking-tighter)' }}>
             Inteligência de sourcing para stands portugueses
           </h1>
-          <p style={{ fontSize: '1.25rem', color: '#444', maxWidth: '400px', lineHeight: '1.6' }}>
+          <p style={{ fontSize: 'var(--fs-lg)', color: 'var(--ash)', maxWidth: 400, lineHeight: 'var(--lh-body)' }}>
             Monitorize anúncios europeus. Obtenha cálculos de ISV automáticos. Receba alertas pelo WhatsApp quando a rentabilidade for certa.
           </p>
         </div>
 
         <div style={{ display: 'flex', gap: '2.5rem', marginTop: '2rem' }}>
-          <div>
-            <div style={{ fontSize: '1.75rem', fontWeight: '700', marginBottom: '0.25rem' }}>110k+</div>
-            <div style={{ color: '#555', fontSize: '0.9rem', lineHeight: '1.3' }}>carros<br/>importados/ano</div>
-          </div>
-          <div>
-            <div style={{ fontSize: '1.75rem', fontWeight: '700', marginBottom: '0.25rem' }}>±5%</div>
-            <div style={{ color: '#555', fontSize: '0.9rem', lineHeight: '1.3' }}>precisão<br/>de ISV</div>
-          </div>
-          <div>
-            <div style={{ fontSize: '1.75rem', fontWeight: '700', marginBottom: '0.25rem' }}>€99</div>
-            <div style={{ color: '#555', fontSize: '0.9rem', lineHeight: '1.3' }}>/mês, cancele<br/>quando quiser</div>
-          </div>
+          {[['110k+', 'carros importados/ano'], ['±5%', 'precisão de ISV'], ['€99', '/mês, cancele quando quiser']].map(([num, desc]) => (
+            <div key={num}>
+              <div style={{ fontSize: 'var(--fs-2xl)', fontWeight: 600, marginBottom: 4, letterSpacing: 'var(--tracking-tight)' }}>{num}</div>
+              <div style={{ color: 'var(--dust)', fontSize: 'var(--fs-micro)', lineHeight: 1.4 }}>{desc}</div>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Right Pane (Form) */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
-          <div style={{ width: '100%', maxWidth: '460px' }}>
-            <h2 style={{ fontSize: '1.75rem', fontWeight: '700', marginBottom: '0.5rem' }}>Bem-vindo de volta</h2>
-            <p style={{ color: 'var(--color-text-secondary)', marginBottom: '2.5rem' }}>Aceda à sua conta</p>
+      {/* Right Pane */}
+      <div className="login-right" style={{ flexDirection: 'column' }}>
+        <div style={{ width: '100%', maxWidth: 460 }}>
+          <h2 style={{ fontSize: 'var(--fs-2xl)', fontWeight: 600, marginBottom: 6, letterSpacing: 'var(--tracking-tight)' }}>Bem-vindo de volta</h2>
+          <p style={{ color: 'var(--dust)', marginBottom: '2.5rem', fontSize: 'var(--fs-body)' }}>Aceda à sua conta</p>
 
-            <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              <FormField label="Email" required>
+          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <FormField label="Email" required>
+              <input
+                type="email"
+                className="input"
+                placeholder="stand@exemplo.pt"
+                value={email}
+                onChange={(e) => { setEmail(e.target.value); setError(''); }}
+              />
+            </FormField>
+            <FormField label="Palavra-passe" required>
+              <div style={{ position: 'relative' }}>
                 <input
-                  type="email"
+                  type={showPassword ? 'text' : 'password'}
                   className="input"
-                  placeholder="stand@exemplo.pt"
-                  value={email}
-                  onChange={(e) => { setEmail(e.target.value); setError(''); }}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => { setPassword(e.target.value); setError(''); }}
                 />
-              </FormField>
-              <FormField label="Palavra-passe" required>
-                <div style={{ position: 'relative' }}>
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    className="input"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => { setPassword(e.target.value); setError(''); }}
-                  />
-                  <span
-                    onClick={() => setShowPassword(v => !v)}
-                    style={{ position: 'absolute', right: '12px', top: '12px', fontSize: '0.875rem', color: '#666', cursor: 'pointer', userSelect: 'none' }}
-                  >
-                    {showPassword ? 'hide' : 'show'}
-                  </span>
-                </div>
-                <div style={{ textAlign: 'right', marginTop: '0.5rem' }}>
-                  <Link to="/forgot-password" style={{ color: '#0066FF', fontSize: '0.875rem', textDecoration: 'none' }}>Esqueceu-se da palavra-passe?</Link>
-                </div>
-              </FormField>
-
-              {error && (
-                <p style={{ color: 'var(--color-danger-text)', fontSize: '0.875rem', margin: 0 }}>{error}</p>
-              )}
-
-              <div style={{ marginTop: '0.5rem' }}>
-                <Button
-                  type="submit"
-                  fullWidth
-                  disabled={isSubmitting}
-                  style={{ padding: '0.875rem', backgroundColor: '#E9F5E3', color: '#2B5B2E', border: '1px solid #C4E2BE' }}
+                <span
+                  onClick={() => setShowPassword(v => !v)}
+                  style={{ position: 'absolute', right: 12, top: 10, fontSize: 12, color: 'var(--dust)', cursor: 'pointer', userSelect: 'none' }}
                 >
-                  {isSubmitting ? 'A entrar...' : 'Entrar'}
-                </Button>
+                  {showPassword ? 'hide' : 'show'}
+                </span>
               </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', margin: '1rem 0', color: '#999' }}>
-                <div style={{ flex: 1, height: '1px', backgroundColor: '#eee' }}></div>
-                <span style={{ padding: '0 1rem', fontSize: '0.875rem' }}>ou</span>
-                <div style={{ flex: 1, height: '1px', backgroundColor: '#eee' }}></div>
+              <div style={{ textAlign: 'right', marginTop: 6 }}>
+                <Link to="/forgot-password" style={{ color: 'var(--emerald)', fontSize: 12 }}>Esqueceu-se da palavra-passe?</Link>
               </div>
+            </FormField>
 
-              <Button
-                type="button"
-                variant="secondary"
-                fullWidth
-                onClick={handleGoogle}
-                style={{ padding: '0.875rem', display: 'flex', justifyContent: 'center', gap: '0.5rem' }}
-              >
-                Continuar com o Google
+            {error && (
+              <p style={{ color: 'var(--coral)', fontSize: 13, margin: 0 }}>{error}</p>
+            )}
+
+            <div style={{ marginTop: 4 }}>
+              <Button type="submit" variant="primary" fullWidth disabled={isSubmitting}>
+                {isSubmitting ? 'A entrar...' : 'Entrar'}
               </Button>
-            </form>
-
-            <div style={{ marginTop: '2.5rem', textAlign: 'center', fontSize: '0.9rem', color: '#555' }}>
-              Não tem uma conta? <Link to="/signup" style={{ color: '#0066FF', fontWeight: '500', textDecoration: 'none' }}>Registe-se</Link>
             </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', margin: '8px 0', color: 'var(--chalk)' }}>
+              <div style={{ flex: 1, height: 1, background: 'var(--hairline)' }} />
+              <span style={{ padding: '0 12px', fontSize: 12 }}>ou</span>
+              <div style={{ flex: 1, height: 1, background: 'var(--hairline)' }} />
+            </div>
+
+            <Button type="button" variant="default" fullWidth onClick={handleGoogle}>
+              Continuar com o Google
+            </Button>
+          </form>
+
+          <div style={{ marginTop: '2.5rem', textAlign: 'center', fontSize: 13, color: 'var(--dust)' }}>
+            Não tem uma conta? <Link to="/signup" style={{ color: 'var(--emerald)', fontWeight: 500 }}>Registe-se</Link>
           </div>
         </div>
 
         {/* Footer */}
-        <div style={{ padding: '1.5rem', display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', color: '#666', borderTop: '1px solid #eee' }}>
+        <div style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', padding: '1.5rem 4rem', display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--dust)', borderTop: '1px solid var(--hairline)' }}>
           <div>© 2026 Crivo</div>
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <button onClick={() => addToast('Termos de serviço em breve.', 'info')} style={{ background: 'none', border: 'none', padding: 0, color: 'inherit', fontSize: 'inherit', cursor: 'pointer', textDecoration: 'none' }}>Termos</button>
-            <button onClick={() => addToast('Política de privacidade em breve.', 'info')} style={{ background: 'none', border: 'none', padding: 0, color: 'inherit', fontSize: 'inherit', cursor: 'pointer', textDecoration: 'none' }}>Privacidade</button>
-            <button onClick={() => addToast('Para suporte, contacte support@crivo.pt', 'info')} style={{ background: 'none', border: 'none', padding: 0, color: 'inherit', fontSize: 'inherit', cursor: 'pointer', textDecoration: 'none' }}>Suporte</button>
+          <div style={{ display: 'flex', gap: 16 }}>
+            {[['Termos', 'Termos de serviço em breve.'], ['Privacidade', 'Política de privacidade em breve.'], ['Suporte', 'Para suporte, contacte support@crivo.pt']].map(([label, msg]) => (
+              <button key={label} onClick={() => addToast(msg, 'info')} style={{ background: 'none', border: 'none', padding: 0, color: 'inherit', fontSize: 'inherit', cursor: 'pointer' }}>{label}</button>
+            ))}
           </div>
         </div>
       </div>

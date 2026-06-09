@@ -55,120 +55,85 @@ export default function Signup() {
   };
 
   return (
-    <div style={{ display: 'flex', height: '100vh', backgroundColor: 'var(--color-bg-page)' }}>
-      <div style={{ flex: 1, backgroundColor: 'var(--color-primary-teal)', color: '#fff', padding: '4rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-        <h1 style={{ fontSize: '3rem', fontWeight: '800', marginBottom: '1rem' }}>Crivo</h1>
-        <p style={{ fontSize: '1.25rem', opacity: 0.9, maxWidth: '400px', marginBottom: '2rem' }}>
+    <div style={{ display: 'flex', height: '100vh', background: 'var(--obsidian)' }}>
+      {/* Left brand panel */}
+      <div style={{ flex: 1, background: 'var(--emerald)', color: '#fff', padding: '4rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <h1 style={{ fontSize: 'var(--fs-3xl)', fontWeight: 600, marginBottom: 16, letterSpacing: 'var(--tracking-tighter)' }}>Crivo</h1>
+        <p style={{ fontSize: 'var(--fs-lg)', opacity: 0.9, maxWidth: 400, marginBottom: 32, lineHeight: 'var(--lh-body)' }}>
           Acelere hoje o seu processo de sourcing de inventário.
         </p>
-        <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '1rem', opacity: 0.9 }}>
-           <li>✓ Calcule o ISV automaticamente</li>
-           <li>✓ Pesquise em mais de 5 plataformas europeias</li>
-           <li>✓ Acompanhe as margens esperadas em tempo real</li>
+        <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 12, opacity: 0.9, fontSize: 'var(--fs-body)', padding: 0, margin: 0 }}>
+          <li>✓ Calcule o ISV automaticamente</li>
+          <li>✓ Pesquise em mais de 5 plataformas europeias</li>
+          <li>✓ Acompanhe as margens esperadas em tempo real</li>
         </ul>
       </div>
 
+      {/* Right form panel */}
       <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
-        <Card style={{ width: '100%', maxWidth: '480px' }}>
-          <div style={{ marginBottom: '2rem' }}>
-            <StepIndicator currentStep={step} steps={[1, 2, 3]} />
-          </div>
+        <div style={{ width: '100%', maxWidth: 480 }}>
+          <div className="card">
+            <div className="card__body" style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+              <StepIndicator currentStep={step} steps={[1, 2, 3]} />
 
-          <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '2rem' }}>
-            {step === 1 && "Crie a sua conta"}
-            {step === 2 && "Detalhes da empresa"}
-            {step === 3 && "Tudo pronto!"}
-          </h2>
+              <h2 style={{ fontSize: 'var(--fs-xl)', fontWeight: 600, letterSpacing: 'var(--tracking-tight)' }}>
+                {step === 1 && 'Crie a sua conta'}
+                {step === 2 && 'Detalhes da empresa'}
+                {step === 3 && 'Tudo pronto!'}
+              </h2>
 
-          {step === 1 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <FormField label="Nome" required>
-                  <input
-                    type="text"
-                    value={nome}
-                    onChange={(e) => setNome(e.target.value)}
-                    style={{ padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }}
-                  />
-                </FormField>
-                <FormField label="Apelido" required>
-                  <input
-                    type="text"
-                    value={apelido}
-                    onChange={(e) => setApelido(e.target.value)}
-                    style={{ padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }}
-                  />
-                </FormField>
-              </div>
-              <FormField label="Email" required>
-                <input
-                  type="email"
-                  placeholder="stand@exemplo.pt"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  style={{ padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }}
-                />
-              </FormField>
-              <FormField label="Palavra-passe" required>
-                <input
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  style={{ padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }}
-                />
-              </FormField>
-              <Button fullWidth onClick={() => setStep(2)} style={{ marginTop: '1rem' }}>Continuar</Button>
-            </div>
-          )}
-
-          {step === 2 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <FormField label="Nome da Empresa" required>
-                <input
-                  type="text"
-                  value={company}
-                  onChange={(e) => setCompany(e.target.value)}
-                  style={{ padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }}
-                />
-              </FormField>
-              <FormField label="NIF" required>
-                <input
-                  type="text"
-                  value={nif}
-                  onChange={(e) => setNif(e.target.value)}
-                  style={{ padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }}
-                />
-              </FormField>
-              {error && (
-                <p style={{ color: 'var(--color-danger-text)', fontSize: '0.875rem', margin: 0 }}>{error}</p>
+              {step === 1 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  <div className="form-grid-2">
+                    <FormField label="Nome" required>
+                      <input type="text" className="input" value={nome} onChange={(e) => setNome(e.target.value)} />
+                    </FormField>
+                    <FormField label="Apelido" required>
+                      <input type="text" className="input" value={apelido} onChange={(e) => setApelido(e.target.value)} />
+                    </FormField>
+                  </div>
+                  <FormField label="Email" required>
+                    <input type="email" className="input" placeholder="stand@exemplo.pt" value={email} onChange={(e) => setEmail(e.target.value)} />
+                  </FormField>
+                  <FormField label="Palavra-passe" required>
+                    <input type="password" className="input" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} />
+                  </FormField>
+                  <Button variant="primary" fullWidth onClick={() => setStep(2)}>Continuar</Button>
+                </div>
               )}
-              <Button
-                fullWidth
-                onClick={handleSignup}
-                disabled={isSubmitting}
-                style={{ marginTop: '1rem' }}
-              >
-                {isSubmitting ? 'A registar...' : 'Concluir Registo'}
-              </Button>
-              <Button fullWidth variant="ghost" onClick={() => setStep(1)}>Voltar</Button>
-            </div>
-          )}
 
-          {step === 3 && (
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ width: '48px', height: '48px', backgroundColor: 'var(--color-success-bg)', color: 'var(--color-success-text)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem', fontSize:'1.5rem' }}>✓</div>
-              <p style={{ color: 'var(--color-text-secondary)', marginBottom: '2rem' }}>A redirecionar para o painel principal...</p>
-              <Link to="/login"><Button>Ir para o Login</Button></Link>
-            </div>
-          )}
+              {step === 2 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  <FormField label="Nome da Empresa" required>
+                    <input type="text" className="input" value={company} onChange={(e) => setCompany(e.target.value)} />
+                  </FormField>
+                  <FormField label="NIF" required>
+                    <input type="text" className="input" value={nif} onChange={(e) => setNif(e.target.value)} />
+                  </FormField>
+                  {error && <p style={{ color: 'var(--coral)', fontSize: 13, margin: 0 }}>{error}</p>}
+                  <Button variant="primary" fullWidth onClick={handleSignup} disabled={isSubmitting}>
+                    {isSubmitting ? 'A registar...' : 'Concluir Registo'}
+                  </Button>
+                  <Button fullWidth variant="ghost" onClick={() => setStep(1)}>Voltar</Button>
+                </div>
+              )}
 
-          {step === 1 && (
-            <div style={{ marginTop: '2rem', textAlign: 'center', fontSize: '0.875rem' }}>
-              <Link to="/login" style={{ color: 'var(--color-text-secondary)', textDecoration: 'none' }}>Já tem uma conta? <span style={{ color: 'var(--color-primary-teal)', fontWeight: '600' }}>Entrar</span></Link>
+              {step === 3 && (
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ width: 48, height: 48, background: 'var(--emerald-12)', color: 'var(--emerald)', borderRadius: 'var(--r-full)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', fontSize: 20 }}>✓</div>
+                  <p style={{ color: 'var(--dust)', marginBottom: 32 }}>A redirecionar para o painel principal...</p>
+                  <Link to="/login"><Button variant="primary">Ir para o Login</Button></Link>
+                </div>
+              )}
+
+              {step === 1 && (
+                <div style={{ textAlign: 'center', fontSize: 13, color: 'var(--dust)' }}>
+                  <Link to="/login">Já tem uma conta? <span style={{ color: 'var(--emerald)', fontWeight: 500 }}>Entrar</span></Link>
+                </div>
+              )}
             </div>
-          )}
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );

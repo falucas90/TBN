@@ -59,12 +59,12 @@ export default function ResetPassword() {
   const mismatch = !!confirmPassword && password !== confirmPassword;
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--obsidian)' }}>
       <div style={{ width: '100%', maxWidth: '400px', padding: '2rem' }}>
         <div style={{
-          border: '1px solid #D6D5D1', padding: '0.6rem 2rem', borderRadius: '6px',
-          display: 'inline-block', fontWeight: '700', fontSize: '1rem',
-          backgroundColor: '#fff', marginBottom: '2rem'
+          border: '1px solid var(--hairline)', padding: '0.6rem 2rem', borderRadius: 'var(--r-md)',
+          display: 'inline-block', fontWeight: 600, fontSize: 'var(--fs-md)', letterSpacing: '0.05em',
+          background: 'var(--graphite)', marginBottom: '2rem'
         }}>
           CRIVO
         </div>
