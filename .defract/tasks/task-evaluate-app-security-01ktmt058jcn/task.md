@@ -3,7 +3,7 @@ defract:
   id: task-evaluate-app-security-01ktmt058jcn
   type: task
   status: active
-  stage: review
+  stage: implementation
   phase: 0
   total_phases: 1
   priority: normal
@@ -14,6 +14,7 @@ defract:
   created_by: falucas90
   assignee: falucas90
 ---
+
 
 ## Story Brief
 

@@ -12,6 +12,7 @@ labels:
 groomingStatus: completed
 createdAt: 2026-06-02T21:46:41Z
 groomedAt: 2026-06-02T21:47:15Z
+promotedTaskId: task-add-multi-factor-authentication-and-01ktnm9jwcje
 events:
 - type: grooming_started
   timestamp: 2026-06-02T21:46:41Z

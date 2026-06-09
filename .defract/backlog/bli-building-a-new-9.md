@@ -12,6 +12,7 @@ labels:
 groomingStatus: completed
 createdAt: 2026-06-02T22:00:22Z
 groomedAt: 2026-06-02T22:01:13Z
+promotedTaskId: task-build-dealer-management-interface-01ktnm9dcapp
 events:
 - type: grooming_started
   timestamp: 2026-06-02T22:00:22Z
