@@ -7,6 +7,7 @@ import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { getProfile, updateProfile } from '../services/profilesService';
 import { exportUserData, deleteAccount } from '../services/authService';
+import { supabase, supabaseConfigured } from '../lib/supabase';
 
 export default function Settings() {
   const { addToast } = useToast();
@@ -21,6 +22,10 @@ export default function Settings() {
   const [isSavingDefaults, setIsSavingDefaults] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
+  const [showEmailForm, setShowEmailForm] = useState(false);
+  const [newEmail, setNewEmail] = useState('');
+  const [isSavingEmail, setIsSavingEmail] = useState(false);
 
   // Load profile from Supabase (falls back to defaults if not configured)
   useEffect(() => {
@@ -31,8 +36,24 @@ export default function Settings() {
       setTransportCost(profile.defaultTransportCost);
       setMinMargin(profile.minMargin);
       setNotifChannel(profile.notifChannel);
-    }).catch(() => {});
+    }).catch(() => {}).finally(() => setIsLoadingProfile(false));
   }, []);
+
+  async function handleChangeEmail() {
+    if (!newEmail.trim()) { addToast('Insira um endereço de email válido.', 'warn'); return; }
+    setIsSavingEmail(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ email: newEmail.trim() });
+      if (error) throw error;
+      addToast('Email de confirmação enviado para o novo endereço.', 'success');
+      setShowEmailForm(false);
+      setNewEmail('');
+    } catch (err) {
+      addToast(err.message || 'Erro ao alterar email.', 'danger');
+    } finally {
+      setIsSavingEmail(false);
+    }
+  }
 
   async function handleSaveProfile() {
     if (!name.trim()) { addToast('O nome não pode estar vazio.', 'warn'); return; }
@@ -108,29 +129,69 @@ export default function Settings() {
 
           <Card>
             <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1.5rem' }}>Perfil da Conta</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-              <FormField label="Nome Completo" required>
-                <input type="text" value={name} onChange={e => setName(e.target.value)} style={inputStyle} />
-              </FormField>
-              <FormField label="Nome da Empresa">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.625rem 0' }}>
-                  <Building size={18} style={{ color: 'var(--ash)' }} />
-                  <span style={{ fontWeight: '500' }}>{currentUser?.user_metadata?.company || '—'}</span>
+            {isLoadingProfile ? (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                {[0, 1, 2, 3].map(i => (
+                  <div key={i}>
+                    <div className="pulse" style={{ height: '12px', width: '80px', background: 'var(--graphite)', borderRadius: 'var(--r-md)', marginBottom: '8px' }} />
+                    <div className="pulse" style={{ height: '36px', background: 'var(--graphite)', borderRadius: 'var(--r-md)' }} />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                  <FormField label="Nome Completo" required>
+                    <input type="text" value={name} onChange={e => setName(e.target.value)} style={inputStyle} />
+                  </FormField>
+                  <FormField label="Nome da Empresa">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.625rem 0' }}>
+                      <Building size={18} style={{ color: 'var(--ash)' }} />
+                      <span style={{ fontWeight: '500' }}>{currentUser?.user_metadata?.company || '—'}</span>
+                    </div>
+                  </FormField>
+                  <FormField label="Endereço de Email">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.625rem 0' }}>
+                      <Mail size={18} style={{ color: 'var(--ash)' }} />
+                      <span style={{ fontWeight: '500' }}>{currentUser?.email}</span>
+                    </div>
+                  </FormField>
+                  <FormField label="Telefone / WhatsApp">
+                    <input type="text" value={phone} onChange={e => setPhone(e.target.value)}
+                      placeholder="+351 912 345 678" style={inputStyle} />
+                  </FormField>
                 </div>
-              </FormField>
-              <FormField label="Endereço de Email">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.625rem 0' }}>
-                  <Mail size={18} style={{ color: 'var(--ash)' }} />
-                  <span style={{ fontWeight: '500' }}>{currentUser?.email}</span>
-                </div>
-              </FormField>
-              <FormField label="Telefone / WhatsApp">
-                <input type="text" value={phone} onChange={e => setPhone(e.target.value)}
-                  placeholder="+351 912 345 678" style={inputStyle} />
-              </FormField>
-            </div>
+                {supabaseConfigured && (
+                  <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--hairline)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: showEmailForm ? '1rem' : 0 }}>
+                      <span style={{ fontSize: '0.875rem', color: 'var(--ash)' }}>Alterar endereço de email da conta</span>
+                      <button
+                        onClick={() => setShowEmailForm(v => !v)}
+                        style={{ fontSize: '13px', color: 'var(--emerald)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px' }}
+                      >
+                        {showEmailForm ? 'Cancelar' : 'Alterar email'}
+                      </button>
+                    </div>
+                    {showEmailForm && (
+                      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                        <input
+                          type="email"
+                          value={newEmail}
+                          onChange={e => setNewEmail(e.target.value)}
+                          placeholder="novo@email.com"
+                          style={{ ...inputStyle, flex: 1 }}
+                        />
+                        <Button onClick={handleChangeEmail} disabled={isSavingEmail}>
+                          {isSavingEmail ? 'A enviar…' : 'Guardar novo email'}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
             <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
-              <Button onClick={handleSaveProfile} disabled={isSavingProfile}>
+              <Button onClick={handleSaveProfile} disabled={isSavingProfile || isLoadingProfile}>
                 <Save size={16} /> {isSavingProfile ? 'A guardar…' : 'Guardar Alterações'}
               </Button>
             </div>

@@ -109,6 +109,14 @@ export default function CreateSearch() {
       addToast('A quilometragem mínima não pode ser superior à máxima.', 'warn');
       return false;
     }
+    if (Number(minPrice) > Number(maxPrice)) {
+      addToast('O preço mínimo não pode ser superior ao máximo.', 'warn');
+      return false;
+    }
+    if (!alertChannels.whatsapp && !alertChannels.email) {
+      addToast('Selecione pelo menos um canal de alerta (WhatsApp ou Email).', 'warn');
+      return false;
+    }
     if (!Object.values(countries).some(Boolean)) {
       addToast('Selecione pelo menos um país de origem.', 'warn');
       return false;
