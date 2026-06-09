@@ -1,10 +1,16 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { Search, Bell, Settings, LogOut, Car, ChevronLeft, ChevronRight, Shield } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export default function Sidebar({ isCollapsed, setIsCollapsed }) {
   const { logout, currentUser } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
   const width = isCollapsed ? '80px' : '240px';
 
   const navItems = [
@@ -83,7 +89,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
 
       <div style={{ padding: '1rem', borderTop: '1px solid var(--color-border)', display: 'flex', justifyContent: isCollapsed ? 'center' : 'flex-start' }}>
         <button 
-          onClick={logout}
+          onClick={handleLogout}
           style={{
             display: 'flex', alignItems: 'center', gap: '0.75rem', width: '100%',
             padding: '0.75rem', background: 'none', border: 'none', cursor: 'pointer',
