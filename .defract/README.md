@@ -6,7 +6,9 @@ This project uses [defract](https://defract.dev) for structured AI-assisted deve
 
 | Task | Stage | Status |
 |------|-------|--------|
-| Evaluate app security | scope | active |
+| Add multi-factor authentication and advanced security hardening | scope | active |
+| Build dealer management interface | scope | active |
+| Evaluate app security | implementation | active |
 | Add a catch-all redirect route in App.jsx | release | completed |
 | Add authentication and admin view | release | completed |
 | Add delete support to the Searches page | release | completed |
