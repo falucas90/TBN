@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Mail } from 'lucide-react';
 import { Button } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
@@ -10,7 +10,15 @@ const COOLDOWN_SECONDS = 60;
 
 export default function VerifyEmail() {
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
   const [cooldown, setCooldown] = useState(0);
+
+  // Auto-redirect when Supabase fires the auth state change after user clicks the email link
+  useEffect(() => {
+    if (currentUser?.email_confirmed_at) {
+      navigate('/searches', { replace: true });
+    }
+  }, [currentUser, navigate]);
   const [isResending, setIsResending] = useState(false);
   const [resendSuccess, setResendSuccess] = useState(false);
 

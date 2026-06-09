@@ -4,7 +4,7 @@ import { loginWithCredentials, loginWithGoogle, logoutUser, signupUser } from '.
 
 const AuthContext = createContext(null);
 
-const MOCK_USER = { id: 'mock', email: 'dev@local', role: 'admin' };
+const MOCK_USER = { id: 'mock', email: 'dev@local', role: 'dealer' };
 
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(supabaseConfigured ? null : MOCK_USER);

@@ -89,6 +89,8 @@ export async function deleteSearch(id) {
     if (idx !== -1) mockStore.splice(idx, 1);
     return;
   }
-  const { error } = await supabase.from('searches').delete().eq('id', id);
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+  const { error } = await supabase.from('searches').delete().eq('id', id).eq('user_id', user.id);
   if (error) throw error;
 }

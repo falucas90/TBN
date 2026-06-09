@@ -35,6 +35,8 @@ export default function Searches() {
   };
 
   const deleteSearch = async (id) => {
+    const target = searches.find(s => s.id === id);
+    if (!window.confirm(`Eliminar a pesquisa "${target?.title}"? Esta ação é irreversível.`)) return;
     const snapshot = searches;
     setSearches(prev => prev.filter(s => s.id !== id));
     try {

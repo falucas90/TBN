@@ -9,16 +9,25 @@ import { useToast } from '../context/ToastContext';
 export default function AlertHistory() {
   const { addToast } = useToast();
 
-  const [alerts, setAlerts] = useState([]);
+  const [alerts, setAlerts] = useState(null);
   const [filterBrand, setFilterBrand] = useState('all');
   const [filterMargin, setFilterMargin] = useState('all');
   const [searchText, setSearchText] = useState('');
 
   useEffect(() => {
-    getAlerts().then(setAlerts).catch(() => addToast('Erro ao carregar alertas.', 'danger'));
+    getAlerts().then(setAlerts).catch(() => {
+      addToast('Erro ao carregar alertas.', 'danger');
+      setAlerts([]);
+    });
   }, [addToast]);
 
-  const alertsWithISV = useMemo(() => alerts.map(alert => {
+  const brandOptions = useMemo(() => {
+    if (!alerts) return [];
+    const brands = [...new Set(alerts.map(a => a.carTitle.split(' ')[0].toLowerCase()))].sort();
+    return brands;
+  }, [alerts]);
+
+  const alertsWithISV = useMemo(() => (alerts ?? []).map(alert => {
     const { isvPayable } = calculateISV(alert.cc, alert.co2, alert.fuelType, alert.ageYears, alert.flags.includes('PHEV'), false);
     const totalCost = alert.priceOriginal + isvPayable + alert.transportEst;
     const marginEst = alert.marketPrice - totalCost;
@@ -36,6 +45,16 @@ export default function AlertHistory() {
     acc[alert.date].push(alert);
     return acc;
   }, {}), [filteredAlerts]);
+
+  if (alerts === null) return (
+    <AppLayout>
+      <div style={{ padding: '2rem', maxWidth: '1000px', margin: '0 auto', width: '100%' }}>
+        {[1, 2, 3, 4].map(i => (
+          <div key={i} style={{ height: '90px', background: 'var(--graphite)', borderRadius: 'var(--r-lg)', marginBottom: '0.75rem', animation: 'pulse 1.5s ease-in-out infinite', opacity: 0.6 }} />
+        ))}
+      </div>
+    </AppLayout>
+  );
 
   return (
     <AppLayout>
@@ -58,15 +77,15 @@ export default function AlertHistory() {
               />
             </div>
             
-            <select 
-              value={filterBrand} 
+            <select
+              value={filterBrand}
               onChange={e => setFilterBrand(e.target.value)}
               style={{ height: '36px', padding: '0 10px', borderRadius: 'var(--r-md)', border: '1px solid var(--hairline)', outline: 'none', background: 'var(--graphite)', color: 'var(--bone)', fontSize: '13px', fontFamily: 'inherit' }}
             >
               <option value="all">Todas as Marcas</option>
-              <option value="bmw">BMW</option>
-              <option value="mercedes">Mercedes-Benz</option>
-              <option value="renault">Renault</option>
+              {brandOptions.map(b => (
+                <option key={b} value={b}>{b.charAt(0).toUpperCase() + b.slice(1)}</option>
+              ))}
             </select>
 
             <select 

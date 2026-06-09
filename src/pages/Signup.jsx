@@ -33,7 +33,24 @@ export default function Signup() {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const validateStep1 = () => {
+    if (!nome.trim() || !apelido.trim()) { setError('Preencha o nome e apelido.'); return false; }
+    if (!email.includes('@') || !email.includes('.')) { setError('Introduza um email válido.'); return false; }
+    if (password.length < 6) { setError('A palavra-passe deve ter pelo menos 6 caracteres.'); return false; }
+    setError('');
+    return true;
+  };
+
+  const validateStep2 = () => {
+    if (!company.trim()) { setError('Introduza o nome da empresa.'); return false; }
+    const nifDigits = nif.replace(/\s/g, '');
+    if (!/^\d{9}$/.test(nifDigits)) { setError('O NIF deve ter exatamente 9 dígitos.'); return false; }
+    setError('');
+    return true;
+  };
+
   const handleSignup = async () => {
+    if (!validateStep2()) return;
     setError('');
     setIsSubmitting(true);
     try {
@@ -99,7 +116,8 @@ export default function Signup() {
                   <FormField label="Palavra-passe" required>
                     <input type="password" className="input" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} />
                   </FormField>
-                  <Button variant="primary" fullWidth onClick={() => setStep(2)}>Continuar</Button>
+                  {error && <p style={{ color: 'var(--coral)', fontSize: 13, margin: 0 }}>{error}</p>}
+                  <Button variant="primary" fullWidth onClick={() => { if (validateStep1()) setStep(2); }}>Continuar</Button>
                 </div>
               )}
 
