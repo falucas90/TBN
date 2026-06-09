@@ -43,25 +43,25 @@ export default function AlertHistory() {
          
          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
           <div>
-            <h1 style={{ fontSize: '1.875rem', fontWeight: '700', marginBottom: '0.25rem' }}>Histórico de Alertas</h1>
-            <p style={{ color: 'var(--color-text-secondary)' }}>Correspondências recentes de inventário em todas as suas pesquisas.</p>
+            <h1 style={{ fontSize: '1.75rem', fontWeight: '500', letterSpacing: '-0.02em', marginBottom: '0.25rem' }}>Histórico de Alertas</h1>
+            <p style={{ color: 'var(--dust)', fontSize: '13px' }}>Correspondências recentes de inventário em todas as suas pesquisas.</p>
           </div>
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
             <div style={{ position: 'relative' }}>
-              <Search size={16} style={{ position: 'absolute', left: '12px', top: '10px', color: 'var(--color-text-secondary)' }} />
+              <Search size={16} style={{ position: 'absolute', left: '12px', top: '10px', color: 'var(--ash)' }} />
               <input
                 type="text"
                 placeholder="Pesquisar carros..."
                 value={searchText}
                 onChange={e => setSearchText(e.target.value)}
-                style={{ padding: '0.5rem 1rem 0.5rem 2.25rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }}
+                style={{ padding: '0 1rem 0 2.25rem', height: '36px', borderRadius: 'var(--r-md)', border: '1px solid var(--hairline)', outline: 'none', background: 'var(--graphite)', color: 'var(--bone)', fontSize: '13px', fontFamily: 'inherit' }}
               />
             </div>
             
             <select 
               value={filterBrand} 
               onChange={e => setFilterBrand(e.target.value)}
-              style={{ padding: '0.5rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none', backgroundColor: '#fff' }}
+              style={{ height: '36px', padding: '0 10px', borderRadius: 'var(--r-md)', border: '1px solid var(--hairline)', outline: 'none', background: 'var(--graphite)', color: 'var(--bone)', fontSize: '13px', fontFamily: 'inherit' }}
             >
               <option value="all">Todas as Marcas</option>
               <option value="bmw">BMW</option>
@@ -72,7 +72,7 @@ export default function AlertHistory() {
             <select 
               value={filterMargin} 
               onChange={e => setFilterMargin(e.target.value)}
-              style={{ padding: '0.5rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none', backgroundColor: '#fff' }}
+              style={{ height: '36px', padding: '0 10px', borderRadius: 'var(--r-md)', border: '1px solid var(--hairline)', outline: 'none', background: 'var(--graphite)', color: 'var(--bone)', fontSize: '13px', fontFamily: 'inherit' }}
             >
               <option value="all">Qualquer Margem</option>
               <option value="2000">&gt; €2,000</option>
@@ -84,12 +84,12 @@ export default function AlertHistory() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           {Object.keys(groupedAlerts).length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-secondary)' }}>
+            <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--ash)' }}>
               Nenhum alerta corresponde aos filtros selecionados.
             </div>
           ) : Object.entries(groupedAlerts).map(([date, alerts]) => (
             <div key={date}>
-              <h3 style={{ fontSize: '0.875rem', fontWeight: '600', color: 'var(--color-text-secondary)', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <h3 style={{ fontSize: '0.875rem', fontWeight: '600', color: 'var(--ash)', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 {date === 'Today' ? 'Hoje' : date === 'Yesterday' ? 'Ontem' : date}
               </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -97,24 +97,24 @@ export default function AlertHistory() {
                   <Card key={alert.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.5rem' }}>
                     <div style={{ flex: 1 }}>
                       <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.25rem' }}>
-                        <span style={{ fontSize: '0.875rem', fontWeight: '500', color: 'var(--color-text-secondary)' }}>{alert.platform}</span>
+                        <span style={{ fontSize: '0.875rem', fontWeight: '500', color: 'var(--ash)' }}>{alert.platform}</span>
                         {alert.flags.map(flag => (
                           <Badge key={flag} variant={flag === 'PHEV' ? 'success' : 'warn'}>{flag}</Badge>
                         ))}
                       </div>
                       <h4 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>{alert.carTitle}</h4>
-                      <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
+                      <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.875rem', color: 'var(--ash)' }}>
                         <span>Preço Anúncio: €{alert.priceOriginal.toLocaleString()}</span>
                         <span>+ ISV: €{Math.round(alert.isvPayable).toLocaleString()}</span>
                         <span>+ Transp.: €{alert.transportEst.toLocaleString()}</span>
-                        <span style={{ fontWeight: '500', color: 'var(--color-text-primary)' }}>Total: €{Math.round(alert.totalCost).toLocaleString()}</span>
+                        <span style={{ fontWeight: '500', color: 'var(--bone)' }}>Total: €{Math.round(alert.totalCost).toLocaleString()}</span>
                       </div>
                     </div>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
                       <div style={{ textAlign: 'right' }}>
-                         <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>Margem Est.</div>
-                         <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-success-text)' }}>
+                         <div style={{ fontSize: '0.75rem', color: 'var(--ash)' }}>Margem Est.</div>
+                         <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--emerald)' }}>
                            €{Math.round(alert.marginEst).toLocaleString()}
                          </div>
                       </div>

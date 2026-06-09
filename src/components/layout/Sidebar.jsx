@@ -11,7 +11,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
     await logout();
     navigate('/login');
   };
-  const width = isCollapsed ? '80px' : '240px';
+  const width = isCollapsed ? 'var(--sidebar-collapsed)' : 'var(--sidebar-w)';
 
   const navItems = [
     { to: '/searches', icon: Search, label: 'Pesquisas' },
@@ -23,63 +23,86 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
   return (
     <aside style={{
       width,
-      backgroundColor: 'var(--color-bg-sidebar)',
-      borderRight: '1px solid var(--color-border)',
+      backgroundColor: '#F4F2EB',
+      borderRight: '1px solid var(--hairline)',
       display: 'flex',
       flexDirection: 'column',
       height: '100vh',
       position: 'fixed',
-      transition: 'width 0.3s ease',
-      overflowX: 'hidden'
+      top: 0,
+      left: 0,
+      transition: 'width var(--t-slow) var(--ease)',
+      overflowX: 'hidden',
+      zIndex: 100,
     }}>
-      <div style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: isCollapsed ? 'center' : 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+      {/* Brand */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: isCollapsed ? 'center' : 'space-between',
+        padding: '16px 12px 20px',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', overflow: 'hidden' }}>
           <div style={{
-            minWidth: '32px', height: '32px', borderRadius: '8px', 
-            backgroundColor: 'var(--color-primary-teal)', display: 'flex',
-            alignItems: 'center', justifyContent: 'center', color: 'white'
+            minWidth: '32px', width: '32px', height: '32px', borderRadius: 'var(--r-md)',
+            backgroundColor: 'var(--emerald)', display: 'flex',
+            alignItems: 'center', justifyContent: 'center', color: 'white', flexShrink: 0,
           }}>
-            <Car size={18} />
+            <Car size={16} />
           </div>
-          {!isCollapsed && <span className="font-bold text-lg">Crivo</span>}
+          {!isCollapsed && (
+            <span style={{ fontSize: '15px', fontWeight: '600', letterSpacing: '0.03em', color: 'var(--bone)', whiteSpace: 'nowrap' }}>
+              Crivo
+            </span>
+          )}
         </div>
         {!isCollapsed && (
-          <button 
+          <button
             onClick={() => setIsCollapsed(true)}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-secondary)' }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--dust)', padding: '4px', borderRadius: 'var(--r-sm)' }}
           >
-            <ChevronLeft size={20} />
+            <ChevronLeft size={16} />
           </button>
         )}
       </div>
 
-      <nav style={{ flex: 1, padding: isCollapsed ? '1rem 0.5rem' : '1rem' }}>
+      {/* Nav */}
+      <nav style={{ flex: 1, padding: '0 8px' }}>
         {isCollapsed && (
-          <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-            <button 
+          <div style={{ textAlign: 'center', marginBottom: '8px' }}>
+            <button
               onClick={() => setIsCollapsed(false)}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-secondary)' }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--dust)', padding: '4px', borderRadius: 'var(--r-sm)' }}
             >
-               <ChevronRight size={20} />
+              <ChevronRight size={16} />
             </button>
           </div>
         )}
-        <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+        <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: '2px' }}>
           {navItems.map((item) => (
             <li key={item.to}>
-              <NavLink 
+              <NavLink
                 to={item.to}
-                style={({isActive}) => ({
-                  display: 'flex', alignItems: 'center', justifyContent: isCollapsed ? 'center' : 'flex-start',
-                  gap: '0.75rem', padding: '0.75rem',
-                  borderRadius: 'var(--radius-input)', textDecoration: 'none',
-                  color: isActive ? 'var(--color-primary-teal-dark)' : 'var(--color-text-secondary)',
-                  backgroundColor: isActive ? 'var(--color-primary-teal-light)' : 'transparent',
-                  fontWeight: isActive ? '600' : '500'
-                })}
                 title={isCollapsed ? item.label : undefined}
+                style={({ isActive }) => ({
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: isCollapsed ? 'center' : 'flex-start',
+                  gap: '10px',
+                  padding: '9px 12px',
+                  borderRadius: 'var(--r-md)',
+                  textDecoration: 'none',
+                  fontSize: '13px',
+                  fontWeight: isActive ? '500' : '400',
+                  color: isActive ? 'var(--bone)' : 'var(--ash)',
+                  backgroundColor: isActive ? 'var(--slate-2)' : 'transparent',
+                  borderLeft: `2px solid ${isActive ? 'var(--emerald)' : 'transparent'}`,
+                  marginLeft: '-2px',
+                  whiteSpace: 'nowrap',
+                  transition: 'color var(--t-fast), background var(--t-fast)',
+                })}
               >
-                <item.icon size={20} />
+                <item.icon size={16} style={{ flexShrink: 0 }} />
                 {!isCollapsed && <span>{item.label}</span>}
               </NavLink>
             </li>
@@ -87,19 +110,32 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
         </ul>
       </nav>
 
-      <div style={{ padding: '1rem', borderTop: '1px solid var(--color-border)', display: 'flex', justifyContent: isCollapsed ? 'center' : 'flex-start' }}>
-        <button 
+      {/* User / Logout */}
+      <div style={{
+        padding: '12px 8px',
+        borderTop: '1px solid var(--hairline)',
+      }}>
+        <button
           onClick={handleLogout}
           style={{
-            display: 'flex', alignItems: 'center', gap: '0.75rem', width: '100%',
-            padding: '0.75rem', background: 'none', border: 'none', cursor: 'pointer',
-            textAlign: 'left', color: 'var(--color-text-secondary)', fontWeight: '500',
-            borderRadius: 'var(--radius-input)',
-            justifyContent: isCollapsed ? 'center' : 'flex-start'
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: isCollapsed ? 'center' : 'flex-start',
+            gap: '10px',
+            width: '100%',
+            padding: '9px 12px',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            textAlign: 'left',
+            color: 'var(--ash)',
+            fontSize: '13px',
+            fontWeight: '400',
+            borderRadius: 'var(--r-md)',
           }}
-          title={isCollapsed ? "Sair" : undefined}
+          title={isCollapsed ? 'Sair' : undefined}
         >
-          <LogOut size={20} />
+          <LogOut size={16} style={{ flexShrink: 0 }} />
           {!isCollapsed && <span>Sair</span>}
         </button>
       </div>

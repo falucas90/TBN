@@ -10,62 +10,73 @@ export default function Button({
   ...props
 }) {
   const sizes = {
-    sm: { padding: '0.375rem 0.75rem', fontSize: '0.8125rem' },
-    md: { padding: '0.5625rem 1rem',   fontSize: '0.875rem'  },
-    lg: { padding: '0.75rem 1.375rem', fontSize: '0.9375rem' },
+    sm: { height: '28px', padding: '0 10px', fontSize: '12px', borderRadius: 'var(--r-sm)' },
+    md: { height: '36px', padding: '0 14px', fontSize: '13px', borderRadius: 'var(--r-md)' },
+    lg: { height: '44px', padding: '0 20px', fontSize: '15px', borderRadius: 'var(--r-md)' },
   };
 
   const base = {
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '0.4rem',
-    borderRadius: 'var(--radius-sm)',
+    gap: '8px',
+    fontFamily: 'var(--font-display)',
     fontWeight: '500',
     cursor: 'pointer',
-    border: 'none',
-    transition: 'all var(--t-base) var(--ease)',
-    letterSpacing: '-0.01em',
+    border: '1px solid transparent',
+    letterSpacing: '-0.005em',
     whiteSpace: 'nowrap',
     width: fullWidth ? '100%' : 'auto',
+    transition: 'background var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease)',
     ...sizes[size],
     ...style,
   };
 
   const variants = {
     primary: {
-      background: 'var(--accent)',
-      color: '#0a1a0f',
+      background: 'var(--emerald)',
+      color: '#FFFFFF',
+      borderColor: 'var(--emerald)',
       fontWeight: '600',
     },
     secondary: {
-      background: 'var(--surface-3)',
-      color: 'var(--text-primary)',
-      border: '1px solid var(--border-default)',
+      background: 'var(--slate)',
+      color: 'var(--bone)',
+      borderColor: 'var(--hairline)',
     },
     ghost: {
       background: 'transparent',
-      color: 'var(--text-secondary)',
-      border: '1px solid transparent',
+      color: 'var(--ash)',
+      borderColor: 'transparent',
     },
     danger: {
-      background: 'var(--danger-bg)',
-      color: 'var(--danger)',
-      border: '1px solid rgba(248,113,113,0.25)',
+      background: 'var(--graphite)',
+      color: 'var(--coral)',
+      borderColor: 'var(--hairline)',
     },
   };
+
+  const hoverVariants = {
+    primary: { background: '#0A7A5B', borderColor: '#0A7A5B' },
+    secondary: { background: '#ECEAE2', borderColor: 'var(--hairline-strong)' },
+    ghost: { background: 'var(--slate)', borderColor: 'var(--hairline)', color: 'var(--bone)' },
+    danger: { background: 'var(--coral-12)', borderColor: 'rgba(201,75,75,0.3)' },
+  };
+
+  const v = variants[variant] || variants.secondary;
+  const hv = hoverVariants[variant] || hoverVariants.secondary;
 
   return (
     <button
       className={className}
-      style={{ ...base, ...variants[variant] }}
+      style={{ ...base, ...v }}
       onMouseEnter={e => {
-        if (variant === 'primary') e.currentTarget.style.background = 'var(--accent-hover)';
-        else if (variant === 'secondary') e.currentTarget.style.background = 'var(--surface-3)';
-        else if (variant === 'ghost') e.currentTarget.style.background = 'var(--surface-3)';
+        Object.assign(e.currentTarget.style, hv);
       }}
       onMouseLeave={e => {
-        e.currentTarget.style.background = variants[variant].background;
+        e.currentTarget.style.background = v.background;
+        e.currentTarget.style.borderColor = v.borderColor;
+        e.currentTarget.style.color = v.color;
       }}
       {...props}
     >

@@ -6,7 +6,7 @@ import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 
 const skeletonStyle = {
-  backgroundColor: 'var(--color-border)',
+  backgroundColor: 'var(--hairline)',
   borderRadius: '4px',
   height: '14px',
   display: 'inline-block',
@@ -14,7 +14,7 @@ const skeletonStyle = {
 
 function SkeletonRow() {
   return (
-    <tr style={{ borderBottom: '1px solid var(--color-border)' }}>
+    <tr style={{ borderBottom: '1px solid var(--hairline)' }}>
       <td style={{ padding: '0.875rem 1rem' }}><span style={{ ...skeletonStyle, width: '100px' }} /></td>
       <td style={{ padding: '0.875rem 1rem' }}><span style={{ ...skeletonStyle, width: '160px' }} /></td>
       <td style={{ padding: '0.875rem 1rem' }}><span style={{ ...skeletonStyle, width: '60px' }} /></td>
@@ -96,7 +96,7 @@ export default function Admin() {
     textAlign: 'left',
     padding: '0.75rem 1rem',
     fontWeight: '600',
-    color: 'var(--color-text-secondary)',
+    color: 'var(--ash)',
     whiteSpace: 'nowrap',
   };
 
@@ -108,7 +108,7 @@ export default function Admin() {
         <h1 style={{ fontSize: '1.875rem', fontWeight: '700', marginBottom: '0.5rem' }}>
           Painel de Administração
         </h1>
-        <p style={{ color: 'var(--color-text-secondary)', marginBottom: '2rem', fontSize: '0.9rem' }}>
+        <p style={{ color: 'var(--ash)', marginBottom: '2rem', fontSize: '0.9rem' }}>
           Contas de revendedores registadas na plataforma
         </p>
 
@@ -116,7 +116,7 @@ export default function Admin() {
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
               <thead>
-                <tr style={{ borderBottom: '1px solid var(--color-border)' }}>
+                <tr style={{ borderBottom: '1px solid var(--hairline)' }}>
                   <th style={thStyle}>Nome</th>
                   <th style={thStyle}>Email</th>
                   <th style={thStyle}>Plano</th>
@@ -136,7 +136,7 @@ export default function Admin() {
                   <tr>
                     <td
                       colSpan={6}
-                      style={{ padding: '2rem 1rem', textAlign: 'center', color: 'var(--color-text-secondary)' }}
+                      style={{ padding: '2rem 1rem', textAlign: 'center', color: 'var(--ash)' }}
                     >
                       Nenhum utilizador encontrado
                     </td>
@@ -157,9 +157,9 @@ export default function Admin() {
                     const plan = user.user_metadata?.plan || '—';
 
                     return (
-                      <tr key={user.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
+                      <tr key={user.id} style={{ borderBottom: '1px solid var(--hairline)' }}>
                         <td style={{ ...tdStyle, fontWeight: '500' }}>{displayName}</td>
-                        <td style={{ ...tdStyle, color: 'var(--color-text-secondary)' }}>{user.email}</td>
+                        <td style={{ ...tdStyle, color: 'var(--ash)' }}>{user.email}</td>
                         <td style={tdStyle}>{plan}</td>
                         <td style={tdStyle}>
                           <Toggle
@@ -176,8 +176,8 @@ export default function Admin() {
                             }
                             style={{
                               padding: '0.4rem 0.6rem',
-                              borderRadius: 'var(--radius-input)',
-                              border: '1px solid var(--color-border)',
+                              borderRadius: 'var(--r-md)',
+                              border: '1px solid var(--hairline)',
                               fontSize: '0.875rem',
                               fontFamily: 'inherit',
                               outline: 'none',

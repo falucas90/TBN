@@ -31,7 +31,7 @@ export default function Settings() {
   return (
     <AppLayout>
       <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto', width: '100%' }}>
-        <h1 style={{ fontSize: '1.875rem', fontWeight: '700', marginBottom: '2rem' }}>Definições</h1>
+        <h1 style={{ fontSize: '1.75rem', fontWeight: '500', letterSpacing: '-0.02em', marginBottom: '2rem' }}>Definições</h1>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
@@ -44,19 +44,19 @@ export default function Settings() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   style={{
-                    padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', fontSize: '0.875rem', fontFamily: 'inherit', outline: 'none', width: '100%', boxSizing: 'border-box'
+                    height: '36px', padding: '0 12px', borderRadius: 'var(--r-md)', border: '1px solid var(--hairline)', fontSize: '13px', fontFamily: 'inherit', outline: 'none', width: '100%', boxSizing: 'border-box', background: 'var(--graphite)', color: 'var(--bone)'
                   }}
                 />
               </FormField>
               <FormField label="Nome da Empresa">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.625rem 0' }}>
-                  <Building size={18} style={{ color: 'var(--color-text-secondary)' }} />
+                  <Building size={18} style={{ color: 'var(--ash)' }} />
                   <span style={{ fontWeight: '500' }}>{currentUser?.user_metadata?.company || currentUser?.company || '—'}</span>
                 </div>
               </FormField>
               <FormField label="Endereço de Email">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.625rem 0' }}>
-                  <Mail size={18} style={{ color: 'var(--color-text-secondary)' }} />
+                  <Mail size={18} style={{ color: 'var(--ash)' }} />
                   <span style={{ fontWeight: '500' }}>{currentUser?.email}</span>
                 </div>
               </FormField>
@@ -67,7 +67,7 @@ export default function Settings() {
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="+351 912 345 678"
                   style={{
-                    padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', fontSize: '0.875rem', fontFamily: 'inherit', outline: 'none', width: '100%', boxSizing: 'border-box'
+                    height: '36px', padding: '0 12px', borderRadius: 'var(--r-md)', border: '1px solid var(--hairline)', fontSize: '13px', fontFamily: 'inherit', outline: 'none', width: '100%', boxSizing: 'border-box', background: 'var(--graphite)', color: 'var(--bone)'
                   }}
                 />
               </FormField>
@@ -81,7 +81,7 @@ export default function Settings() {
 
           <Card>
             <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>Padrões de Cálculo & Notificações</h2>
-            <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
+            <p style={{ color: 'var(--ash)', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
               Defina as configurações padrão a serem usadas na aplicação caso não existam dados exatos.
             </p>
             <div style={{ maxWidth: '300px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -92,9 +92,9 @@ export default function Settings() {
                 <CurrencyInput value={minMargin} onChange={setMinMargin} />
               </FormField>
 
-              <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--color-border)' }}>
+              <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--hairline)' }}>
                 <FormField label="Canal de Notificação Preferido">
-                  <select style={{ padding: '0.625rem', borderRadius: 'var(--radius-input)', border: '1px solid var(--color-border)', outline: 'none' }}>
+                  <select style={{ height: '36px', padding: '0 12px', borderRadius: 'var(--r-md)', border: '1px solid var(--hairline)', outline: 'none', background: 'var(--graphite)', color: 'var(--bone)', fontSize: '13px', fontFamily: 'inherit', width: '100%' }}>
                     <option>WhatsApp</option>
                     <option>Email</option>
                     <option>SMS</option>
@@ -107,9 +107,9 @@ export default function Settings() {
             </div>
           </Card>
 
-          <Card style={{ border: '1px solid var(--color-danger-text)' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--color-danger-text)' }}>Zona de Perigo</h2>
-            <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
+          <Card style={{ border: '1px solid var(--coral)' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--coral)' }}>Zona de Perigo</h2>
+            <p style={{ color: 'var(--ash)', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
               Ações irreversíveis relacionadas com a sua conta e os seus dados.
             </p>
             <div style={{ display: 'flex', gap: '1rem' }}>

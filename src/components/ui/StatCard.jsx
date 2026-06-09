@@ -6,42 +6,43 @@ export default function StatCard({ label, value, trend, trendLabel, icon: Icon }
 
   return (
     <div style={{
-      background: 'var(--surface-1)',
-      borderRadius: 'var(--radius-lg)',
-      padding: '1.25rem 1.5rem',
-      border: '1px solid var(--border-subtle)',
+      background: 'var(--graphite)',
+      borderRadius: 'var(--r-lg)',
+      padding: '20px',
+      border: '1px solid var(--hairline)',
       display: 'flex',
       flexDirection: 'column',
-      gap: '0.75rem',
+      gap: '10px',
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)', fontWeight: '500' }}>
+        <span style={{ fontSize: '11px', color: 'var(--dust)', fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
           {label}
         </span>
         {Icon && (
           <div style={{
-            width: '32px', height: '32px', borderRadius: 'var(--radius-sm)',
-            background: 'var(--accent-dim)', display: 'flex',
+            width: '32px', height: '32px', borderRadius: 'var(--r-sm)',
+            background: 'var(--emerald-12)', display: 'flex',
             alignItems: 'center', justifyContent: 'center',
           }}>
-            <Icon size={16} color="var(--accent)" />
+            <Icon size={16} color="var(--emerald)" />
           </div>
         )}
       </div>
 
-      <div style={{ fontSize: '2rem', fontWeight: '700', lineHeight: 1, letterSpacing: '-0.03em' }}>
+      <div style={{ fontSize: '34px', fontWeight: '500', lineHeight: 1.1, letterSpacing: '-0.03em', color: 'var(--bone)', fontVariantNumeric: 'tabular-nums' }}>
         {value}
       </div>
 
       {trend && (
-        <div style={{ fontSize: '0.8125rem', display: 'flex', gap: '0.375rem', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', paddingTop: '12px', borderTop: '1px solid var(--hairline)', marginTop: '4px' }}>
           <span style={{
-            color: isPositive ? 'var(--success)' : isNegative ? 'var(--danger)' : 'var(--text-secondary)',
+            fontSize: '12px',
+            color: isPositive ? 'var(--emerald)' : isNegative ? 'var(--coral)' : 'var(--ash)',
             fontWeight: '600',
           }}>
             {trend}
           </span>
-          <span style={{ color: 'var(--text-muted)' }}>{trendLabel}</span>
+          <span style={{ fontSize: '12px', color: 'var(--dust)' }}>{trendLabel}</span>
         </div>
       )}
     </div>

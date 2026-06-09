@@ -8,11 +8,11 @@ export default function Card({ children, className = '', style = {}, noPadding =
       onMouseEnter={() => hover && setIsHovered(true)}
       onMouseLeave={() => hover && setIsHovered(false)}
       style={{
-        backgroundColor: isHovered ? 'var(--surface-2)' : 'var(--surface-1)',
-        borderRadius: 'var(--radius-lg)',
+        backgroundColor: 'var(--graphite)',
+        borderRadius: 'var(--r-lg)',
         padding: noPadding ? '0' : '1.5rem',
-        border: `1px solid ${isHovered ? 'var(--border-strong)' : 'var(--border-subtle)'}`,
-        transition: 'background var(--t-base) var(--ease), border-color var(--t-base) var(--ease)',
+        border: `1px solid ${isHovered ? 'var(--hairline-strong)' : 'var(--hairline)'}`,
+        transition: 'border-color var(--t-fast) var(--ease)',
         ...style,
       }}
     >

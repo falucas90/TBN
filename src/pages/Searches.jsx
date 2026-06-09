@@ -62,8 +62,8 @@ export default function Searches() {
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
           <div>
-            <h1 style={{ fontSize: '1.875rem', fontWeight: '700', marginBottom: '0.25rem' }}>Pesquisas Ativas</h1>
-            <p style={{ color: 'var(--color-text-secondary)' }}>Está a acompanhar {searches.length} pesquisas em {platformCount} plataformas.</p>
+            <h1 style={{ fontSize: '1.75rem', fontWeight: '500', letterSpacing: '-0.02em', marginBottom: '0.25rem' }}>Pesquisas Ativas</h1>
+            <p style={{ color: 'var(--dust)', fontSize: '13px' }}>Está a acompanhar {searches.length} pesquisas em {platformCount} plataformas.</p>
           </div>
           <Link to="/searches/new">
             <Button><Plus size={18} /> Nova pesquisa</Button>
@@ -101,9 +101,9 @@ export default function Searches() {
                       )}
                     </div>
                     
-                    <div style={{ 
-                      fontSize: '0.875rem', color: 'var(--color-text-secondary)', 
-                      display: 'flex', gap: '1rem', marginBottom: '1.5rem' 
+                    <div style={{
+                      fontSize: '13px', color: 'var(--ash)',
+                      display: 'flex', gap: '1rem', marginBottom: '1.5rem'
                     }}>
                       <span>Ano Mín: {search.criteria.minYear}</span>
                       <span>KMs Máx: {search.criteria.maxMileage.toLocaleString()} km</span>
@@ -132,8 +132,8 @@ export default function Searches() {
                     textAlign: 'right', display: 'flex', flexDirection: 'column', 
                     alignItems: 'flex-end', gap: '0.25rem' 
                   }}>
-                    <span style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>Margem Média Est.</span>
-                    <span style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--color-success-text)' }}>
+                    <span style={{ fontSize: '12px', color: 'var(--dust)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Margem Média Est.</span>
+                    <span style={{ fontSize: '1.25rem', fontWeight: '500', color: 'var(--emerald)' }}>
                       €{search.avgMargin.toLocaleString()}
                     </span>
                   </div>

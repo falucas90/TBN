@@ -2,25 +2,26 @@ import React from 'react';
 
 export default function CurrencyInput({ value, onChange, ...props }) {
   const handleFocus = e => {
-    e.target.parentElement.style.boxShadow = '0 0 0 3px var(--accent-dim)';
-    e.target.parentElement.style.borderColor = 'var(--accent)';
+    e.target.parentElement.style.borderColor = 'var(--emerald)';
+    e.target.parentElement.style.background = 'var(--slate)';
   };
   const handleBlur = e => {
-    e.target.parentElement.style.boxShadow = 'none';
-    e.target.parentElement.style.borderColor = 'var(--border-default)';
+    e.target.parentElement.style.borderColor = 'var(--hairline)';
+    e.target.parentElement.style.background = 'var(--graphite)';
   };
 
   return (
     <div style={{
       position: 'relative', display: 'flex', alignItems: 'center',
-      background: 'var(--surface-2)',
-      border: '1px solid var(--border-default)',
-      borderRadius: 'var(--radius-sm)',
-      transition: 'border-color var(--t-base), box-shadow var(--t-base)',
+      background: 'var(--graphite)',
+      border: '1px solid var(--hairline)',
+      borderRadius: 'var(--r-md)',
+      height: '36px',
+      transition: 'border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease)',
     }}>
       <span style={{
         position: 'absolute', left: '12px',
-        color: 'var(--text-muted)', fontSize: '0.875rem', fontWeight: '600',
+        color: 'var(--dust)', fontSize: '13px', fontWeight: '500',
         pointerEvents: 'none',
       }}>
         €
@@ -33,9 +34,10 @@ export default function CurrencyInput({ value, onChange, ...props }) {
         onBlur={handleBlur}
         style={{
           width: '100%', background: 'transparent', border: 'none',
-          color: 'var(--text-primary)',
-          padding: '0.625rem 0.75rem 0.625rem 2rem',
-          fontSize: '0.875rem', outline: 'none', fontFamily: 'inherit',
+          color: 'var(--bone)',
+          padding: '0 12px 0 28px',
+          fontSize: '13px', outline: 'none', fontFamily: 'inherit',
+          height: '100%',
         }}
         {...props}
       />
