@@ -1,53 +1,76 @@
-export function calculateISV(cc, co2, fuelType, ageYears, isPhev, isNonEu) {
-  // Rough 2026 Portuguese ISV approximation
-  
-  let ccTax = 0;
-  if (cc <= 1000) ccTax = cc * 1.0;
-  else if (cc <= 1250) ccTax = cc * 1.15;
-  else ccTax = cc * 5.2 - 2900; 
-  if (ccTax < 0) ccTax = 100;
+// ISV rate tables by tax year. Add a new entry each January.
+const RATE_TABLES = {
+  2026: {
+    ccBrackets: [
+      { max: 1000, rate: 1.0,  base: 0 },
+      { max: 1250, rate: 1.15, base: 0 },
+      { max: Infinity, rate: 5.2, base: -2900 },
+    ],
+    co2Diesel: [
+      { max: 79,       rate: 0,   base: 5 },
+      { max: 99,       rate: 21,  base: -79 * 21 + 5 },
+      { max: 115,      rate: 58,  base: -99 * 58 + 420 },
+      { max: Infinity, rate: 150, base: -115 * 150 + 1300 },
+    ],
+    co2Petrol: [
+      { max: 99,       rate: 0,   base: 10 },
+      { max: 115,      rate: 18,  base: -99 * 18 },
+      { max: 145,      rate: 48,  base: -115 * 48 + 288 },
+      { max: Infinity, rate: 135, base: -145 * 135 + 1600 },
+    ],
+    ageDiscounts: [
+      { minAge: 7, discount: 0.55 },
+      { minAge: 6, discount: 0.52 },
+      { minAge: 5, discount: 0.43 },
+      { minAge: 4, discount: 0.35 },
+      { minAge: 3, discount: 0.28 },
+      { minAge: 2, discount: 0.20 },
+      { minAge: 1, discount: 0.10 },
+      { minAge: 0, discount: 0.00 },
+    ],
+  },
+};
 
-  let co2Tax = 0;
-  if (fuelType === 'Diesel') {
-    if (co2 <= 79) co2Tax = 5;
-    else if (co2 <= 99) co2Tax = (co2 - 79) * 21;
-    else if (co2 <= 115) co2Tax = (co2 - 99) * 58 + 420;
-    else co2Tax = (co2 - 115) * 150 + 1300;
-  } else {
-    // Petrol
-    if (co2 <= 99) co2Tax = 10;
-    else if (co2 <= 115) co2Tax = (co2 - 99) * 18;
-    else if (co2 <= 145) co2Tax = (co2 - 115) * 48 + 288;
-    else co2Tax = (co2 - 145) * 135 + 1600;
+function getActiveRates() {
+  const year = new Date().getFullYear();
+  // Use the most recent table available
+  const available = Object.keys(RATE_TABLES).map(Number).sort((a, b) => b - a);
+  const key = available.find(y => y <= year) ?? available[0];
+  return RATE_TABLES[key];
+}
+
+function applyBracket(value, brackets) {
+  for (const b of brackets) {
+    if (value <= b.max) return Math.max(0, value * b.rate + b.base);
   }
+  return 0;
+}
 
-  let subtotal = ccTax + co2Tax;
-  
-  // Age discount
+export function calculateISV(cc, co2, fuelType, ageYears, isPhev, isNonEu) {
+  const rates = getActiveRates();
+
+  const ccTax = Math.max(100, applyBracket(cc, rates.ccBrackets));
+
+  const isDiesel = fuelType === 'Diesel';
+  const co2Tax = applyBracket(co2, isDiesel ? rates.co2Diesel : rates.co2Petrol);
+
+  const subtotal = ccTax + co2Tax;
+
   let ageDiscountPercent = 0;
   if (!isNonEu) {
-    if (ageYears >= 1 && ageYears < 2) ageDiscountPercent = 0.10;
-    else if (ageYears >= 2 && ageYears < 3) ageDiscountPercent = 0.20;
-    else if (ageYears >= 3 && ageYears < 4) ageDiscountPercent = 0.28;
-    else if (ageYears >= 4 && ageYears < 5) ageDiscountPercent = 0.35;
-    else if (ageYears >= 5 && ageYears < 6) ageDiscountPercent = 0.43;
-    else if (ageYears >= 6 && ageYears < 7) ageDiscountPercent = 0.52;
-    else if (ageYears >= 7) ageDiscountPercent = 0.55; 
+    const row = rates.ageDiscounts.find(r => ageYears >= r.minAge);
+    ageDiscountPercent = row ? row.discount : 0;
   }
-  
+
   let totalISV = subtotal * (1 - ageDiscountPercent);
 
-  // PHEV discount applies to 25% payable (75% discount)
-  // Usually requires <50g CO2 and range >50km
-  if (isPhev && co2 <= 50) {
-    totalISV *= 0.25; 
-  }
+  if (isPhev && co2 <= 50) totalISV *= 0.25;
 
   return {
     ccComponent: ccTax,
     co2Component: co2Tax,
-    subtotal: subtotal,
+    subtotal,
     ageDiscountAmount: subtotal * ageDiscountPercent,
-    isvPayable: Math.max(0, totalISV)
+    isvPayable: Math.max(0, totalISV),
   };
 }

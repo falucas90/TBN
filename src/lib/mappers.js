@@ -32,6 +32,7 @@ export function mapAlert(row) {
     transportEst: row.transport_est,
     marketPrice: row.market_price,
     flags: row.flags ?? [],
+    createdAt: row.created_at,
   };
 }
 

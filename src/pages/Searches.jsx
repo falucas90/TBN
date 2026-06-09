@@ -2,6 +2,7 @@ import React from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { Card, Button, Badge, StatCard } from '../components/ui';
 import { getSearches, updateSearch, deleteSearch as deleteSearchById } from '../services/searchesService';
+import { getAlerts } from '../services/alertsService';
 import { Search, TrendingUp, Bell, Plus, Play, Pause, ExternalLink } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
@@ -11,12 +12,17 @@ export default function Searches() {
   const { addToast } = useToast();
   const navigate = useNavigate();
   const [searches, setSearches] = useState(undefined);
+  const [alertCount7d, setAlertCount7d] = useState(null);
 
   useEffect(() => {
     getSearches().then(setSearches).catch(() => {
       addToast('Erro ao carregar pesquisas.', 'danger');
       setSearches([]);
     });
+    const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    getAlerts({ limit: 500 }).then(alerts => {
+      setAlertCount7d(alerts.filter(a => !a.createdAt || a.createdAt >= cutoff).length);
+    }).catch(() => setAlertCount7d(0));
   }, [addToast]);
 
   const toggleSearchStatus = async (id) => {
@@ -85,7 +91,7 @@ export default function Searches() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '3rem' }}>
           <StatCard label="Matches Hoje" value={String(matchesToday)} trend="+1" trendLabel="vs ontem" icon={Search} />
           <StatCard label="Alta Margem" value={String(highMarginCount)} trend="↑" trendLabel="top tier" icon={TrendingUp} />
-          <StatCard label="Alertas (7d)" value="12" trend="-2%" trendLabel="vs semana passada" icon={Bell} />
+          <StatCard label="Alertas (7d)" value={alertCount7d === null ? '…' : String(alertCount7d)} trend="" trendLabel="últimos 7 dias" icon={Bell} />
           <StatCard label="Margem Média" value={`€${avgMarginValue.toLocaleString()}`} trend="+€120" trendLabel="vs mês passado" icon={TrendingUp} />
         </div>
 

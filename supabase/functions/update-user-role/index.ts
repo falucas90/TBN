@@ -67,10 +67,19 @@ Deno.serve(async (req) => {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
+      const { data: target } = await supabaseAdmin.auth.admin.getUserById(userId);
+      const oldRole = target?.user?.app_metadata?.role ?? 'dealer';
       const { data, error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
         app_metadata: { role },
       });
       if (error) throw error;
+      await supabaseAdmin.from('audit_logs').insert({
+        admin_id: caller.id,
+        target_id: userId,
+        action: 'role_change',
+        old_value: oldRole,
+        new_value: role,
+      });
       return new Response(JSON.stringify({ user: data.user }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -83,10 +92,19 @@ Deno.serve(async (req) => {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
+      const { data: target } = await supabaseAdmin.auth.admin.getUserById(userId);
+      const oldStatus = target?.user?.user_metadata?.status ?? 'active';
       const { data, error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
         user_metadata: { status },
       });
       if (error) throw error;
+      await supabaseAdmin.from('audit_logs').insert({
+        admin_id: caller.id,
+        target_id: userId,
+        action: 'status_change',
+        old_value: oldStatus,
+        new_value: status,
+      });
       return new Response(JSON.stringify({ user: data.user }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });

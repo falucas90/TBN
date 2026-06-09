@@ -6,6 +6,7 @@ import { Save, Download, Trash2, Mail, Building } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { getProfile, updateProfile } from '../services/profilesService';
+import { exportUserData, deleteAccount } from '../services/authService';
 
 export default function Settings() {
   const { addToast } = useToast();
@@ -18,6 +19,8 @@ export default function Settings() {
   const [notifChannel, setNotifChannel] = useState('WhatsApp');
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isSavingDefaults, setIsSavingDefaults] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Load profile from Supabase (falls back to defaults if not configured)
   useEffect(() => {
@@ -41,6 +44,39 @@ export default function Settings() {
       addToast(err.message || 'Erro ao guardar perfil.', 'danger');
     } finally {
       setIsSavingProfile(false);
+    }
+  }
+
+  async function handleExport() {
+    setIsExporting(true);
+    try {
+      const data = await exportUserData();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `crivo-dados-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      addToast('Dados exportados com sucesso.', 'success');
+    } catch {
+      addToast('Erro ao exportar dados.', 'danger');
+    } finally {
+      setIsExporting(false);
+    }
+  }
+
+  async function handleDeleteAccount() {
+    const confirmed = window.confirm(
+      'Tem a certeza que quer eliminar a sua conta? Todos os dados (pesquisas, alertas, perfil) serão permanentemente apagados. Esta ação é irreversível.'
+    );
+    if (!confirmed) return;
+    setIsDeleting(true);
+    try {
+      await deleteAccount();
+    } catch {
+      addToast('Erro ao eliminar conta. Contacte suporte@crivo.pt.', 'danger');
+      setIsDeleting(false);
     }
   }
 
@@ -135,11 +171,11 @@ export default function Settings() {
               Ações irreversíveis relacionadas com a sua conta e dados.
             </p>
             <div style={{ display: 'flex', gap: '1rem' }}>
-              <Button variant="secondary" onClick={() => addToast('Exportação de dados iniciada.', 'info')}>
-                <Download size={16} /> Exportar Dados (JSON)
+              <Button variant="secondary" onClick={handleExport} disabled={isExporting}>
+                <Download size={16} /> {isExporting ? 'A exportar…' : 'Exportar Dados (JSON)'}
               </Button>
-              <Button variant="danger" onClick={() => addToast('Para eliminar a conta contacte suporte@crivo.pt', 'warn')}>
-                <Trash2 size={16} /> Eliminar Conta
+              <Button variant="danger" onClick={handleDeleteAccount} disabled={isDeleting}>
+                <Trash2 size={16} /> {isDeleting ? 'A eliminar…' : 'Eliminar Conta'}
               </Button>
             </div>
           </Card>

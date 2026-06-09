@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { Card, Button, Toggle } from '../components/ui';
-import { listUsers, updateUserRole, updateUserStatus } from '../services/authService';
+import { listUsers, updateUserRole, updateUserStatus, getAuditLogs } from '../services/authService';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 
@@ -28,9 +28,11 @@ function SkeletonRow() {
 export default function Admin() {
   const { addToast } = useToast();
   const { currentUser } = useAuth();
+  const [tab, setTab] = useState('users');
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  // pendingRoles tracks draft role changes per user id before save
+  const [auditLogs, setAuditLogs] = useState([]);
+  const [isLoadingLogs, setIsLoadingLogs] = useState(false);
   const [pendingRoles, setPendingRoles] = useState({});
   const [savingRows, setSavingRows] = useState({});
 
@@ -39,12 +41,21 @@ export default function Admin() {
       .then((data) => {
         setUsers(data);
         const initial = {};
-        data.forEach((u) => { initial[u.id] = u.user_metadata?.role || 'dealer'; });
+        data.forEach((u) => { initial[u.id] = u.app_metadata?.role || u.user_metadata?.role || 'dealer'; });
         setPendingRoles(initial);
       })
       .catch(() => addToast('Erro ao carregar utilizadores.', 'danger'))
       .finally(() => setIsLoading(false));
   }, [addToast]);
+
+  useEffect(() => {
+    if (tab !== 'audit') return;
+    setIsLoadingLogs(true);
+    getAuditLogs()
+      .then(setAuditLogs)
+      .catch(() => addToast('Erro ao carregar registos.', 'danger'))
+      .finally(() => setIsLoadingLogs(false));
+  }, [tab, addToast]);
 
   async function handleSaveRole(user) {
     const newRole = pendingRoles[user.id];
@@ -108,11 +119,56 @@ export default function Admin() {
         <h1 style={{ fontSize: '1.875rem', fontWeight: '700', marginBottom: '0.5rem' }}>
           Painel de Administração
         </h1>
-        <p style={{ color: 'var(--ash)', marginBottom: '2rem', fontSize: '0.9rem' }}>
+        <p style={{ color: 'var(--ash)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
           Contas de revendedores registadas na plataforma
         </p>
 
-        <Card>
+        {/* Tabs */}
+        <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--hairline)', paddingBottom: '0' }}>
+          {[['users', 'Utilizadores'], ['audit', 'Registo de Auditoria']].map(([key, label]) => (
+            <button key={key} onClick={() => setTab(key)} style={{
+              background: 'none', border: 'none', padding: '0.5rem 1rem', cursor: 'pointer',
+              fontSize: '0.875rem', fontFamily: 'inherit', fontWeight: tab === key ? 600 : 400,
+              color: tab === key ? 'var(--bone)' : 'var(--ash)',
+              borderBottom: tab === key ? '2px solid var(--emerald)' : '2px solid transparent',
+              marginBottom: '-1px',
+            }}>{label}</button>
+          ))}
+        </div>
+
+        {tab === 'audit' && (
+          <Card>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid var(--hairline)' }}>
+                    {['Data', 'Admin', 'Utilizador', 'Ação', 'Antes', 'Depois'].map(h => (
+                      <th key={h} style={thStyle}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {isLoadingLogs ? (
+                    <><SkeletonRow /><SkeletonRow /><SkeletonRow /></>
+                  ) : auditLogs.length === 0 ? (
+                    <tr><td colSpan={6} style={{ padding: '2rem', textAlign: 'center', color: 'var(--ash)' }}>Nenhum registo encontrado</td></tr>
+                  ) : auditLogs.map(log => (
+                    <tr key={log.id} style={{ borderBottom: '1px solid var(--hairline)' }}>
+                      <td style={{ ...tdStyle, color: 'var(--ash)', whiteSpace: 'nowrap' }}>{new Date(log.created_at).toLocaleString('pt-PT')}</td>
+                      <td style={tdStyle}>{log.admin_id?.slice(0, 8)}…</td>
+                      <td style={tdStyle}>{log.target_id?.slice(0, 8)}…</td>
+                      <td style={tdStyle}>{log.action === 'role_change' ? 'Função' : 'Estado'}</td>
+                      <td style={{ ...tdStyle, color: 'var(--ash)' }}>{log.old_value}</td>
+                      <td style={{ ...tdStyle, fontWeight: 500, color: 'var(--bone)' }}>{log.new_value}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        )}
+
+        {tab === 'users' && <Card>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
               <thead>
@@ -143,7 +199,7 @@ export default function Admin() {
                   </tr>
                 ) : (
                   users.map((user) => {
-                    const loadedRole = user.user_metadata?.role || 'dealer';
+                    const loadedRole = user.app_metadata?.role || user.user_metadata?.role || 'dealer';
                     const currentStatus = user.user_metadata?.status || 'active';
                     const isActive = currentStatus === 'active';
                     const pendingRole = pendingRoles[user.id] ?? loadedRole;
@@ -204,7 +260,7 @@ export default function Admin() {
               </tbody>
             </table>
           </div>
-        </Card>
+        </Card>}
       </div>
     </AppLayout>
   );
