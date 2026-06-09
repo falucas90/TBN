@@ -8,7 +8,7 @@ const RATE_TABLES = {
     ],
     co2Diesel: [
       { max: 79,       rate: 0,   base: 5 },
-      { max: 99,       rate: 21,  base: -79 * 21 + 5 },
+      { max: 99,       rate: 21,  base: -79 * 21 },
       { max: 115,      rate: 58,  base: -99 * 58 + 420 },
       { max: Infinity, rate: 150, base: -115 * 150 + 1300 },
     ],
