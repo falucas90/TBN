@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Card, Button, StepIndicator } from '../components/ui';
+import { BrandLockup } from '../components/ui/Logo';
 import { FormField } from '../components/forms';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -58,7 +59,7 @@ export default function Signup() {
     <div style={{ display: 'flex', height: '100vh', background: 'var(--obsidian)' }}>
       {/* Left brand panel */}
       <div style={{ flex: 1, background: 'var(--emerald)', color: '#fff', padding: '4rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-        <h1 style={{ fontSize: 'var(--fs-3xl)', fontWeight: 600, marginBottom: 16, letterSpacing: 'var(--tracking-tighter)' }}>Crivo</h1>
+        <div style={{ marginBottom: 16 }}><BrandLockup markSize={36} wordSize={22} /></div>
         <p style={{ fontSize: 'var(--fs-lg)', opacity: 0.9, maxWidth: 400, marginBottom: 32, lineHeight: 'var(--lh-body)' }}>
           Acelere hoje o seu processo de sourcing de inventário.
         </p>

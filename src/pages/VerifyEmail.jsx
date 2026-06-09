@@ -4,6 +4,7 @@ import { Mail } from 'lucide-react';
 import { Button } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import { resendVerificationEmail } from '../services/authService';
+import { BrandLockup } from '../components/ui/Logo';
 
 const COOLDOWN_SECONDS = 60;
 
@@ -41,12 +42,8 @@ export default function VerifyEmail() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--obsidian)' }}>
       <div style={{ width: '100%', maxWidth: '400px', padding: '2rem', textAlign: 'center' }}>
-        <div style={{
-          border: '1px solid var(--hairline)', padding: '0.6rem 2rem', borderRadius: 'var(--r-md)',
-          display: 'inline-block', fontWeight: 600, fontSize: 'var(--fs-md)', letterSpacing: '0.05em',
-          background: 'var(--graphite)', marginBottom: '2rem'
-        }}>
-          CRIVO
+        <div style={{ marginBottom: '2rem' }}>
+          <BrandLockup markSize={28} wordSize={16} />
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button, Callout } from '../components/ui';
 import { FormField } from '../components/forms';
 import { sendPasswordResetEmail } from '../services/authService';
+import { BrandLockup } from '../components/ui/Logo';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -26,12 +27,8 @@ export default function ForgotPassword() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--obsidian)' }}>
       <div style={{ width: '100%', maxWidth: '400px', padding: '2rem' }}>
-        <div style={{
-          border: '1px solid var(--hairline)', padding: '0.6rem 2rem', borderRadius: 'var(--r-md)',
-          display: 'inline-block', fontWeight: 600, fontSize: 'var(--fs-md)', letterSpacing: '0.05em',
-          background: 'var(--graphite)', marginBottom: '2rem'
-        }}>
-          CRIVO
+        <div style={{ marginBottom: '2rem' }}>
+          <BrandLockup markSize={28} wordSize={16} />
         </div>
 
         <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '0.5rem' }}>

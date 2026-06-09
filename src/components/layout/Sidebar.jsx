@@ -1,7 +1,8 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Search, Bell, Settings, LogOut, Car, ChevronLeft, ChevronRight, Shield } from 'lucide-react';
+import { Search, Bell, Settings, LogOut, ChevronLeft, ChevronRight, Shield } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { SieveMark, Wordmark } from '../ui/Logo';
 
 export default function Sidebar({ isCollapsed, setIsCollapsed }) {
   const { logout, currentUser } = useAuth();
@@ -43,17 +44,13 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
         padding: '16px 12px 20px',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', overflow: 'hidden' }}>
-          <div style={{
-            minWidth: '32px', width: '32px', height: '32px', borderRadius: 'var(--r-md)',
-            backgroundColor: 'var(--emerald)', display: 'flex',
-            alignItems: 'center', justifyContent: 'center', color: 'white', flexShrink: 0,
-          }}>
-            <Car size={16} />
-          </div>
-          {!isCollapsed && (
-            <span style={{ fontSize: '15px', fontWeight: '600', letterSpacing: '0.03em', color: 'var(--bone)', whiteSpace: 'nowrap' }}>
-              Crivo
-            </span>
+          {isCollapsed ? (
+            <SieveMark size={28} color="var(--emerald)" />
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <SieveMark size={28} color="var(--emerald)" />
+              <Wordmark size={16} />
+            </div>
           )}
         </div>
         {!isCollapsed && (

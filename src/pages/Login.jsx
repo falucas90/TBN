@@ -4,6 +4,7 @@ import { FormField } from '../components/forms';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { useNavigate, Link } from 'react-router-dom';
+import { BrandLockup } from '../components/ui/Logo';
 
 function mapAuthError(error) {
   const msg = error?.message?.toLowerCase() || '';
@@ -61,13 +62,8 @@ export default function Login() {
       {/* Left Pane */}
       <div className="login-left">
         <div>
-          <div style={{
-            border: '1px solid var(--hairline)', padding: '0.6rem 2rem',
-            borderRadius: 'var(--r-md)', display: 'inline-block', fontWeight: 600,
-            fontSize: 'var(--fs-md)', background: 'var(--graphite)', marginBottom: '4rem',
-            letterSpacing: '0.05em',
-          }}>
-            CRIVO
+          <div style={{ marginBottom: '4rem' }}>
+            <BrandLockup markSize={32} wordSize={18} />
           </div>
 
           <h1 style={{ fontSize: 'var(--fs-3xl)', fontWeight: 600, marginBottom: '1.25rem', maxWidth: 460, lineHeight: 'var(--lh-tight)', letterSpacing: 'var(--tracking-tighter)' }}>

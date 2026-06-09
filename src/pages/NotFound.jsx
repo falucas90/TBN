@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Button } from '../components/ui';
+import { BrandLockup } from '../components/ui/Logo';
 
 export default function NotFound() {
   return (
@@ -8,12 +9,8 @@ export default function NotFound() {
       backgroundColor: 'var(--page)', flexDirection: 'column', gap: '1.5rem', textAlign: 'center',
       padding: '2rem',
     }}>
-      <div style={{
-        border: '1px solid var(--hairline)', padding: '0.6rem 2rem', borderRadius: '6px',
-        display: 'inline-block', fontWeight: '700', fontSize: '1rem',
-        backgroundColor: 'var(--surface)', marginBottom: '1rem',
-      }}>
-        CRIVO
+      <div style={{ marginBottom: '1rem' }}>
+        <BrandLockup markSize={28} wordSize={16} />
       </div>
 
       <div>
