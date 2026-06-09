@@ -118,7 +118,7 @@ export default function AlertHistory() {
                            €{Math.round(alert.marginEst).toLocaleString()}
                          </div>
                       </div>
-                      <Button onClick={() => addToast('A abrir anúncio original...', 'info')}><ExternalLink size={16} /> Ver</Button>
+                      <Button onClick={() => window.open(alert.listingUrl, '_blank', 'noopener,noreferrer')}><ExternalLink size={16} /> Ver</Button>
                     </div>
                   </Card>
                 ))}

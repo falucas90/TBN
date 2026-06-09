@@ -4,6 +4,7 @@ export default function Button({ children, variant = 'default', size, fullWidth,
   const cls = [
     'btn',
     variant === 'primary' ? 'btn--primary' : '',
+    variant === 'secondary' ? 'btn--secondary' : '',
     variant === 'ghost' ? 'btn--ghost' : '',
     variant === 'danger' ? 'btn--danger' : '',
     size === 'sm' ? 'btn--sm' : '',

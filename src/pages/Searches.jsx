@@ -3,12 +3,13 @@ import AppLayout from '../components/layout/AppLayout';
 import { Card, Button, Badge, StatCard } from '../components/ui';
 import { getSearches, updateSearch, deleteSearch as deleteSearchById } from '../services/searchesService';
 import { Search, TrendingUp, Bell, Plus, Play, Pause, ExternalLink } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
 import { useState, useEffect } from 'react';
 
 export default function Searches() {
   const { addToast } = useToast();
+  const navigate = useNavigate();
   const [searches, setSearches] = useState(undefined);
 
   useEffect(() => {
@@ -106,7 +107,7 @@ export default function Searches() {
                       display: 'flex', gap: '1rem', marginBottom: '1.5rem'
                     }}>
                       <span>Ano Mín: {search.criteria.minYear}</span>
-                      <span>KMs Máx: {search.criteria.maxMileage.toLocaleString()} km</span>
+                      <span>KMs Máx: {(search.criteria.maxMileage ?? search.criteria.maxKm ?? 0).toLocaleString()} km</span>
                       <span>Combustível: {search.criteria.fuel}</span>
                       <span>Plataformas: {search.sources.join(', ')}</span>
                     </div>
@@ -114,7 +115,7 @@ export default function Searches() {
                     <div style={{ display: 'flex', gap: '0.75rem' }}>
                       {isActive ? (
                         <>
-                          <Button variant="secondary" onClick={() => addToast('A abrir resultados...', 'info')}><ExternalLink size={16} /> Ver Resultados</Button>
+                          <Button variant="secondary" onClick={() => navigate('/alerts')}><ExternalLink size={16} /> Ver Resultados</Button>
                           <Button variant="ghost" onClick={() => toggleSearchStatus(search.id)}><Pause size={16} /> Pausar</Button>
                         </>
                       ) : (

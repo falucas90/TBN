@@ -122,7 +122,7 @@ export default function Signup() {
               {step === 3 && (
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ width: 48, height: 48, background: 'var(--emerald-12)', color: 'var(--emerald)', borderRadius: 'var(--r-full)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', fontSize: 20 }}>✓</div>
-                  <p style={{ color: 'var(--dust)', marginBottom: 32 }}>A redirecionar para o painel principal...</p>
+                  <p style={{ color: 'var(--dust)', marginBottom: 32 }}>Conta criada! Faça login para entrar no painel.</p>
                   <Link to="/login"><Button variant="primary">Ir para o Login</Button></Link>
                 </div>
               )}

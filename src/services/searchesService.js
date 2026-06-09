@@ -6,6 +6,11 @@ export function getSearches() {
   return Promise.resolve([...searches]);
 }
 
+export function getSearchById(id) {
+  const search = searches.find(s => s.id === Number(id));
+  return Promise.resolve(search ?? null);
+}
+
 export function createSearch(data) {
   const newSearch = { ...data, id: Date.now() };
   searches.push(newSearch);

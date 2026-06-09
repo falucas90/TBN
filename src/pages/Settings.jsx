@@ -7,14 +7,32 @@ import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { updateUserProfile } from '../services/authService';
 
+const DEFAULTS_KEY = 'crivo_defaults';
+
 export default function Settings() {
   const { addToast } = useToast();
   const { currentUser } = useAuth();
   const [name, setName] = useState(currentUser?.user_metadata?.full_name || currentUser?.name || '');
   const [phone, setPhone] = useState(currentUser?.user_metadata?.phone || '');
-  const [transportCost, setTransportCost] = useState(currentUser?.defaultTransportCost ?? 800);
-  const [minMargin, setMinMargin] = useState(2000);
+  const saved = (() => { try { return JSON.parse(localStorage.getItem(DEFAULTS_KEY) || '{}'); } catch { return {}; } })();
+  const [transportCost, setTransportCost] = useState(saved.transportCost ?? currentUser?.defaultTransportCost ?? 800);
+  const [minMargin, setMinMargin] = useState(saved.minMargin ?? 2000);
+  const [notifChannel, setNotifChannel] = useState(saved.notifChannel ?? 'WhatsApp');
   const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [isSavingDefaults, setIsSavingDefaults] = useState(false);
+
+  async function handleSaveDefaults() {
+    setIsSavingDefaults(true);
+    try {
+      localStorage.setItem(DEFAULTS_KEY, JSON.stringify({ transportCost, minMargin, notifChannel }));
+      await updateUserProfile({ defaultTransportCost: transportCost, minMargin, notifChannel });
+      addToast('Definições padrão guardadas.', 'success');
+    } catch {
+      addToast('Erro ao guardar definições.', 'danger');
+    } finally {
+      setIsSavingDefaults(false);
+    }
+  }
 
   async function handleSaveProfile() {
     setIsSavingProfile(true);
@@ -22,7 +40,7 @@ export default function Settings() {
       await updateUserProfile({ full_name: name, phone });
       addToast('Alterações de perfil guardadas com sucesso.', 'success');
     } catch (err) {
-      addToast(err.message || 'Erro ao guardar alterações.', 'error');
+      addToast(err.message || 'Erro ao guardar alterações.', 'danger');
     } finally {
       setIsSavingProfile(false);
     }
@@ -94,7 +112,11 @@ export default function Settings() {
 
               <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--hairline)' }}>
                 <FormField label="Canal de Notificação Preferido">
-                  <select style={{ height: '36px', padding: '0 12px', borderRadius: 'var(--r-md)', border: '1px solid var(--hairline)', outline: 'none', background: 'var(--graphite)', color: 'var(--bone)', fontSize: '13px', fontFamily: 'inherit', width: '100%' }}>
+                  <select
+                    value={notifChannel}
+                    onChange={e => setNotifChannel(e.target.value)}
+                    className="select"
+                  >
                     <option>WhatsApp</option>
                     <option>Email</option>
                     <option>SMS</option>
@@ -103,7 +125,7 @@ export default function Settings() {
               </div>
             </div>
             <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
-              <Button onClick={() => addToast('Definições padrão guardadas.', 'success')}><Save size={16} /> Guardar Padrões</Button>
+              <Button onClick={handleSaveDefaults} disabled={isSavingDefaults}><Save size={16} /> {isSavingDefaults ? 'A guardar…' : 'Guardar Padrões'}</Button>
             </div>
           </Card>
 

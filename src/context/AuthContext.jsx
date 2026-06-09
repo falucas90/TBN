@@ -24,6 +24,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (email, password) => {
+    if (!supabaseConfigured) { setCurrentUser(MOCK_USER); return; }
     await loginWithCredentials(email, password);
   };
 

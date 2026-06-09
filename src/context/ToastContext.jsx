@@ -1,27 +1,23 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
+import { Info, CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
 
 const ToastContext = createContext(null);
 
-const icons = {
-  info:    '💬',
-  success: '✓',
-  warn:    '⚠',
-  error:   '✕',
-};
-
-const colors = {
-  info:    { bg: 'var(--info-bg)',    border: 'rgba(96,165,250,0.2)',   text: 'var(--info)'    },
-  success: { bg: 'var(--success-bg)', border: 'rgba(74,222,128,0.25)',  text: 'var(--success)' },
-  warn:    { bg: 'var(--warn-bg)',    border: 'rgba(251,146,60,0.25)',  text: 'var(--warn)'    },
-  error:   { bg: 'var(--danger-bg)', border: 'rgba(248,113,113,0.25)', text: 'var(--danger)'  },
+const config = {
+  info:    { Icon: Info,          color: 'var(--emerald)',  bg: 'var(--graphite)', border: 'rgba(14,140,106,0.2)' },
+  success: { Icon: CheckCircle,   color: 'var(--emerald)',  bg: 'var(--graphite)', border: 'rgba(14,140,106,0.25)' },
+  warn:    { Icon: AlertTriangle, color: 'var(--amber)',    bg: 'var(--graphite)', border: 'rgba(184,132,18,0.25)' },
+  danger:  { Icon: XCircle,       color: 'var(--coral)',    bg: 'var(--graphite)', border: 'rgba(201,75,75,0.25)' },
 };
 
 export function ToastProvider({ children }) {
   const [toasts, setToasts] = useState([]);
 
   const addToast = useCallback((message, type = 'info') => {
+    // normalize legacy 'error' type
+    const normalizedType = type === 'error' ? 'danger' : type;
     const id = crypto.randomUUID();
-    setToasts(prev => [...prev, { id, message, type }]);
+    setToasts(prev => [...prev, { id, message, type: normalizedType }]);
     setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3500);
   }, []);
 
@@ -35,24 +31,23 @@ export function ToastProvider({ children }) {
         zIndex: 9999, pointerEvents: 'none',
       }}>
         {toasts.map(toast => {
-          const c = colors[toast.type] || colors.info;
+          const c = config[toast.type] || config.info;
           return (
             <div key={toast.id} style={{
-              background: 'var(--surface-2)',
-              backdropFilter: 'blur(12px)',
+              background: c.bg,
               border: `1px solid ${c.border}`,
-              borderLeft: `3px solid ${c.text}`,
-              color: 'var(--text-primary)',
+              borderLeft: `3px solid ${c.color}`,
+              color: 'var(--bone)',
               padding: '0.75rem 1.25rem',
-              borderRadius: 'var(--radius-md)',
-              boxShadow: 'var(--shadow-lg)',
-              fontWeight: '500', fontSize: '0.875rem',
+              borderRadius: 'var(--r-md)',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
+              fontWeight: '500', fontSize: '13px',
               pointerEvents: 'auto',
               display: 'flex', alignItems: 'center', gap: '0.625rem',
-              animation: 'toastIn 0.3s cubic-bezier(0.16,1,0.3,1) forwards',
+              animation: 'toastIn 0.25s cubic-bezier(0.16,1,0.3,1) forwards',
               minWidth: '240px', maxWidth: '380px',
             }}>
-              <span style={{ color: c.text, fontSize: '0.9375rem', fontWeight: '700' }}>{icons[toast.type]}</span>
+              <c.Icon size={15} color={c.color} strokeWidth={2} style={{ flexShrink: 0 }} />
               {toast.message}
             </div>
           );
