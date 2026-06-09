@@ -64,6 +64,23 @@ export default function Searches() {
     </AppLayout>
   );
 
+  if (searches.length === 0) return (
+    <AppLayout>
+      <div style={{ padding: '4rem 2rem', textAlign: 'center', maxWidth: '480px', margin: '0 auto' }}>
+        <Search size={64} color="var(--ash)" style={{ marginBottom: '1.5rem', opacity: 0.5 }} />
+        <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '0.75rem', color: 'var(--bone)' }}>
+          Ainda não tem pesquisas activas
+        </h2>
+        <p style={{ color: 'var(--ash)', fontSize: '14px', marginBottom: '2rem', lineHeight: '1.6' }}>
+          Crie a sua primeira pesquisa para começar a monitorizar anúncios europeus.
+        </p>
+        <Link to="/searches/new">
+          <Button><Plus size={18} /> Criar primeira pesquisa</Button>
+        </Link>
+      </div>
+    </AppLayout>
+  );
+
   const activeSearches = searches.filter(s => s.status === 'active');
   const matchesToday = activeSearches.reduce((sum, s) => sum + s.matchesToday, 0);
   const highMarginCount = activeSearches.filter(s => s.avgMargin > 3000).length;
@@ -89,10 +106,10 @@ export default function Searches() {
 
         {/* Stats Row */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '3rem' }}>
-          <StatCard label="Matches Hoje" value={String(matchesToday)} trend="+1" trendLabel="vs ontem" icon={Search} />
-          <StatCard label="Alta Margem" value={String(highMarginCount)} trend="↑" trendLabel="top tier" icon={TrendingUp} />
+          <StatCard label="Matches Hoje" value={String(matchesToday)} trend="" trendLabel="" icon={Search} />
+          <StatCard label="Alta Margem" value={String(highMarginCount)} trend="" trendLabel="" icon={TrendingUp} />
           <StatCard label="Alertas (7d)" value={alertCount7d === null ? '…' : String(alertCount7d)} trend="" trendLabel="últimos 7 dias" icon={Bell} />
-          <StatCard label="Margem Média" value={`€${avgMarginValue.toLocaleString()}`} trend="+€120" trendLabel="vs mês passado" icon={TrendingUp} />
+          <StatCard label="Margem Média" value={`€${avgMarginValue.toLocaleString()}`} trend="" trendLabel="" icon={TrendingUp} />
         </div>
 
         {/* Searches List */}
@@ -131,7 +148,7 @@ export default function Searches() {
                     <div style={{ display: 'flex', gap: '0.75rem' }}>
                       {isActive ? (
                         <>
-                          <Button variant="secondary" onClick={() => navigate('/alerts')}><ExternalLink size={16} /> Ver Resultados</Button>
+                          <Button variant="secondary" onClick={() => navigate('/alerts?search=' + search.id)}><ExternalLink size={16} /> Ver Resultados</Button>
                           <Button variant="ghost" onClick={() => toggleSearchStatus(search.id)}><Pause size={16} /> Pausar</Button>
                         </>
                       ) : (
