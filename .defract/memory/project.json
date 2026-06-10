@@ -47,11 +47,11 @@
   "usage_sweep_cursor": "2026-06-10T15:38:05Z",
   "feedback_sweep_cursor": "2026-06-10T15:39:18.429Z",
   "last_emit_hashes": {
-    "mistakes.md": "b69323a13624e31e59b89012cf54158465b76789f9bf329d32101df8bcb2de38",
-    "project-facts.md": "99fd7ca0ad15cf84d0e976945bec06df810b788fdf1e5704841d7a3a3d0f0841",
-    "decisions.md": "e2d30a995eb37ce51d46cec49ea8b2c68c109c6f5b973d57da4b0ef52f585b87",
+    "decisions.md": "c8c9f2bc469e80e1b08b55ea1320c327f6f368a2d8cd6d3de21b3f1cc4e6b3a2",
     "builder-preferences.md": "3330d454526848980df9e46c27aaa427d248933fad32c479bd82906eb5d8fabb",
-    "workflows.md": "62ea54f92c72ac8eca5e84449761715a1d4b7a8fddbc8ed2dcd91c4b4217fbf9"
+    "workflows.md": "62ea54f92c72ac8eca5e84449761715a1d4b7a8fddbc8ed2dcd91c4b4217fbf9",
+    "mistakes.md": "b78b27d6e508c30d1d8f03a3b182784eab0cdc0addd2f97a6c86ba79d1b9a593",
+    "project-facts.md": "99fd7ca0ad15cf84d0e976945bec06df810b788fdf1e5704841d7a3a3d0f0841"
   },
   "pending_external_edits": []
 }
