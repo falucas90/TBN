@@ -59,13 +59,39 @@ export async function updateUserProfile(profileData) {
   if (error) throw error;
 }
 
-export async function listUsers() {
-  if (!supabase) return [];
+export async function listUsers({ page = 1, perPage = 25 } = {}) {
+  if (!supabase) {
+    return { users: [], page: 1, perPage, total: 0, hasMore: false };
+  }
   const { data, error } = await supabase.functions.invoke('update-user-role', {
-    body: { action: 'list' },
+    body: { action: 'list', page, perPage },
   });
   if (error) throw error;
-  return data.users ?? [];
+  const users = data.users ?? [];
+  return {
+    users,
+    page: data.page ?? page,
+    perPage: data.perPage ?? perPage,
+    total: typeof data.total === 'number' ? data.total : null,
+    hasMore: data.hasMore ?? users.length === perPage,
+  };
+}
+
+export async function getAdminStats() {
+  if (!supabase) {
+    return { totalUsers: 0, activeSearches: 0, totalSearches: 0, alerts7d: 0, totalAlerts: 0 };
+  }
+  const { data, error } = await supabase.functions.invoke('update-user-role', {
+    body: { action: 'stats' },
+  });
+  if (error) throw error;
+  return {
+    totalUsers: data.totalUsers ?? 0,
+    activeSearches: data.activeSearches ?? 0,
+    totalSearches: data.totalSearches ?? 0,
+    alerts7d: data.alerts7d ?? 0,
+    totalAlerts: data.totalAlerts ?? 0,
+  };
 }
 
 export async function updateUserRole(userId, role) {
