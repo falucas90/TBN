@@ -52,6 +52,48 @@ cp .env.example .env
    ```
 3. To grant a user admin access, set `{"role": "admin"}` in their `app_metadata` (Dashboard → Authentication → Users). The Admin panel and audit log are only visible to admins.
 
+### Notifications
+
+Two edge functions deliver email notifications (via [Resend](https://resend.com)): `notify-alert` sends an instant email when an alert row is inserted, and `daily-summary` sends a per-user digest of the last 24 hours.
+
+1. Deploy with `--no-verify-jwt` — the callers are a Database Webhook and a cron job, not logged-in users; auth is the shared `x-webhook-secret` header instead:
+   ```bash
+   supabase functions deploy notify-alert --no-verify-jwt
+   supabase functions deploy daily-summary --no-verify-jwt
+   ```
+2. Set the required secrets:
+   ```bash
+   supabase secrets set WEBHOOK_SECRET=<random-string> RESEND_API_KEY=<resend-key> ALERT_FROM_EMAIL=alertas@crivo.pt
+   ```
+   `ALERT_FROM_EMAIL` is optional (defaults to `alertas@crivo.pt`). Without `RESEND_API_KEY` the functions log the composed email and return `{ "sent": false }` — safe to deploy before keys exist.
+3. Create the Database Webhook for instant alerts (Dashboard → Database → Webhooks → Create):
+   - Table: `alerts`, event: **INSERT**
+   - Type: HTTP request, method **POST**, URL: `https://<PROJECT-REF>.supabase.co/functions/v1/notify-alert`
+   - Add a custom HTTP header `x-webhook-secret` with the same value as the `WEBHOOK_SECRET` secret.
+4. Schedule the daily digest at 08:00 Europe/Lisbon with pg_cron + pg_net (pg_cron runs in UTC — Lisbon is UTC+0 in winter, UTC+1 in summer):
+   ```sql
+   create extension if not exists pg_cron;
+   create extension if not exists pg_net;
+
+   select cron.schedule(
+     'crivo-daily-summary',
+     '0 8 * * *', -- 08:00 UTC; use '0 7 * * *' for 08:00 Lisbon during summer time
+     $$
+     select net.http_post(
+       url     := 'https://<PROJECT-REF>.supabase.co/functions/v1/daily-summary',
+       headers := jsonb_build_object(
+         'Content-Type', 'application/json',
+         'x-webhook-secret', '<WEBHOOK-SECRET>'
+       ),
+       body    := '{}'::jsonb
+     );
+     $$
+   );
+   ```
+   The same snippet lives (commented out, with instructions) in `supabase/migrations/006_notification_cron.sql`.
+
+WhatsApp delivery is not implemented yet — it requires WhatsApp Business API credentials (see the TODO in `supabase/functions/notify-alert/index.ts`).
+
 ## Project structure
 
 ```
