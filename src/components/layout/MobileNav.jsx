@@ -1,9 +1,11 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Search, Bell, Settings, LogOut, Shield } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useAlerts } from '../../context/AlertsContext';
 
 export default function MobileNav() {
   const { logout, currentUser } = useAuth();
+  const { unreadCount } = useAlerts();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -25,9 +27,29 @@ export default function MobileNav() {
           key={item.to}
           to={item.to}
           className={({ isActive }) => `mobile-nav__item${isActive ? ' mobile-nav__item--active' : ''}`}
+          style={{ position: 'relative' }}
         >
           <item.icon size={18} />
           <span>{item.label}</span>
+          {item.to === '/alerts' && unreadCount > 0 && (
+            <span style={{
+              position: 'absolute',
+              top: '4px',
+              right: 'calc(50% - 18px)',
+              minWidth: '15px',
+              height: '15px',
+              padding: '0 4px',
+              borderRadius: '999px',
+              backgroundColor: 'var(--emerald)',
+              color: '#fff',
+              fontSize: '9px',
+              fontWeight: '600',
+              lineHeight: '15px',
+              textAlign: 'center',
+            }}>
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
         </NavLink>
       ))}
       <button className="mobile-nav__item" onClick={handleLogout} aria-label="Sair">

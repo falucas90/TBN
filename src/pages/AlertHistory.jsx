@@ -5,6 +5,7 @@ import { getAlerts, getAlertsBySearch, updateAlertStatus } from '../services/ale
 import { calculateISV } from '../lib/isv';
 import { ExternalLink, Search, Bookmark, X } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
+import { useAlerts } from '../context/AlertsContext';
 import { useSearchParams } from 'react-router-dom';
 
 const DAY_MS = 86400000;
@@ -33,8 +34,13 @@ function getDateGroup(alert) {
 
 export default function AlertHistory() {
   const { addToast } = useToast();
+  const { clearUnread } = useAlerts();
   const [searchParams, setSearchParams] = useSearchParams();
   const searchFilter = searchParams.get('search');
+
+  useEffect(() => {
+    clearUnread();
+  }, [clearUnread]);
 
   const [alerts, setAlerts] = useState(null);
   const [filterBrand, setFilterBrand] = useState('all');

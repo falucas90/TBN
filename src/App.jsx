@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
+import { AlertsProvider } from './context/AlertsContext';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 
 // Pages
@@ -58,6 +59,7 @@ function App() {
     <ErrorBoundary>
     <AuthProvider>
       <ToastProvider>
+        <AlertsProvider>
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Login />} />
@@ -80,6 +82,7 @@ function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
+        </AlertsProvider>
       </ToastProvider>
     </AuthProvider>
     </ErrorBoundary>
