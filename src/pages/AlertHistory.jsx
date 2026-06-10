@@ -9,6 +9,8 @@ import { useToast } from '../context/ToastContext';
 export default function AlertHistory() {
   const { addToast } = useToast();
 
+  useEffect(() => { document.title = 'Alertas | Crivo'; }, []);
+
   const [alerts, setAlerts] = useState(null);
   const [filterBrand, setFilterBrand] = useState('all');
   const [filterMargin, setFilterMargin] = useState('all');

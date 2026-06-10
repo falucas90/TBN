@@ -1,8 +1,11 @@
 import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
 import { Button } from '../components/ui';
 import { BrandLockup } from '../components/ui/Logo';
 
 export default function NotFound() {
+  useEffect(() => { document.title = 'Página não encontrada | Crivo'; }, []);
+
   return (
     <div style={{
       minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',

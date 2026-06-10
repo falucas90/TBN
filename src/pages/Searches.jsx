@@ -14,6 +14,8 @@ export default function Searches() {
   const [searches, setSearches] = useState(undefined);
   const [alertCount7d, setAlertCount7d] = useState(null);
 
+  useEffect(() => { document.title = 'Pesquisas | Crivo'; }, []);
+
   useEffect(() => {
     getSearches().then(setSearches).catch(() => {
       addToast('Erro ao carregar pesquisas.', 'danger');

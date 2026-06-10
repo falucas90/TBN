@@ -26,6 +26,7 @@ function SkeletonRow() {
 }
 
 export default function Admin() {
+  useEffect(() => { document.title = 'Admin | Crivo'; }, []);
   const { addToast } = useToast();
   const { currentUser } = useAuth();
   const [tab, setTab] = useState('users');

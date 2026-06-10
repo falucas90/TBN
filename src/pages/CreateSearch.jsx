@@ -39,6 +39,10 @@ export default function CreateSearch() {
   const isEdit = !!id;
   const { addToast } = useToast();
 
+  useEffect(() => {
+    document.title = isEdit ? 'Editar Pesquisa | Crivo' : 'Nova Pesquisa | Crivo';
+  }, [isEdit]);
+
   const [loading, setLoading] = useState(isEdit);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -162,6 +166,9 @@ export default function CreateSearch() {
           <p className="page__sub">Configure os critérios, origens e limites de alerta.</p>
         </div>
         <div className="row gap-3">
+          <Btn variant="ghost" onClick={() => navigate('/searches')} disabled={isSubmitting}>
+            ← {isEdit ? 'Voltar' : 'Cancelar'}
+          </Btn>
           <Btn variant="ghost" onClick={handleSaveDraft} disabled={isSubmitting}>Guardar Rascunho</Btn>
           <Btn variant="primary" onClick={handleLaunch} disabled={isSubmitting}>
             {isSubmitting ? 'A guardar…' : isEdit ? 'Guardar Alterações' : 'Iniciar Pesquisa'}

@@ -21,6 +21,8 @@ function mapAuthError(error) {
 }
 
 export default function Login() {
+  useEffect(() => { document.title = 'Entrar | Crivo'; }, []);
+
   const { isAuthenticated, login, loginGoogle } = useAuth();
   const { addToast } = useToast();
   const navigate = useNavigate();

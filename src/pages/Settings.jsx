@@ -9,6 +9,8 @@ import { getProfile, updateProfile } from '../services/profilesService';
 import { exportUserData, deleteAccount } from '../services/authService';
 
 export default function Settings() {
+  useEffect(() => { document.title = 'Definições | Crivo'; }, []);
+
   const { addToast } = useToast();
   const { currentUser } = useAuth();
 

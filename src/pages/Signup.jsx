@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Button, StepIndicator } from '../components/ui';
 import { BrandLockup } from '../components/ui/Logo';
 import { FormField } from '../components/forms';
@@ -21,6 +21,8 @@ function mapSignupError(error) {
 }
 
 export default function Signup() {
+  useEffect(() => { document.title = 'Criar Conta | Crivo'; }, []);
+
   const { signup } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
