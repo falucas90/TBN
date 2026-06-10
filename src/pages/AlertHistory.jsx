@@ -6,6 +6,29 @@ import { calculateISV } from '../lib/isv';
 import { ExternalLink, Search } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 
+const DAY_MS = 86400000;
+const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+
+// Derive a Portuguese date-group label (and a sort timestamp) from createdAt,
+// falling back to the legacy text `date` field for records without a timestamp.
+function getDateGroup(alert) {
+  if (alert.createdAt) {
+    const d = new Date(alert.createdAt);
+    if (!isNaN(d)) {
+      const diffDays = Math.round((startOfDay(new Date()) - startOfDay(d)) / DAY_MS);
+      if (diffDays === 0) return { label: 'Hoje', ts: d.getTime() };
+      if (diffDays === 1) return { label: 'Ontem', ts: d.getTime() };
+      return {
+        label: d.toLocaleDateString('pt-PT', { day: 'numeric', month: 'long', year: 'numeric' }),
+        ts: d.getTime(),
+      };
+    }
+  }
+  if (alert.date === 'Today') return { label: 'Hoje', ts: Date.now() };
+  if (alert.date === 'Yesterday') return { label: 'Ontem', ts: Date.now() - DAY_MS };
+  return { label: alert.date || '—', ts: 0 };
+}
+
 export default function AlertHistory() {
   const { addToast } = useToast();
 
@@ -40,11 +63,20 @@ export default function AlertHistory() {
     .filter(a => !searchText || a.carTitle.toLowerCase().includes(searchText.toLowerCase())),
   [alertsWithISV, filterBrand, filterMargin, searchText]);
 
-  const groupedAlerts = useMemo(() => filteredAlerts.reduce((acc, alert) => {
-    if (!acc[alert.date]) acc[alert.date] = [];
-    acc[alert.date].push(alert);
-    return acc;
-  }, {}), [filteredAlerts]);
+  // Array of [label, alerts] entries, sorted newest-first
+  const groupedAlerts = useMemo(() => {
+    const groups = new Map();
+    filteredAlerts.forEach(alert => {
+      const { label, ts } = getDateGroup(alert);
+      if (!groups.has(label)) groups.set(label, { ts, alerts: [] });
+      const g = groups.get(label);
+      g.ts = Math.max(g.ts, ts);
+      g.alerts.push(alert);
+    });
+    return [...groups.entries()]
+      .sort((a, b) => b[1].ts - a[1].ts)
+      .map(([label, g]) => [label, g.alerts]);
+  }, [filteredAlerts]);
 
   if (alerts === null) return (
     <AppLayout>
@@ -102,14 +134,14 @@ export default function AlertHistory() {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-          {Object.keys(groupedAlerts).length === 0 ? (
+          {groupedAlerts.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--ash)' }}>
               Nenhum alerta corresponde aos filtros selecionados.
             </div>
-          ) : Object.entries(groupedAlerts).map(([date, alerts]) => (
+          ) : groupedAlerts.map(([date, alerts]) => (
             <div key={date}>
               <h3 style={{ fontSize: '0.875rem', fontWeight: '600', color: 'var(--ash)', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                {date === 'Today' ? 'Hoje' : date === 'Yesterday' ? 'Ontem' : date}
+                {date}
               </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {alerts.map(alert => (

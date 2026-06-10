@@ -15,6 +15,12 @@ export function AuthProvider({ children }) {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       const user = session?.user ?? null;
+      if (user && user.app_metadata?.status === 'inactive') {
+        supabase.auth.signOut();
+        setCurrentUser(null);
+        setIsLoading(false);
+        return;
+      }
       setCurrentUser(
         user ? { ...user, role: user.app_metadata?.role || 'dealer' } : null
       );

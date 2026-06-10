@@ -93,9 +93,9 @@ Deno.serve(async (req) => {
         });
       }
       const { data: target } = await supabaseAdmin.auth.admin.getUserById(userId);
-      const oldStatus = target?.user?.user_metadata?.status ?? 'active';
+      const oldStatus = target?.user?.app_metadata?.status ?? 'active';
       const { data, error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
-        user_metadata: { status },
+        app_metadata: { status },
       });
       if (error) throw error;
       await supabaseAdmin.from('audit_logs').insert({

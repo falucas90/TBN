@@ -83,14 +83,14 @@ export default function Admin() {
   }
 
   async function handleToggleStatus(user) {
-    const currentStatus = user.user_metadata?.status || 'active';
+    const currentStatus = user.app_metadata?.status || user.user_metadata?.status || 'active';
     const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
     try {
       await updateUserStatus(user.id, newStatus);
       setUsers((prev) =>
         prev.map((u) =>
           u.id === user.id
-            ? { ...u, user_metadata: { ...u.user_metadata, status: newStatus } }
+            ? { ...u, app_metadata: { ...u.app_metadata, status: newStatus } }
             : u
         )
       );
@@ -200,7 +200,7 @@ export default function Admin() {
                 ) : (
                   users.map((user) => {
                     const loadedRole = user.app_metadata?.role || user.user_metadata?.role || 'dealer';
-                    const currentStatus = user.user_metadata?.status || 'active';
+                    const currentStatus = user.app_metadata?.status || user.user_metadata?.status || 'active';
                     const isActive = currentStatus === 'active';
                     const pendingRole = pendingRoles[user.id] ?? loadedRole;
                     const isDirty = pendingRole !== loadedRole;
