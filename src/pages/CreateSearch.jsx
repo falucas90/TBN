@@ -1,8 +1,11 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Btn, Icon, Switch } from '../components/ui/Primitives';
+import AppLayout from '../components/layout/AppLayout';
+import PageTop from '../components/layout/PageTop';
+import { Btn, Icon, Pill, Seg, Switch } from '../components/ui/Primitives';
+import WhatsAppCard from '../components/ui/WhatsAppCard';
 import { useToast } from '../context/ToastContext';
-import { createSearch, updateSearch, getSearchById } from '../services/searchesService';
+import { createSearch, updateSearch, getSearchById, deleteSearch } from '../services/searchesService';
 
 const BRANDS = ['BMW', 'Renault', 'Mercedes-Benz', 'Audi', 'Volkswagen', 'Volvo'];
 const MODELS = {
@@ -18,14 +21,13 @@ const COUNTRIES = { germany: 'Alemanha', france: 'França', netherlands: 'Holand
 
 // Simple audience estimate based on active country count
 function estimateAudience(countrySel, brand, minYear, maxKm) {
-  const activeCount = Object.values(countrySel).filter(Boolean).length;
   const base = Math.max(0, 120 - (2024 - Number(minYear)) * 3 - Math.floor(Number(maxKm) / 5000));
   const byCountry = {
     germany: Math.round(base * 0.45),
-    france:  Math.round(base * 0.22),
+    france: Math.round(base * 0.22),
     netherlands: Math.round(base * 0.15),
     belgium: Math.round(base * 0.10),
-    spain:   Math.round(base * 0.08),
+    spain: Math.round(base * 0.08),
   };
   const total = Object.entries(byCountry)
     .filter(([k]) => countrySel[k])
@@ -61,6 +63,7 @@ export default function CreateSearch() {
   const [alertThreshold, setAlertThreshold] = useState(3000);
   const [alertChannels, setAlertChannels] = useState({ whatsapp: true, email: false });
   const [dailySummary, setDailySummary] = useState(true);
+  const [status, setStatus] = useState('active');
 
   // Load existing search in edit mode
   useEffect(() => {
@@ -79,6 +82,7 @@ export default function CreateSearch() {
       if (s.criteria?.countries) setCountries(s.criteria.countries);
       setMinMargin(s.minMargin || 2500);
       setAlertThreshold(s.alertThreshold || 3000);
+      setStatus(s.status || 'active');
     }).finally(() => setLoading(false));
   }, [id, isEdit, addToast, navigate]);
 
@@ -87,9 +91,9 @@ export default function CreateSearch() {
     [countries, brand, minYear, maxKm]
   );
 
-  const buildPayload = (status) => ({
+  const buildPayload = (newStatus) => ({
     title: `${brand} ${model}`,
-    status,
+    status: newStatus,
     criteria: { brand, model, minYear: Number(minYear), maxYear: Number(maxYear), minKm: Number(minKm), maxKm: Number(maxKm), maxMileage: Number(maxKm), minPrice: Number(minPrice), maxPrice: Number(maxPrice), fuel, countries },
     sources: Object.entries(countries).filter(([, v]) => v).map(([k]) => ({ germany: 'Mobile.de', france: 'AutoScout24', netherlands: 'Marktplaats', belgium: 'AutoScout24', spain: 'Coches.net' }[k])),
     minMargin: Number(minMargin),
@@ -116,16 +120,16 @@ export default function CreateSearch() {
     return true;
   }
 
-  const handleLaunch = async () => {
-    if (!validateForm()) return;
+  const handleSave = async (newStatus) => {
+    if (newStatus === 'active' && !validateForm()) return;
     setIsSubmitting(true);
     try {
       if (isEdit) {
-        await updateSearch(Number(id), buildPayload('active'));
-        addToast('Pesquisa atualizada com sucesso!', 'success');
+        await updateSearch(Number(id), buildPayload(newStatus));
+        addToast(newStatus === 'active' ? 'Pesquisa atualizada com sucesso!' : 'Pesquisa guardada em pausa.', 'success');
       } else {
-        await createSearch(buildPayload('active'));
-        addToast('Pesquisa iniciada com sucesso!', 'success');
+        await createSearch(buildPayload(newStatus));
+        addToast(newStatus === 'active' ? 'Pesquisa iniciada com sucesso!' : 'Rascunho guardado.', newStatus === 'active' ? 'success' : 'info');
       }
       navigate('/searches');
     } catch {
@@ -135,195 +139,194 @@ export default function CreateSearch() {
     }
   };
 
-  const handleSaveDraft = async () => {
+  const handleDelete = async () => {
+    if (!window.confirm('Eliminar esta pesquisa? Esta ação é irreversível.')) return;
     setIsSubmitting(true);
     try {
-      if (isEdit) {
-        await updateSearch(Number(id), buildPayload('paused'));
-      } else {
-        await createSearch(buildPayload('paused'));
-      }
-      addToast('Rascunho guardado.', 'info');
+      await deleteSearch(Number(id));
+      addToast('Pesquisa eliminada.', 'warn');
       navigate('/searches');
     } catch {
-      addToast('Erro ao guardar rascunho.', 'danger');
-    } finally {
+      addToast('Erro ao eliminar pesquisa.', 'danger');
       setIsSubmitting(false);
     }
   };
 
+  const toggleCountry = (k) => setCountries(prev => ({ ...prev, [k]: !prev[k] }));
+
   if (loading) return null;
 
   return (
-    <div className="page">
-      <div className="page__top">
-        <div>
-          <h1 className="page__title">{isEdit ? 'Editar Pesquisa' : 'Criar Nova Pesquisa'}</h1>
-          <p className="page__sub">Configure os critérios, origens e limites de alerta.</p>
-        </div>
-        <div className="row gap-3">
-          <Btn variant="ghost" onClick={handleSaveDraft} disabled={isSubmitting}>Guardar Rascunho</Btn>
-          <Btn variant="primary" onClick={handleLaunch} disabled={isSubmitting}>
-            {isSubmitting ? 'A guardar…' : isEdit ? 'Guardar Alterações' : 'Iniciar Pesquisa'}
-          </Btn>
-        </div>
-      </div>
+    <AppLayout>
+      <div className="page">
+        <PageTop
+          title={isEdit ? 'Editar pesquisa' : 'Nova pesquisa'}
+          sub="Calibra os filtros. Guarda. Começa a receber alertas."
+          right={<>
+            {isEdit && <Btn variant="danger" onClick={handleDelete} disabled={isSubmitting}>Eliminar</Btn>}
+            <Btn variant="ghost" onClick={() => navigate('/searches')} disabled={isSubmitting}>Cancelar</Btn>
+            <Btn variant="ghost" onClick={() => handleSave('paused')} disabled={isSubmitting}>
+              {isEdit && status === 'active' ? 'Guardar em pausa' : 'Guardar rascunho'}
+            </Btn>
+            <Btn variant="primary" onClick={() => handleSave('active')} disabled={isSubmitting}>
+              {isSubmitting ? 'A guardar…' : 'Guardar e ativar'}
+            </Btn>
+          </>}
+        />
+        <div className="page__body" style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 40, alignItems: 'flex-start' }}>
+          <div>
+            <div className="field" style={{ marginBottom: 12 }}>
+              <label className="field__label">Nome da pesquisa</label>
+              <input className="input" value={`${brand} ${model}`} readOnly />
+              <span className="field__hint">Gerado a partir da marca e modelo.</span>
+            </div>
 
-      <div className="page__body" style={{ maxWidth: '1000px', margin: '0 auto', width: '100%' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(500px, 1fr) 350px', gap: '32px', alignItems: 'start' }}>
-
-          <div className="stack gap-6">
-            {/* Section 1 — Vehicle */}
-            <div className="card">
-              <div className="card__body stack gap-5">
-                <h2 style={{ fontSize: '15px', fontWeight: '600' }}>1. Critérios do Veículo</h2>
-
-                <div className="form-grid-2">
-                  <div className="field">
-                    <label className="field__label">Marca</label>
-                    <select className="select" value={brand} onChange={e => { setBrand(e.target.value); setModel(MODELS[e.target.value]?.[0] || ''); }}>
-                      {BRANDS.map(b => <option key={b}>{b}</option>)}
-                    </select>
-                  </div>
-                  <div className="field">
-                    <label className="field__label">Modelo</label>
-                    <select className="select" value={model} onChange={e => setModel(e.target.value)}>
-                      {(MODELS[brand] || []).map(m => <option key={m}>{m}</option>)}
-                    </select>
+            <div className="form-section">
+              <div className="form-section__head">
+                <span className="form-section__title">Veículo</span>
+                <span className="form-section__step">01 / 04</span>
+              </div>
+              <div className="form-grid-2">
+                <div className="field">
+                  <label className="field__label">Marca</label>
+                  <select className="select" value={brand} onChange={e => { setBrand(e.target.value); setModel(MODELS[e.target.value]?.[0] || ''); }}>
+                    {BRANDS.map(b => <option key={b}>{b}</option>)}
+                  </select>
+                </div>
+                <div className="field">
+                  <label className="field__label">Modelo</label>
+                  <select className="select" value={model} onChange={e => setModel(e.target.value)}>
+                    {(MODELS[brand] || []).map(m => <option key={m}>{m}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div className="field">
+                <label className="field__label">Combustível</label>
+                <Seg options={FUEL_TYPES} value={fuel} onChange={setFuel} />
+              </div>
+              <div className="form-grid-2">
+                <div className="field">
+                  <label className="field__label">Ano</label>
+                  <div className="row gap-2">
+                    <input type="number" className="input" value={minYear} onChange={e => setMinYear(e.target.value)} placeholder="Mín" />
+                    <span className="muted">—</span>
+                    <input type="number" className="input" value={maxYear} onChange={e => setMaxYear(e.target.value)} placeholder="Máx" />
                   </div>
                 </div>
-
-                <div className="form-grid-2">
-                  <div className="field">
-                    <label className="field__label">Ano</label>
-                    <div className="row gap-2">
-                      <input type="number" className="input" value={minYear} onChange={e => setMinYear(e.target.value)} placeholder="Mín" />
-                      <span className="muted">—</span>
-                      <input type="number" className="input" value={maxYear} onChange={e => setMaxYear(e.target.value)} placeholder="Máx" />
-                    </div>
-                  </div>
-                  <div className="field">
-                    <label className="field__label">Quilómetros (KMs)</label>
-                    <div className="row gap-2">
-                      <input type="number" className="input" value={minKm} onChange={e => setMinKm(e.target.value)} placeholder="Mín" />
-                      <span className="muted">—</span>
-                      <input type="number" className="input" value={maxKm} onChange={e => setMaxKm(e.target.value)} placeholder="Máx" />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="form-grid-2">
-                  <div className="field">
-                    <label className="field__label">Preço (€)</label>
-                    <div className="row gap-2">
-                      <input type="number" className="input" value={minPrice} onChange={e => setMinPrice(e.target.value)} placeholder="Mín" />
-                      <span className="muted">—</span>
-                      <input type="number" className="input" value={maxPrice} onChange={e => setMaxPrice(e.target.value)} placeholder="Máx" />
-                    </div>
-                  </div>
-                  <div className="field">
-                    <label className="field__label">Combustível</label>
-                    <select className="select" value={fuel} onChange={e => setFuel(e.target.value)}>
-                      {FUEL_TYPES.map(f => <option key={f}>{f}</option>)}
-                    </select>
+                <div className="field">
+                  <label className="field__label">Quilómetros</label>
+                  <div className="row gap-2">
+                    <input type="number" className="input" value={minKm} onChange={e => setMinKm(e.target.value)} placeholder="Mín" />
+                    <span className="muted">—</span>
+                    <input type="number" className="input" value={maxKm} onChange={e => setMaxKm(e.target.value)} placeholder="Máx" />
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Section 2 — Countries */}
-            <div className="card">
-              <div className="card__body stack gap-4">
-                <h2 style={{ fontSize: '15px', fontWeight: '600' }}>2. Países de Origem</h2>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
-                  {Object.entries(COUNTRIES).map(([key, label]) => (
-                    <label key={key} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                      <input
-                        type="checkbox"
-                        checked={countries[key]}
-                        onChange={e => setCountries(c => ({ ...c, [key]: e.target.checked }))}
-                        style={{ width: '16px', height: '16px', accentColor: 'var(--emerald)' }}
-                      />
-                      <span style={{ fontSize: '13px', color: 'var(--bone)' }}>{label}</span>
-                    </label>
+            <div className="form-section">
+              <div className="form-section__head">
+                <span className="form-section__title">Preço &amp; margem</span>
+                <span className="form-section__step">02 / 04</span>
+              </div>
+              <div className="form-grid-2">
+                <div className="field">
+                  <label className="field__label">Preço mín. anúncio (€)</label>
+                  <input type="number" className="input" value={minPrice} onChange={e => setMinPrice(e.target.value)} />
+                </div>
+                <div className="field">
+                  <label className="field__label">Preço máx. anúncio (€)</label>
+                  <input type="number" className="input" value={maxPrice} onChange={e => setMaxPrice(e.target.value)} />
+                </div>
+              </div>
+              <div className="form-grid-2">
+                <div className="field">
+                  <label className="field__label">Margem mínima após ISV (€)</label>
+                  <input type="number" className="input" value={minMargin} onChange={e => setMinMargin(e.target.value)} />
+                  <span className="field__hint">Antes de ISV, transporte e buffer de 5 %.</span>
+                </div>
+                <div className="field">
+                  <label className="field__label">Disparar alerta a partir de (€)</label>
+                  <input type="number" className="input" value={alertThreshold} onChange={e => setAlertThreshold(e.target.value)} />
+                </div>
+              </div>
+            </div>
+
+            <div className="form-section">
+              <div className="form-section__head">
+                <span className="form-section__title">Países de origem</span>
+                <span className="form-section__step">03 / 04</span>
+              </div>
+              <div className="row gap-2" style={{ flexWrap: 'wrap' }}>
+                {Object.entries(COUNTRIES).map(([k, label]) => (
+                  <span key={k} onClick={() => toggleCountry(k)} role="button" tabIndex={0}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleCountry(k); } }}
+                    style={{ cursor: 'pointer', display: 'inline-flex' }}>
+                    <Pill tone={countries[k] ? 'emerald' : 'neutral'}>
+                      {countries[k] && <Icon name="check" size={10} strokeWidth={2} />}
+                      {label}
+                    </Pill>
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="form-section">
+              <div className="form-section__head">
+                <span className="form-section__title">Notificações</span>
+                <span className="form-section__step">04 / 04</span>
+              </div>
+              <div className="settings__row">
+                <div>
+                  <div className="settings__row-label">Receber no WhatsApp</div>
+                  <div className="settings__row-desc">O alerta chega minutos depois do anúncio ser publicado.</div>
+                </div>
+                <Switch checked={alertChannels.whatsapp} onChange={(v) => setAlertChannels(a => ({ ...a, whatsapp: v }))} />
+              </div>
+              <div className="settings__row">
+                <div>
+                  <div className="settings__row-label">Receber por email</div>
+                  <div className="settings__row-desc">Cópia de cada alerta na caixa de entrada.</div>
+                </div>
+                <Switch checked={alertChannels.email} onChange={(v) => setAlertChannels(a => ({ ...a, email: v }))} />
+              </div>
+              <div className="settings__row">
+                <div>
+                  <div className="settings__row-label">Resumo diário</div>
+                  <div className="settings__row-desc">Um email todas as manhãs com a atividade do dia.</div>
+                </div>
+                <Switch checked={dailySummary} onChange={setDailySummary} />
+              </div>
+            </div>
+          </div>
+
+          {/* Sticky preview */}
+          <div style={{ position: 'sticky', top: 28, display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div style={{ padding: 24, background: 'var(--graphite)', border: '1px solid var(--hairline)', borderRadius: 'var(--r-lg)' }}>
+              <span className="eyebrow">Correspondências agora</span>
+              <div style={{ fontSize: 48, letterSpacing: '-0.03em', fontVariantNumeric: 'tabular-nums', marginTop: 6 }}>{audience.total}</div>
+              <div style={{ fontSize: 12, color: 'var(--dust)', marginTop: 6 }}>
+                Estimativa de 3–7 alertas por semana com estes filtros.
+              </div>
+              <div className="hr" style={{ margin: '20px 0', height: 1, background: 'var(--hairline)', border: 0 }} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {Object.entries(COUNTRIES)
+                  .filter(([k]) => countries[k])
+                  .map(([k, label]) => (
+                    <div key={k} className="isv__row">
+                      <span className="isv__row--label">{label}</span>
+                      <span className="isv__row--val">{audience.byCountry[k]}</span>
+                    </div>
                   ))}
-                </div>
               </div>
             </div>
-
-            {/* Section 3 — Margin & Alerts */}
-            <div className="card">
-              <div className="card__body stack gap-5">
-                <h2 style={{ fontSize: '15px', fontWeight: '600' }}>3. Margem e Notificações</h2>
-                <div className="form-grid-2">
-                  <div className="field">
-                    <label className="field__label">Margem Mínima Esperada (€)</label>
-                    <input type="number" className="input" value={minMargin} onChange={e => setMinMargin(e.target.value)} />
-                  </div>
-                  <div className="field">
-                    <label className="field__label">Disparar Alerta a partir de (€)</label>
-                    <input type="number" className="input" value={alertThreshold} onChange={e => setAlertThreshold(e.target.value)} />
-                  </div>
-                </div>
-
-                <div style={{ borderTop: '1px solid var(--hairline)', paddingTop: '20px' }}>
-                  <div className="field">
-                    <label className="field__label" style={{ marginBottom: '8px' }}>Canais de Alerta Instantâneo</label>
-                    <div className="row gap-5">
-                      <label className="row gap-2" style={{ cursor: 'pointer', fontSize: '13px' }}>
-                        <input type="checkbox" checked={alertChannels.whatsapp} onChange={e => setAlertChannels(a => ({ ...a, whatsapp: e.target.checked }))} style={{ accentColor: 'var(--emerald)' }} /> WhatsApp
-                      </label>
-                      <label className="row gap-2" style={{ cursor: 'pointer', fontSize: '13px' }}>
-                        <input type="checkbox" checked={alertChannels.email} onChange={e => setAlertChannels(a => ({ ...a, email: e.target.checked }))} style={{ accentColor: 'var(--emerald)' }} /> Email
-                      </label>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="row" style={{ justifyContent: 'space-between', borderTop: '1px solid var(--hairline)', paddingTop: '20px' }}>
-                  <div className="stack gap-1">
-                    <span style={{ fontSize: '13px', fontWeight: 500 }}>Resumo Diário</span>
-                    <span className="muted" style={{ fontSize: '12px' }}>Enviar email todos os dias de manhã</span>
-                  </div>
-                  <Switch checked={dailySummary} onChange={setDailySummary} />
-                </div>
-              </div>
+            <div>
+              <span className="eyebrow" style={{ marginBottom: 12, display: 'block' }}>Pré-visualização do alerta</span>
+              <WhatsAppCard />
             </div>
           </div>
-
-          {/* Right panel — live audience estimate */}
-          <div style={{ position: 'sticky', top: '28px' }}>
-            <div className="card">
-              <div className="card__body stack gap-4">
-                <h3 style={{ fontSize: '15px', fontWeight: '600' }}>Audiência Estimada</h3>
-                <p style={{ color: 'var(--ash)', fontSize: '13px' }}>
-                  Anúncios correspondentes antes de aplicar os cálculos de rentabilidade:
-                </p>
-                <div className="stack gap-1">
-                  <span style={{ fontSize: '32px', fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--bone)' }}>{audience.total}</span>
-                  <span className="muted" style={{ fontSize: '12px' }}>veículos totais na Europa</span>
-                </div>
-                {audience.total > 0 && (
-                  <div className="stack gap-2" style={{ marginTop: '12px', borderTop: '1px solid var(--hairline)', paddingTop: '16px' }}>
-                    {Object.entries(COUNTRIES)
-                      .filter(([k]) => countries[k] && audience.byCountry[k] > 0)
-                      .map(([k, label]) => (
-                        <div key={k} className="row" style={{ justifyContent: 'space-between', fontSize: '13px' }}>
-                          <span className="muted">{label}</span>
-                          <span style={{ fontWeight: 500 }}>{audience.byCountry[k]}</span>
-                        </div>
-                      ))}
-                  </div>
-                )}
-                <Btn variant="primary" size="lg" style={{ width: '100%', marginTop: '16px' }} onClick={handleLaunch} disabled={isSubmitting}>
-                  {isEdit ? 'Guardar Alterações' : 'Iniciar Pesquisa'} <Icon name="arrow" color="#FFF" />
-                </Btn>
-              </div>
-            </div>
-          </div>
-
         </div>
       </div>
-    </div>
+    </AppLayout>
   );
 }

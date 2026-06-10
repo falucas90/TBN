@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
-import { Card, Button } from '../components/ui';
-import { FormField, CurrencyInput } from '../components/forms';
-import { Save, Download, Trash2, Mail, Building } from 'lucide-react';
+import PageTop from '../components/layout/PageTop';
+import { Btn, Pill, Dot, Switch } from '../components/ui/Primitives';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { getProfile, updateProfile } from '../services/profilesService';
@@ -10,19 +10,20 @@ import { exportUserData, deleteAccount } from '../services/authService';
 
 export default function Settings() {
   const { addToast } = useToast();
-  const { currentUser } = useAuth();
+  const { currentUser, logout } = useAuth();
+  const navigate = useNavigate();
 
   const [name, setName] = useState(currentUser?.user_metadata?.full_name || '');
   const [phone, setPhone] = useState(currentUser?.user_metadata?.phone || '');
+  const [editingName, setEditingName] = useState(false);
+  const [editingPhone, setEditingPhone] = useState(false);
+  const [quiet, setQuiet] = useState(true);
   const [transportCost, setTransportCost] = useState(800);
   const [minMargin, setMinMargin] = useState(2000);
   const [notifChannel, setNotifChannel] = useState('WhatsApp');
-  const [isSavingProfile, setIsSavingProfile] = useState(false);
-  const [isSavingDefaults, setIsSavingDefaults] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Load profile from Supabase (falls back to defaults if not configured)
   useEffect(() => {
     getProfile().then(profile => {
       if (!profile) return;
@@ -34,16 +35,33 @@ export default function Settings() {
     }).catch(() => {});
   }, []);
 
-  async function handleSaveProfile() {
+  async function saveName() {
     if (!name.trim()) { addToast('O nome não pode estar vazio.', 'warn'); return; }
-    setIsSavingProfile(true);
     try {
       await updateProfile({ fullName: name.trim(), phone });
-      addToast('Perfil guardado com sucesso.', 'success');
+      addToast('Perfil guardado.', 'success');
+      setEditingName(false);
     } catch (err) {
       addToast(err.message || 'Erro ao guardar perfil.', 'danger');
-    } finally {
-      setIsSavingProfile(false);
+    }
+  }
+
+  async function savePhone() {
+    try {
+      await updateProfile({ fullName: name.trim(), phone });
+      addToast('Número guardado.', 'success');
+      setEditingPhone(false);
+    } catch (err) {
+      addToast(err.message || 'Erro ao guardar número.', 'danger');
+    }
+  }
+
+  async function saveDefaults() {
+    try {
+      await updateProfile({ defaultTransportCost: transportCost, minMargin, notifChannel });
+      addToast('Definições padrão guardadas.', 'success');
+    } catch (err) {
+      addToast(err.message || 'Erro ao guardar definições.', 'danger');
     }
   }
 
@@ -80,106 +98,147 @@ export default function Settings() {
     }
   }
 
-  async function handleSaveDefaults() {
-    setIsSavingDefaults(true);
-    try {
-      await updateProfile({ defaultTransportCost: transportCost, minMargin, notifChannel });
-      addToast('Definições padrão guardadas.', 'success');
-    } catch (err) {
-      addToast(err.message || 'Erro ao guardar definições.', 'danger');
-    } finally {
-      setIsSavingDefaults(false);
-    }
+  async function handleLogout() {
+    await logout();
+    navigate('/login');
   }
 
-  const inputStyle = {
-    height: '36px', padding: '0 12px', borderRadius: 'var(--r-md)',
-    border: '1px solid var(--hairline)', fontSize: '13px', fontFamily: 'inherit',
-    outline: 'none', width: '100%', boxSizing: 'border-box',
-    background: 'var(--graphite)', color: 'var(--bone)',
-  };
+  const company = currentUser?.user_metadata?.company;
+  const nif = currentUser?.user_metadata?.nif;
 
   return (
     <AppLayout>
-      <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto', width: '100%' }}>
-        <h1 style={{ fontSize: '1.75rem', fontWeight: '500', letterSpacing: '-0.02em', marginBottom: '2rem' }}>Definições</h1>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-
-          <Card>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1.5rem' }}>Perfil da Conta</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-              <FormField label="Nome Completo" required>
-                <input type="text" value={name} onChange={e => setName(e.target.value)} style={inputStyle} />
-              </FormField>
-              <FormField label="Nome da Empresa">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.625rem 0' }}>
-                  <Building size={18} style={{ color: 'var(--ash)' }} />
-                  <span style={{ fontWeight: '500' }}>{currentUser?.user_metadata?.company || '—'}</span>
+      <div className="page">
+        <PageTop
+          title="Definições"
+          right={<Btn variant="ghost" onClick={handleLogout}>Terminar sessão</Btn>}
+        />
+        <div className="page__body">
+          <div className="settings">
+            <section className="settings__section">
+              <div className="settings__section-title">Conta</div>
+              <div className="settings__row">
+                <div style={{ flex: 1 }}>
+                  <div className="settings__row-label">Nome</div>
+                  {editingName ? (
+                    <div className="row gap-2" style={{ marginTop: 8, maxWidth: 360 }}>
+                      <input className="input" value={name} onChange={e => setName(e.target.value)} />
+                      <Btn variant="primary" size="sm" onClick={saveName}>Guardar</Btn>
+                    </div>
+                  ) : (
+                    <div className="settings__row-desc">{name || '—'}</div>
+                  )}
                 </div>
-              </FormField>
-              <FormField label="Endereço de Email">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.625rem 0' }}>
-                  <Mail size={18} style={{ color: 'var(--ash)' }} />
-                  <span style={{ fontWeight: '500' }}>{currentUser?.email}</span>
-                </div>
-              </FormField>
-              <FormField label="Telefone / WhatsApp">
-                <input type="text" value={phone} onChange={e => setPhone(e.target.value)}
-                  placeholder="+351 912 345 678" style={inputStyle} />
-              </FormField>
-            </div>
-            <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
-              <Button onClick={handleSaveProfile} disabled={isSavingProfile}>
-                <Save size={16} /> {isSavingProfile ? 'A guardar…' : 'Guardar Alterações'}
-              </Button>
-            </div>
-          </Card>
-
-          <Card>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>Padrões de Cálculo & Notificações</h2>
-            <p style={{ color: 'var(--ash)', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
-              Configurações padrão usadas nos cálculos de margem quando não existem dados exatos.
-            </p>
-            <div style={{ maxWidth: '300px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <FormField label="Custo de Transporte Padrão">
-                <CurrencyInput value={transportCost} onChange={setTransportCost} />
-              </FormField>
-              <FormField label="Margem Mínima Alvo (Padrão)">
-                <CurrencyInput value={minMargin} onChange={setMinMargin} />
-              </FormField>
-              <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--hairline)' }}>
-                <FormField label="Canal de Notificação Preferido">
-                  <select value={notifChannel} onChange={e => setNotifChannel(e.target.value)} className="select">
-                    <option>WhatsApp</option>
-                    <option>Email</option>
-                    <option>SMS</option>
-                  </select>
-                </FormField>
+                {!editingName && <Btn variant="ghost" size="sm" onClick={() => setEditingName(true)}>Editar</Btn>}
               </div>
-            </div>
-            <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
-              <Button onClick={handleSaveDefaults} disabled={isSavingDefaults}>
-                <Save size={16} /> {isSavingDefaults ? 'A guardar…' : 'Guardar Padrões'}
-              </Button>
-            </div>
-          </Card>
+              <div className="settings__row">
+                <div>
+                  <div className="settings__row-label">Email</div>
+                  <div className="settings__row-desc">{currentUser?.email || '—'}</div>
+                </div>
+              </div>
+              <div className="settings__row">
+                <div>
+                  <div className="settings__row-label">Empresa</div>
+                  <div className="settings__row-desc">{company ? `${company}${nif ? ` · NIF ${nif}` : ''}` : '—'}</div>
+                </div>
+              </div>
+            </section>
 
-          <Card style={{ border: '1px solid var(--coral)' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--coral)' }}>Zona de Perigo</h2>
-            <p style={{ color: 'var(--ash)', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
-              Ações irreversíveis relacionadas com a sua conta e dados.
-            </p>
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <Button variant="secondary" onClick={handleExport} disabled={isExporting}>
-                <Download size={16} /> {isExporting ? 'A exportar…' : 'Exportar Dados (JSON)'}
-              </Button>
-              <Button variant="danger" onClick={handleDeleteAccount} disabled={isDeleting}>
-                <Trash2 size={16} /> {isDeleting ? 'A eliminar…' : 'Eliminar Conta'}
-              </Button>
-            </div>
-          </Card>
+            <section className="settings__section">
+              <div className="settings__section-title">WhatsApp</div>
+              <div className="settings__row">
+                <div style={{ flex: 1 }}>
+                  <div className="settings__row-label">Número verificado</div>
+                  {editingPhone ? (
+                    <div className="row gap-2" style={{ marginTop: 8, maxWidth: 360 }}>
+                      <input className="input" placeholder="+351 912 345 678" value={phone} onChange={e => setPhone(e.target.value)} />
+                      <Btn variant="primary" size="sm" onClick={savePhone}>Guardar</Btn>
+                    </div>
+                  ) : (
+                    <div className="settings__row-desc">{phone ? `${phone} · os alertas vão para este número.` : 'Sem número configurado.'}</div>
+                  )}
+                </div>
+                {!editingPhone && (phone
+                  ? <div className="row gap-2"><Pill tone="emerald"><Dot tone="emerald" />Verificado</Pill><Btn variant="ghost" size="sm" onClick={() => setEditingPhone(true)}>Alterar</Btn></div>
+                  : <Btn variant="ghost" size="sm" onClick={() => setEditingPhone(true)}>Adicionar</Btn>)}
+              </div>
+              <div className="settings__row">
+                <div>
+                  <div className="settings__row-label">Janela silenciosa</div>
+                  <div className="settings__row-desc">Não receber alertas entre as 21:00 e 08:00.</div>
+                </div>
+                <Switch checked={quiet} onChange={setQuiet} />
+              </div>
+            </section>
 
+            <section className="settings__section">
+              <div className="settings__section-title">Padrões de cálculo</div>
+              <div className="settings__row">
+                <div>
+                  <div className="settings__row-label">Custo de transporte padrão</div>
+                  <div className="settings__row-desc">Usado quando o anúncio não tem custo de transporte.</div>
+                </div>
+                <input className="input tnum" type="number" style={{ width: 120 }} value={transportCost} onChange={e => setTransportCost(Number(e.target.value))} onBlur={saveDefaults} />
+              </div>
+              <div className="settings__row">
+                <div>
+                  <div className="settings__row-label">Margem mínima alvo</div>
+                  <div className="settings__row-desc">Limiar padrão para novas pesquisas.</div>
+                </div>
+                <input className="input tnum" type="number" style={{ width: 120 }} value={minMargin} onChange={e => setMinMargin(Number(e.target.value))} onBlur={saveDefaults} />
+              </div>
+              <div className="settings__row">
+                <div>
+                  <div className="settings__row-label">Canal de notificação preferido</div>
+                  <div className="settings__row-desc">Onde recebe os alertas instantâneos.</div>
+                </div>
+                <select className="select" style={{ width: 140 }} value={notifChannel} onChange={e => { setNotifChannel(e.target.value); }} onBlur={saveDefaults}>
+                  <option>WhatsApp</option>
+                  <option>Email</option>
+                  <option>SMS</option>
+                </select>
+              </div>
+            </section>
+
+            <section className="settings__section">
+              <div className="settings__section-title">Subscrição</div>
+              <div style={{ padding: 20, background: 'var(--graphite)', border: '1px solid var(--hairline)', borderRadius: 'var(--r-md)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 20 }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div className="settings__row-label">Plano Pro · € 49 / mês</div>
+                    <Pill tone="emerald">Ativa</Pill>
+                  </div>
+                  <div className="settings__row-desc">Pagamento processado pela Stripe.</div>
+                </div>
+                <Btn variant="ghost" size="sm" onClick={() => addToast('Portal de pagamento em breve.', 'info')}>Gerir pagamento</Btn>
+              </div>
+            </section>
+
+            <section className="settings__section">
+              <div className="settings__section-title">Zona de perigo</div>
+              <div className="settings__danger">
+                <div className="settings__row" style={{ paddingTop: 0 }}>
+                  <div>
+                    <div className="settings__row-label">Exportar dados</div>
+                    <div className="settings__row-desc">Descarrega pesquisas, alertas e perfil em JSON.</div>
+                  </div>
+                  <Btn variant="ghost" size="sm" onClick={handleExport} disabled={isExporting}>
+                    {isExporting ? 'A exportar…' : 'Exportar'}
+                  </Btn>
+                </div>
+                <div className="settings__row" style={{ paddingBottom: 0 }}>
+                  <div>
+                    <div className="settings__row-label">Eliminar conta</div>
+                    <div className="settings__row-desc">Todos os dados são permanentemente apagados.</div>
+                  </div>
+                  <Btn variant="danger" size="sm" onClick={handleDeleteAccount} disabled={isDeleting}>
+                    {isDeleting ? 'A eliminar…' : 'Eliminar'}
+                  </Btn>
+                </div>
+              </div>
+            </section>
+          </div>
         </div>
       </div>
     </AppLayout>

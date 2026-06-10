@@ -1,15 +1,31 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import AppLayout from '../components/layout/AppLayout';
-import { Card, Badge, Button } from '../components/ui';
+import PageTop from '../components/layout/PageTop';
+import { Btn, Icon, Pill, Seg } from '../components/ui/Primitives';
 import { getAlerts } from '../services/alertsService';
 import { calculateISV } from '../lib/isv';
-import { ExternalLink, Search } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
+
+const eur = (v) => `€ ${Math.round(v).toLocaleString('pt-PT')}`;
+
+function dayLabel(date) {
+  if (date === 'Today') return 'Hoje';
+  if (date === 'Yesterday') return 'Ontem';
+  return date;
+}
+
+function timeOf(alert) {
+  if (!alert.createdAt) return null;
+  const d = new Date(alert.createdAt);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
+}
 
 export default function AlertHistory() {
   const { addToast } = useToast();
-
   const [alerts, setAlerts] = useState(null);
+  const [view, setView] = useState('Todos');
+  const [showFilters, setShowFilters] = useState(false);
   const [filterBrand, setFilterBrand] = useState('all');
   const [filterMargin, setFilterMargin] = useState('all');
   const [searchText, setSearchText] = useState('');
@@ -23,130 +39,121 @@ export default function AlertHistory() {
 
   const brandOptions = useMemo(() => {
     if (!alerts) return [];
-    const brands = [...new Set(alerts.map(a => a.carTitle.split(' ')[0].toLowerCase()))].sort();
-    return brands;
+    return [...new Set(alerts.map(a => a.carTitle.split(' ').find(w => /^[A-Za-z]/.test(w))?.toLowerCase()).filter(Boolean))].sort();
   }, [alerts]);
 
-  const alertsWithISV = useMemo(() => (alerts ?? []).map(alert => {
+  const enriched = useMemo(() => (alerts ?? []).map(alert => {
     const { isvPayable } = calculateISV(alert.cc, alert.co2, alert.fuelType, alert.ageYears, alert.flags.includes('PHEV'), false);
     const totalCost = alert.priceOriginal + isvPayable + alert.transportEst;
     const marginEst = alert.marketPrice - totalCost;
     return { ...alert, isvPayable, totalCost, marginEst };
   }), [alerts]);
 
-  const filteredAlerts = useMemo(() => alertsWithISV
+  const filtered = useMemo(() => enriched
     .filter(a => filterBrand === 'all' || a.carTitle.toLowerCase().includes(filterBrand))
-    .filter(a => filterMargin === 'all' || a.marginEst >= parseInt(filterMargin))
+    .filter(a => filterMargin === 'all' || a.marginEst >= parseInt(filterMargin, 10))
     .filter(a => !searchText || a.carTitle.toLowerCase().includes(searchText.toLowerCase())),
-  [alertsWithISV, filterBrand, filterMargin, searchText]);
+  [enriched, filterBrand, filterMargin, searchText]);
 
-  const groupedAlerts = useMemo(() => filteredAlerts.reduce((acc, alert) => {
-    if (!acc[alert.date]) acc[alert.date] = [];
-    acc[alert.date].push(alert);
+  const grouped = useMemo(() => filtered.reduce((acc, alert) => {
+    (acc[alert.date] ??= []).push(alert);
     return acc;
-  }, {}), [filteredAlerts]);
-
-  if (alerts === null) return (
-    <AppLayout>
-      <div style={{ padding: '2rem', maxWidth: '1000px', margin: '0 auto', width: '100%' }}>
-        {[1, 2, 3, 4].map(i => (
-          <div key={i} style={{ height: '90px', background: 'var(--graphite)', borderRadius: 'var(--r-lg)', marginBottom: '0.75rem', animation: 'pulse 1.5s ease-in-out infinite', opacity: 0.6 }} />
-        ))}
-      </div>
-    </AppLayout>
-  );
+  }, {}), [filtered]);
 
   return (
     <AppLayout>
-       <div style={{ padding: '2rem', maxWidth: '1000px', margin: '0 auto', width: '100%' }}>
-         
-         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-          <div>
-            <h1 style={{ fontSize: '1.75rem', fontWeight: '500', letterSpacing: '-0.02em', marginBottom: '0.25rem' }}>Histórico de Alertas</h1>
-            <p style={{ color: 'var(--dust)', fontSize: '13px' }}>Correspondências recentes de inventário em todas as suas pesquisas.</p>
-          </div>
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-            <div style={{ position: 'relative' }}>
-              <Search size={16} style={{ position: 'absolute', left: '12px', top: '10px', color: 'var(--ash)' }} />
-              <input
-                type="text"
-                placeholder="Pesquisar carros..."
-                value={searchText}
-                onChange={e => setSearchText(e.target.value)}
-                style={{ padding: '0 1rem 0 2.25rem', height: '36px', borderRadius: 'var(--r-md)', border: '1px solid var(--hairline)', outline: 'none', background: 'var(--graphite)', color: 'var(--bone)', fontSize: '13px', fontFamily: 'inherit' }}
-              />
+      <div className="page">
+        <PageTop
+          title="Histórico de alertas"
+          sub={alerts === null ? 'A carregar…' : `${alerts.length} alertas · últimos 30 dias`}
+          right={<>
+            <Seg options={['Todos', 'Abertos', 'Descartados']} value={view} onChange={setView} />
+            <Btn variant="ghost" icon="filter" onClick={() => setShowFilters(v => !v)}>Filtros</Btn>
+          </>}
+        />
+        <div className="page__body">
+          {showFilters && (
+            <div className="row gap-3" style={{ marginBottom: 24, flexWrap: 'wrap' }}>
+              <div className="input-group" style={{ width: 220 }}>
+                <Icon name="search" size={14} />
+                <input className="input" placeholder="Pesquisar carros" value={searchText} onChange={e => setSearchText(e.target.value)} />
+              </div>
+              <select className="select" style={{ width: 180 }} value={filterBrand} onChange={e => setFilterBrand(e.target.value)}>
+                <option value="all">Todas as marcas</option>
+                {brandOptions.map(b => (
+                  <option key={b} value={b}>{b.charAt(0).toUpperCase() + b.slice(1)}</option>
+                ))}
+              </select>
+              <select className="select" style={{ width: 180 }} value={filterMargin} onChange={e => setFilterMargin(e.target.value)}>
+                <option value="all">Qualquer margem</option>
+                <option value="2000">&gt; € 2 000</option>
+                <option value="3000">&gt; € 3 000</option>
+                <option value="4000">&gt; € 4 000</option>
+              </select>
             </div>
-            
-            <select
-              value={filterBrand}
-              onChange={e => setFilterBrand(e.target.value)}
-              style={{ height: '36px', padding: '0 10px', borderRadius: 'var(--r-md)', border: '1px solid var(--hairline)', outline: 'none', background: 'var(--graphite)', color: 'var(--bone)', fontSize: '13px', fontFamily: 'inherit' }}
-            >
-              <option value="all">Todas as Marcas</option>
-              {brandOptions.map(b => (
-                <option key={b} value={b}>{b.charAt(0).toUpperCase() + b.slice(1)}</option>
+          )}
+
+          {alerts === null ? (
+            <div className="timeline">
+              {[1, 2, 3].map(i => (
+                <div key={i} style={{ height: 86, background: 'var(--graphite)', border: '1px solid var(--hairline)', borderRadius: 'var(--r-lg)', animation: 'pulse 1.5s ease-in-out infinite' }} />
               ))}
-            </select>
-
-            <select 
-              value={filterMargin} 
-              onChange={e => setFilterMargin(e.target.value)}
-              style={{ height: '36px', padding: '0 10px', borderRadius: 'var(--r-md)', border: '1px solid var(--hairline)', outline: 'none', background: 'var(--graphite)', color: 'var(--bone)', fontSize: '13px', fontFamily: 'inherit' }}
-            >
-              <option value="all">Qualquer Margem</option>
-              <option value="2000">&gt; €2,000</option>
-              <option value="3000">&gt; €3,000</option>
-              <option value="4000">&gt; €4,000</option>
-            </select>
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-          {Object.keys(groupedAlerts).length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--ash)' }}>
+            </div>
+          ) : Object.keys(grouped).length === 0 ? (
+            <div style={{ padding: '48px 0', textAlign: 'center', fontSize: 12.5, color: 'var(--dust)' }}>
               Nenhum alerta corresponde aos filtros selecionados.
             </div>
-          ) : Object.entries(groupedAlerts).map(([date, alerts]) => (
-            <div key={date}>
-              <h3 style={{ fontSize: '0.875rem', fontWeight: '600', color: 'var(--ash)', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                {date === 'Today' ? 'Hoje' : date === 'Yesterday' ? 'Ontem' : date}
-              </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                {alerts.map(alert => (
-                  <Card key={alert.id} noPadding style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.5rem' }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.25rem' }}>
-                        <span style={{ fontSize: '0.875rem', fontWeight: '500', color: 'var(--ash)' }}>{alert.platform}</span>
-                        {alert.flags.map(flag => (
-                          <Badge key={flag} variant={flag === 'PHEV' ? 'success' : 'warn'}>{flag}</Badge>
-                        ))}
+          ) : (
+            <div className="timeline">
+              {Object.entries(grouped).map(([date, dayAlerts]) => (
+                <div key={date}>
+                  <div className="timeline__day">{dayLabel(date)}</div>
+                  {dayAlerts.map(a => {
+                    const time = timeOf(a);
+                    const risk = a.flags.find(f => f !== 'PHEV');
+                    return (
+                      <div
+                        key={a.id}
+                        className="alert-row"
+                        role="button"
+                        tabIndex={0}
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => window.open(a.listingUrl, '_blank', 'noopener,noreferrer')}
+                        onKeyDown={(e) => { if (e.key === 'Enter') window.open(a.listingUrl, '_blank', 'noopener,noreferrer'); }}
+                      >
+                        <div className="alert-thumb">CARRO</div>
+                        <div>
+                          <div className="alert-row__title">{a.carTitle}</div>
+                          <div className="alert-row__meta">
+                            <span>{a.platform}</span>
+                            {time && <><span style={{ color: 'var(--hairline-strong)' }}>·</span><span className="mono">{time}</span></>}
+                            {a.flags.includes('PHEV') && <><span style={{ color: 'var(--hairline-strong)' }}>·</span><Pill tone="emerald">PHEV</Pill></>}
+                            {risk && <><span style={{ color: 'var(--hairline-strong)' }}>·</span><Pill tone="amber"><Icon name="alert" size={10} strokeWidth={1.8} />{risk}</Pill></>}
+                          </div>
+                        </div>
+                        <div className="price-stack">
+                          <div className="price-stack__col">
+                            <span className="price-stack__label">Anúncio</span>
+                            <span className="price-stack__val">{eur(a.priceOriginal)}</span>
+                          </div>
+                          <div className="price-stack__col">
+                            <span className="price-stack__label">Landed PT</span>
+                            <span className="price-stack__val">{eur(a.totalCost)}</span>
+                          </div>
+                          <div className="price-stack__col">
+                            <span className="price-stack__label">Margem</span>
+                            <span className="price-stack__val price-stack__val--emerald">+ {eur(a.marginEst)}</span>
+                          </div>
+                        </div>
                       </div>
-                      <h4 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>{alert.carTitle}</h4>
-                      <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.875rem', color: 'var(--ash)' }}>
-                        <span>Preço Anúncio: €{alert.priceOriginal.toLocaleString()}</span>
-                        <span>+ ISV: €{Math.round(alert.isvPayable).toLocaleString()}</span>
-                        <span>+ Transp.: €{alert.transportEst.toLocaleString()}</span>
-                        <span style={{ fontWeight: '500', color: 'var(--bone)' }}>Total: €{Math.round(alert.totalCost).toLocaleString()}</span>
-                      </div>
-                    </div>
-
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-                      <div style={{ textAlign: 'right' }}>
-                         <div style={{ fontSize: '0.75rem', color: 'var(--ash)' }}>Margem Est.</div>
-                         <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--emerald)' }}>
-                           €{Math.round(alert.marginEst).toLocaleString()}
-                         </div>
-                      </div>
-                      <Button onClick={() => window.open(alert.listingUrl, '_blank', 'noopener,noreferrer')}><ExternalLink size={16} /> Ver</Button>
-                    </div>
-                  </Card>
-                ))}
-              </div>
+                    );
+                  })}
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
-
-       </div>
+      </div>
     </AppLayout>
   );
 }

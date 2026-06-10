@@ -4,7 +4,10 @@ import { ToastProvider } from './context/ToastContext';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 
 // Pages
+import Landing from './pages/Landing';
 import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
+import IsvCalculator from './pages/IsvCalculator';
 import Signup from './pages/Signup';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
@@ -57,6 +60,7 @@ function App() {
       <ToastProvider>
         <BrowserRouter>
           <Routes>
+            <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -64,11 +68,12 @@ function App() {
             <Route path="/verify-email" element={<VerifyEmail />} />
 
             {/* Protected Routes */}
-            <Route path="/" element={<ProtectedRoute><Searches /></ProtectedRoute>} />
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/searches" element={<ProtectedRoute><Searches /></ProtectedRoute>} />
             <Route path="/searches/new" element={<ProtectedRoute><CreateSearch /></ProtectedRoute>} />
             <Route path="/searches/:id/edit" element={<ProtectedRoute><CreateSearch /></ProtectedRoute>} />
             <Route path="/alerts" element={<ProtectedRoute><AlertHistory /></ProtectedRoute>} />
+            <Route path="/isv" element={<ProtectedRoute><IsvCalculator /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
             <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
             <Route path="*" element={<NotFound />} />

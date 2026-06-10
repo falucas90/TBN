@@ -1,139 +1,74 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Search, Bell, Settings, LogOut, ChevronLeft, ChevronRight, Shield } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { SieveMark, Wordmark } from '../ui/Logo';
+import { SieveMark } from '../ui/Logo';
+import { Icon } from '../ui/Primitives';
+import { getSearches } from '../../services/searchesService';
+import { getAlerts } from '../../services/alertsService';
 
-export default function Sidebar({ isCollapsed, setIsCollapsed }) {
+export default function Sidebar() {
   const { logout, currentUser } = useAuth();
   const navigate = useNavigate();
+  const [counts, setCounts] = useState({ searches: null, alerts: null });
+
+  useEffect(() => {
+    let mounted = true;
+    Promise.all([
+      getSearches().catch(() => []),
+      getAlerts({ limit: 500 }).catch(() => []),
+    ]).then(([searches, alerts]) => {
+      if (mounted) setCounts({ searches: searches.length, alerts: alerts.length });
+    });
+    return () => { mounted = false; };
+  }, []);
 
   const handleLogout = async () => {
     await logout();
     navigate('/login');
   };
-  const width = isCollapsed ? 'var(--sidebar-collapsed)' : 'var(--sidebar-w)';
 
-  const navItems = [
-    { to: '/searches', icon: Search, label: 'Pesquisas' },
-    { to: '/alerts', icon: Bell, label: 'Alertas' },
-    { to: '/settings', icon: Settings, label: 'Definições' },
-    ...(currentUser?.role === 'admin' ? [{ to: '/admin', icon: Shield, label: 'Admin' }] : []),
+  const items = [
+    { to: '/dashboard', icon: 'sparkle', label: 'Dashboard' },
+    { to: '/searches', icon: 'sieve', label: 'Pesquisas', count: counts.searches },
+    { to: '/alerts', icon: 'bell', label: 'Histórico de alertas', count: counts.alerts },
+    { to: '/isv', icon: 'calc', label: 'Calculadora ISV' },
+    { to: '/settings', icon: 'settings', label: 'Definições' },
+    ...(currentUser?.role === 'admin' ? [{ to: '/admin', icon: 'alert', label: 'Admin' }] : []),
   ];
 
+  const fullName = currentUser?.user_metadata?.full_name || currentUser?.email || 'Utilizador';
+  const company = currentUser?.user_metadata?.company || 'Crivo';
+  const initials = fullName.split(/\s+/).map(p => p[0]).filter(Boolean).slice(0, 2).join('').toUpperCase();
+
   return (
-    <aside style={{
-      width,
-      backgroundColor: 'var(--slate)',
-      borderRight: '1px solid var(--hairline)',
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100vh',
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      transition: 'width var(--t-slow) var(--ease)',
-      overflowX: 'hidden',
-      zIndex: 100,
-    }}>
-      {/* Brand */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: isCollapsed ? 'center' : 'space-between',
-        padding: '16px 12px 20px',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', overflow: 'hidden' }}>
-          {isCollapsed ? (
-            <SieveMark size={28} color="var(--emerald)" />
-          ) : (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <SieveMark size={28} color="var(--emerald)" />
-              <Wordmark size={16} />
-            </div>
-          )}
-        </div>
-        {!isCollapsed && (
-          <button
-            onClick={() => setIsCollapsed(true)}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--dust)', padding: '4px', borderRadius: 'var(--r-sm)' }}
-          >
-            <ChevronLeft size={16} />
-          </button>
-        )}
+    <aside className="side">
+      <div className="side__brand">
+        <SieveMark size={22} color="var(--bone)" />
+        <span className="side__brand-word">CRIVO</span>
       </div>
-
-      {/* Nav */}
-      <nav style={{ flex: 1, padding: '0 8px' }}>
-        {isCollapsed && (
-          <div style={{ textAlign: 'center', marginBottom: '8px' }}>
-            <button
-              onClick={() => setIsCollapsed(false)}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--dust)', padding: '4px', borderRadius: 'var(--r-sm)' }}
-            >
-              <ChevronRight size={16} />
-            </button>
-          </div>
-        )}
-        <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: '2px' }}>
-          {navItems.map((item) => (
-            <li key={item.to}>
-              <NavLink
-                to={item.to}
-                title={isCollapsed ? item.label : undefined}
-                style={({ isActive }) => ({
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: isCollapsed ? 'center' : 'flex-start',
-                  gap: '10px',
-                  padding: '9px 12px',
-                  borderRadius: 'var(--r-md)',
-                  textDecoration: 'none',
-                  fontSize: '13px',
-                  fontWeight: isActive ? '500' : '400',
-                  color: isActive ? 'var(--emerald)' : 'var(--ash)',
-                  backgroundColor: isActive ? 'var(--emerald-12)' : 'transparent',
-                  borderLeft: `2px solid ${isActive ? 'var(--emerald)' : 'transparent'}`,
-                  marginLeft: '-2px',
-                  whiteSpace: 'nowrap',
-                  transition: 'color var(--t-fast), background var(--t-fast)',
-                })}
-              >
-                <item.icon size={16} style={{ flexShrink: 0 }} />
-                {!isCollapsed && <span>{item.label}</span>}
-              </NavLink>
-            </li>
-          ))}
-        </ul>
+      <nav className="side__nav">
+        {items.map(it => (
+          <NavLink
+            key={it.to}
+            to={it.to}
+            className={({ isActive }) => `side__item ${isActive ? 'side__item--active' : ''}`}
+          >
+            {it.icon === 'sieve'
+              ? <SieveMark size={16} color="currentColor" />
+              : <Icon name={it.icon} size={16} />}
+            <span>{it.label}</span>
+            {it.count != null && <span className="side__count">{it.count}</span>}
+          </NavLink>
+        ))}
       </nav>
-
-      {/* User / Logout */}
-      <div style={{
-        padding: '12px 8px',
-        borderTop: '1px solid var(--hairline)',
-      }}>
-        <button
-          onClick={handleLogout}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: isCollapsed ? 'center' : 'flex-start',
-            gap: '10px',
-            width: '100%',
-            padding: '9px 12px',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            textAlign: 'left',
-            color: 'var(--ash)',
-            fontSize: '13px',
-            fontWeight: '400',
-            borderRadius: 'var(--r-md)',
-          }}
-          title={isCollapsed ? 'Sair' : undefined}
-        >
-          <LogOut size={16} style={{ flexShrink: 0 }} />
-          {!isCollapsed && <span>Sair</span>}
+      <div className="side__user">
+        <div className="avatar">{initials}</div>
+        <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.3, flex: 1, minWidth: 0 }}>
+          <span className="side__user-name">{fullName}</span>
+          <span className="side__user-co">{company}</span>
+        </div>
+        <button className="side__exit" title="Terminar sessão" aria-label="Terminar sessão" onClick={handleLogout}>
+          <Icon name="logout" size={15} />
         </button>
       </div>
     </aside>

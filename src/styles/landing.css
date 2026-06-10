@@ -1,0 +1,240 @@
+/* CRIVO — marketing front page (ported from Crivo Website.html) */
+
+.site {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.site__inner {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 var(--s-7);
+}
+
+/* (.grain and .wa-card live in app.css — shared with the app screens) */
+
+/* ——————— Nav ——————— */
+.site-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(250, 250, 247, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--hairline);
+}
+.site-nav__row {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-6);
+}
+.site-nav__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.site-nav__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+
+/* Anchor buttons reuse .btn; make sure anchors center properly */
+a.btn { text-decoration: none; }
+
+/* ——————— Hero ——————— */
+.hero {
+  position: relative;
+  border-bottom: 1px solid var(--hairline);
+  overflow: hidden;
+}
+.hero__row {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: var(--s-10);
+  align-items: center;
+  padding-block: var(--s-11);
+}
+.hero__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: var(--s-5);
+}
+.hero__title {
+  font-size: 56px;
+  font-weight: 500;
+  letter-spacing: var(--tracking-tighter);
+  line-height: 1.05;
+  text-wrap: balance;
+}
+.hero__title em {
+  font-style: normal;
+  color: var(--emerald);
+}
+.hero__sub {
+  margin-top: var(--s-5);
+  max-width: 46ch;
+  font-size: var(--fs-lg);
+  line-height: 1.6;
+  color: var(--ash);
+  text-wrap: pretty;
+}
+.hero__cta {
+  margin-top: var(--s-7);
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+.hero__note {
+  margin-top: var(--s-4);
+  font-size: var(--fs-micro);
+  color: var(--dust);
+}
+
+/* Hero visual — WhatsApp alert on a slate panel */
+.hero__visual {
+  position: relative;
+  background: var(--slate);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-xl);
+  padding: var(--s-8) var(--s-7);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-4);
+}
+.hero__visual .wa-card {
+  box-shadow: 0 24px 48px rgba(18, 20, 15, 0.10), 0 2px 8px rgba(18, 20, 15, 0.05);
+}
+.hero__visual-label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dust);
+}
+
+/* ——————— Platforms strip ——————— */
+.platforms {
+  border-bottom: 1px solid var(--hairline);
+}
+.platforms__row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-6);
+  padding-block: var(--s-5);
+  flex-wrap: wrap;
+}
+.platforms__label {
+  font-size: var(--fs-eyebrow);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: var(--dust);
+  flex: 0 0 auto;
+}
+.platforms__list {
+  display: flex;
+  align-items: center;
+  gap: var(--s-6);
+  flex-wrap: wrap;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--ash);
+}
+.platforms__list span { white-space: nowrap; }
+
+/* ——————— Features ——————— */
+.features__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--s-7);
+  padding-block: var(--s-10);
+}
+.feature {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+.feature__icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-md);
+  color: var(--emerald);
+  background: var(--graphite);
+}
+.feature__title {
+  font-size: var(--fs-lg);
+  font-weight: 500;
+  letter-spacing: var(--tracking-tight);
+}
+.feature__body {
+  font-size: var(--fs-body);
+  color: var(--ash);
+  line-height: var(--lh-body);
+  max-width: 34ch;
+  text-wrap: pretty;
+}
+
+/* ——————— Footer ——————— */
+.site-footer {
+  border-top: 1px solid var(--hairline);
+  margin-top: auto;
+}
+.site-footer__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-6);
+  padding-block: var(--s-6);
+}
+.site-footer__brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.site-footer__meta {
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--chalk);
+}
+.site-footer__links {
+  display: flex;
+  align-items: center;
+  gap: var(--s-5);
+  font-size: var(--fs-micro);
+  color: var(--ash);
+}
+.site-footer__links a:hover { color: var(--bone); }
+
+/* ——————— Responsive (the prototype was desktop-fixed; the app is not) ——————— */
+@media (max-width: 920px) {
+  .hero__row {
+    grid-template-columns: 1fr;
+    gap: var(--s-8);
+    padding-block: var(--s-9);
+  }
+  .hero__title { font-size: 40px; }
+  .features__grid {
+    grid-template-columns: 1fr;
+    gap: var(--s-8);
+    padding-block: var(--s-9);
+  }
+  .site-footer__row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--s-4);
+  }
+}
+@media (max-width: 560px) {
+  .site__inner { padding: 0 var(--s-5); }
+  .hero__title { font-size: 32px; }
+}

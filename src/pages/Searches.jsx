@@ -1,16 +1,29 @@
-import React from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
-import { Card, Button, Badge, StatCard } from '../components/ui';
-import { getSearches, updateSearch, deleteSearch as deleteSearchById } from '../services/searchesService';
+import PageTop from '../components/layout/PageTop';
+import { Btn, Dot, Icon, NumPair } from '../components/ui/Primitives';
+import { getSearches } from '../services/searchesService';
 import { getAlerts } from '../services/alertsService';
-import { Search, TrendingUp, Bell, Plus, Play, Pause, ExternalLink } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
-import { useState, useEffect } from 'react';
+
+function summarize(s) {
+  const c = s.criteria || {};
+  const parts = [
+    [c.brand, c.model].filter(Boolean).join(' '),
+    c.fuel,
+    c.minYear ? `${c.minYear}${c.maxYear ? `–${c.maxYear}` : '+'}` : null,
+    (c.maxKm ?? c.maxMileage) ? `<${Math.round((c.maxKm ?? c.maxMileage) / 1000)}k km` : null,
+    c.maxPrice ? `€${Math.round((c.minPrice || 0) / 1000)}k–€${Math.round(c.maxPrice / 1000)}k` : null,
+    (s.sources || []).join('/') || null,
+  ];
+  return parts.filter(Boolean).join(' · ');
+}
 
 export default function Searches() {
   const { addToast } = useToast();
   const navigate = useNavigate();
+  const [query, setQuery] = useState('');
   const [searches, setSearches] = useState(undefined);
   const [alertCount7d, setAlertCount7d] = useState(null);
 
@@ -25,140 +38,81 @@ export default function Searches() {
     }).catch(() => setAlertCount7d(0));
   }, [addToast]);
 
-  const toggleSearchStatus = async (id) => {
-    const prev = searches.find(s => s.id === id);
-    if (!prev) return;
-    const isPausing = prev.status === 'active';
-    const newStatus = isPausing ? 'paused' : 'active';
-    setSearches(all => all.map(s => s.id === id ? { ...s, status: newStatus } : s));
-    try {
-      await updateSearch(id, { status: newStatus });
-      addToast(isPausing ? 'Pesquisa pausada.' : 'Pesquisa retomada com sucesso.', isPausing ? 'warn' : 'success');
-    } catch {
-      setSearches(all => all.map(s => s.id === id ? { ...s, status: prev.status } : s));
-      addToast('Erro ao atualizar pesquisa.', 'danger');
-    }
-  };
+  const shown = useMemo(() => {
+    if (!searches) return [];
+    const q = query.trim().toLowerCase();
+    if (!q) return searches;
+    return searches.filter(s => (s.title + ' ' + summarize(s)).toLowerCase().includes(q));
+  }, [searches, query]);
 
-  const deleteSearch = async (id) => {
-    const target = searches.find(s => s.id === id);
-    if (!window.confirm(`Eliminar a pesquisa "${target?.title}"? Esta ação é irreversível.`)) return;
-    const snapshot = searches;
-    setSearches(prev => prev.filter(s => s.id !== id));
-    try {
-      await deleteSearchById(id);
-      addToast('Pesquisa eliminada.', 'warn');
-    } catch {
-      setSearches(snapshot);
-      addToast('Erro ao eliminar pesquisa.', 'danger');
-    }
-  };
-
-  if (searches === undefined) return (
-    <AppLayout>
-      <div style={{ padding: '2rem', maxWidth: '900px', margin: '0 auto', width: '100%' }}>
-        {[1, 2, 3].map(i => (
-          <div key={i} style={{ height: '100px', background: 'var(--graphite)', borderRadius: 'var(--r-lg)', marginBottom: '1rem', animation: 'pulse 1.5s ease-in-out infinite', opacity: 0.6 }} />
-        ))}
-      </div>
-    </AppLayout>
-  );
-
-  const activeSearches = searches.filter(s => s.status === 'active');
-  const matchesToday = activeSearches.reduce((sum, s) => sum + s.matchesToday, 0);
-  const highMarginCount = activeSearches.filter(s => s.avgMargin > 3000).length;
-  const avgMarginValue = activeSearches.length > 0
-    ? Math.round(activeSearches.reduce((sum, s) => sum + s.avgMargin, 0) / activeSearches.length)
-    : 0;
-  const platformCount = new Set(searches.flatMap(s => s.sources)).size;
+  const activeCount = (searches || []).filter(s => s.status === 'active').length;
 
   return (
     <AppLayout>
-      <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
-
-        {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-          <div>
-            <h1 style={{ fontSize: '1.75rem', fontWeight: '500', letterSpacing: '-0.02em', marginBottom: '0.25rem' }}>Pesquisas Ativas</h1>
-            <p style={{ color: 'var(--dust)', fontSize: '13px' }}>Está a acompanhar {searches.length} pesquisas em {platformCount} plataformas.</p>
-          </div>
-          <Link to="/searches/new">
-            <Button><Plus size={18} /> Nova pesquisa</Button>
-          </Link>
-        </div>
-
-        {/* Stats Row */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '3rem' }}>
-          <StatCard label="Matches Hoje" value={String(matchesToday)} trend="+1" trendLabel="vs ontem" icon={Search} />
-          <StatCard label="Alta Margem" value={String(highMarginCount)} trend="↑" trendLabel="top tier" icon={TrendingUp} />
-          <StatCard label="Alertas (7d)" value={alertCount7d === null ? '…' : String(alertCount7d)} trend="" trendLabel="últimos 7 dias" icon={Bell} />
-          <StatCard label="Margem Média" value={`€${avgMarginValue.toLocaleString()}`} trend="+€120" trendLabel="vs mês passado" icon={TrendingUp} />
-        </div>
-
-        {/* Searches List */}
-        <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1.5rem' }}>As suas Pesquisas</h2>
-        
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {searches.map(search => {
-            const isActive = search.status === 'active';
-            
-            return (
-              <Card key={search.id} style={{ opacity: isActive ? 1 : 0.6, transition: 'opacity 0.2s' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  
-                  {/* Left info */}
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-                      <h3 style={{ fontSize: '1.125rem', fontWeight: '600' }}>{search.title}</h3>
-                      <Badge variant={isActive ? 'success' : 'warn'}>
-                        {isActive ? 'Ativo' : 'Pausado'}
-                      </Badge>
-                      {search.matchesToday > 0 && isActive && (
-                        <Badge variant="primary">{search.matchesToday} novos hoje</Badge>
-                      )}
+      <div className="page">
+        <PageTop
+          title="Pesquisas"
+          sub={searches === undefined
+            ? 'A carregar…'
+            : `${searches.length} pesquisas · ${activeCount} ativas · última atualização há 2 min`}
+          right={<>
+            <div className="input-group" style={{ width: 240 }}>
+              <Icon name="search" size={14} />
+              <input className="input" placeholder="Filtrar pesquisas" value={query} onChange={(e) => setQuery(e.target.value)} />
+            </div>
+            <Btn variant="primary" icon="plus" onClick={() => navigate('/searches/new')}>Nova pesquisa</Btn>
+          </>}
+        />
+        <div className="page__body">
+          {searches === undefined ? (
+            <div className="searches-grid">
+              {[1, 2, 3].map(i => (
+                <div key={i} style={{ height: 170, background: 'var(--graphite)', border: '1px solid var(--hairline)', borderRadius: 'var(--r-lg)', animation: 'pulse 1.5s ease-in-out infinite' }} />
+              ))}
+            </div>
+          ) : (
+            <>
+              <div className="searches-grid">
+                {shown.map((s) => {
+                  const active = s.status === 'active';
+                  return (
+                    <div
+                      key={s.id}
+                      className="search-card"
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => navigate(`/searches/${s.id}/edit`)}
+                      onKeyDown={(e) => { if (e.key === 'Enter') navigate(`/searches/${s.id}/edit`); }}
+                    >
+                      <div className="search-card__head">
+                        <div className="search-card__name">{s.title}</div>
+                        <div className="search-card__status">
+                          <Dot tone={active ? 'emerald' : 'dust'} />
+                          {active ? 'Ativa' : 'Em pausa'}
+                        </div>
+                      </div>
+                      <div className="search-card__summary">{summarize(s)}</div>
+                      <div className="search-card__stats">
+                        <NumPair label="Agora" value={active ? String(s.matchesToday ?? 0) : '—'} big />
+                        <NumPair label="7 dias" value={alertCount7d === null ? '…' : String(alertCount7d)} big />
+                        <NumPair
+                          label="Margem méd."
+                          value={active && s.avgMargin ? `€ ${s.avgMargin.toLocaleString('pt-PT')}` : '—'}
+                          big
+                          emerald={active && !!s.avgMargin}
+                        />
+                      </div>
                     </div>
-                    
-                    <div style={{
-                      fontSize: '13px', color: 'var(--ash)',
-                      display: 'flex', gap: '1rem', marginBottom: '1.5rem'
-                    }}>
-                      <span>Ano Mín: {search.criteria.minYear}</span>
-                      <span>KMs Máx: {(search.criteria.maxMileage ?? search.criteria.maxKm ?? 0).toLocaleString()} km</span>
-                      <span>Combustível: {search.criteria.fuel}</span>
-                      <span>Plataformas: {search.sources.join(', ')}</span>
-                    </div>
-
-                    <div style={{ display: 'flex', gap: '0.75rem' }}>
-                      {isActive ? (
-                        <>
-                          <Button variant="secondary" onClick={() => navigate('/alerts')}><ExternalLink size={16} /> Ver Resultados</Button>
-                          <Button variant="ghost" onClick={() => toggleSearchStatus(search.id)}><Pause size={16} /> Pausar</Button>
-                        </>
-                      ) : (
-                        <Button variant="secondary" onClick={() => toggleSearchStatus(search.id)}><Play size={16} /> Retomar</Button>
-                      )}
-                      <Link to={`/searches/${search.id}/edit`}>
-                        <Button variant="ghost">Editar</Button>
-                      </Link>
-                      <Button variant="ghost" onClick={() => deleteSearch(search.id)}>Eliminar</Button>
-                    </div>
-                  </div>
-
-                  {/* Right abstract stats */}
-                  <div style={{ 
-                    textAlign: 'right', display: 'flex', flexDirection: 'column', 
-                    alignItems: 'flex-end', gap: '0.25rem' 
-                  }}>
-                    <span style={{ fontSize: '12px', color: 'var(--dust)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Margem Média Est.</span>
-                    <span style={{ fontSize: '1.25rem', fontWeight: '500', color: 'var(--emerald)' }}>
-                      €{search.avgMargin.toLocaleString()}
-                    </span>
-                  </div>
-
+                  );
+                })}
+              </div>
+              {shown.length === 0 && (
+                <div style={{ padding: '48px 0', textAlign: 'center', fontSize: 12.5, color: 'var(--dust)' }}>
+                  {query ? `Sem pesquisas para “${query}”.` : 'Ainda não tem pesquisas. Crie a primeira.'}
                 </div>
-              </Card>
-            );
-          })}
+              )}
+            </>
+          )}
         </div>
       </div>
     </AppLayout>

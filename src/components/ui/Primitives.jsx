@@ -84,6 +84,7 @@ export const Icon = ({ name, size = 16, strokeWidth = 1.5, color = "currentColor
     alert: <><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></>,
     clock: <><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></>,
     sparkle: <path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>,
+    logout: <><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></>,
     sieve: null,
   };
   if (name === "sieve") return <SieveMark size={size} color={color} />;
@@ -112,6 +113,23 @@ export const Btn = ({ variant = "default", size, children, icon, iconRight, ...p
     </button>
   );
 };
+
+/* ——————————————————————————— Segmented control ——————————————————————————— */
+export const Seg = ({ options, value, onChange }) => (
+  <div className="seg">
+    {options.map(opt => (
+      <button
+        key={opt}
+        type="button"
+        className="seg__opt"
+        aria-selected={value === opt}
+        onClick={() => onChange && onChange(opt)}
+      >
+        {opt}
+      </button>
+    ))}
+  </div>
+);
 
 /* ——————————————————————————— Switch ——————————————————————————— */
 export const Switch = ({ checked, onChange }) => (
