@@ -103,18 +103,18 @@ export default function Signup() {
               {step === 1 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                   <div className="form-grid-2">
-                    <FormField label="Nome" required>
-                      <input type="text" className="input" value={nome} onChange={(e) => setNome(e.target.value)} />
+                    <FormField label="Nome" required htmlFor="signup-nome">
+                      <input id="signup-nome" type="text" className="input" value={nome} onChange={(e) => setNome(e.target.value)} />
                     </FormField>
-                    <FormField label="Apelido" required>
-                      <input type="text" className="input" value={apelido} onChange={(e) => setApelido(e.target.value)} />
+                    <FormField label="Apelido" required htmlFor="signup-apelido">
+                      <input id="signup-apelido" type="text" className="input" value={apelido} onChange={(e) => setApelido(e.target.value)} />
                     </FormField>
                   </div>
-                  <FormField label="Email" required>
-                    <input type="email" className="input" placeholder="stand@exemplo.pt" value={email} onChange={(e) => setEmail(e.target.value)} />
+                  <FormField label="Email" required htmlFor="signup-email">
+                    <input id="signup-email" type="email" className="input" placeholder="stand@exemplo.pt" value={email} onChange={(e) => setEmail(e.target.value)} />
                   </FormField>
-                  <FormField label="Palavra-passe" required>
-                    <input type="password" className="input" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} />
+                  <FormField label="Palavra-passe" required htmlFor="signup-password">
+                    <input id="signup-password" type="password" className="input" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} />
                   </FormField>
                   {error && <p style={{ color: 'var(--coral)', fontSize: 13, margin: 0 }}>{error}</p>}
                   <Button variant="primary" fullWidth onClick={() => { if (validateStep1()) setStep(2); }}>Continuar</Button>
@@ -123,11 +123,11 @@ export default function Signup() {
 
               {step === 2 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                  <FormField label="Nome da Empresa" required>
-                    <input type="text" className="input" value={company} onChange={(e) => setCompany(e.target.value)} />
+                  <FormField label="Nome da Empresa" required htmlFor="signup-company">
+                    <input id="signup-company" type="text" className="input" value={company} onChange={(e) => setCompany(e.target.value)} />
                   </FormField>
-                  <FormField label="NIF" required>
-                    <input type="text" className="input" value={nif} onChange={(e) => setNif(e.target.value)} />
+                  <FormField label="NIF" required htmlFor="signup-nif">
+                    <input id="signup-nif" type="text" className="input" value={nif} onChange={(e) => setNif(e.target.value)} />
                   </FormField>
                   {error && <p style={{ color: 'var(--coral)', fontSize: 13, margin: 0 }}>{error}</p>}
                   <Button variant="primary" fullWidth onClick={handleSignup} disabled={isSubmitting}>

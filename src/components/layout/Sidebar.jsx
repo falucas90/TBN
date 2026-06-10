@@ -55,6 +55,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
         {!isCollapsed && (
           <button
             onClick={() => setIsCollapsed(true)}
+            aria-label="Recolher menu"
             style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--dust)', padding: '4px', borderRadius: 'var(--r-sm)' }}
           >
             <ChevronLeft size={16} />
@@ -68,6 +69,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
           <div style={{ textAlign: 'center', marginBottom: '8px' }}>
             <button
               onClick={() => setIsCollapsed(false)}
+              aria-label="Expandir menu"
               style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--dust)', padding: '4px', borderRadius: 'var(--r-sm)' }}
             >
               <ChevronRight size={16} />
