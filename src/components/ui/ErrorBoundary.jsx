@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import * as Sentry from '@sentry/react';
 import { BrandLockup } from './Logo';
 
 export default class ErrorBoundary extends Component {
@@ -9,6 +10,12 @@ export default class ErrorBoundary extends Component {
 
   static getDerivedStateFromError(error) {
     return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    if (import.meta.env.VITE_SENTRY_DSN) {
+      Sentry.captureException(error, { extra: errorInfo });
+    }
   }
 
   render() {
