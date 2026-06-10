@@ -89,3 +89,7 @@
 {"entryId":"01KTMSCV0TZC9XAQ9V9AYHVG0B","taskId":"task-evaluate-app-security-01ktmt058jcn","stage":"review","outcome":"helpful","timestamp":"2026-06-10T15:11:05.732Z"}
 {"entryId":"01KT557P9JJ1PZFA9FKG46GFB3","taskId":"task-evaluate-app-security-01ktmt058jcn","stage":"review","outcome":"helpful","timestamp":"2026-06-10T15:11:05.732Z"}
 {"entryId":"01KTHR0F0NGM1ZMRT95JJ7Z8BH","taskId":"task-evaluate-app-security-01ktmt058jcn","stage":"review","outcome":"helpful","timestamp":"2026-06-10T15:11:05.732Z"}
+{"entryId":"01KT558SG86V2JGF6SEZ6TH91B","taskId":"task-evaluate-app-security-01ktmt058jcn","stage":"release","outcome":"helpful","timestamp":"2026-06-10T15:39:18.429Z"}
+{"entryId":"01KT54YWVD4MNT4ZBE0CRCNGX7","taskId":"task-evaluate-app-security-01ktmt058jcn","stage":"release","outcome":"helpful","timestamp":"2026-06-10T15:39:18.429Z"}
+{"entryId":"01KTMPRVRQ2XD7XT7XDAPV1240","taskId":"task-evaluate-app-security-01ktmt058jcn","stage":"release","outcome":"noise","timestamp":"2026-06-10T15:39:18.429Z"}
+{"entryId":"01KT54YNF60ZY0AA4FS53AKKSP","taskId":"task-evaluate-app-security-01ktmt058jcn","stage":"release","outcome":"noise","timestamp":"2026-06-10T15:39:18.429Z"}
