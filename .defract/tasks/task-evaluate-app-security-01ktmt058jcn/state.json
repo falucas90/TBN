@@ -1,11 +1,11 @@
 {
   "id": "task-evaluate-app-security-01ktmt058jcn",
   "status": "active",
-  "stage": "implementation",
+  "stage": "review",
   "phase": 1,
   "totalPhases": 1,
   "createdAt": "2026-06-08T23:45:01Z",
-  "updatedAt": "2026-06-09T07:24:36Z",
+  "updatedAt": "2026-06-10T15:11:15Z",
   "events": [
     {
       "base_branch": "main",
@@ -419,6 +419,86 @@
       "type": "stage_work_complete",
       "worktree_head": "6f04ee450ad2114a04c312a9e3c5b9818008fb38",
       "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "base_branch": "main",
+      "merged_commits": 9,
+      "timestamp": "2026-06-10T15:08:49Z",
+      "type": "worktree_synced"
+    },
+    {
+      "actor": null,
+      "stage": "implementation",
+      "timestamp": "2026-06-10T15:08:47Z",
+      "type": "stage_approved"
+    },
+    {
+      "current_worktree_head": "e8ca68cc4d7470bc7e436ba79f98f56139f4b362",
+      "current_worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stage": "implementation",
+      "stale_worktree_head": "6f04ee450ad2114a04c312a9e3c5b9818008fb38",
+      "stale_worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timestamp": "2026-06-10T15:08:49Z",
+      "type": "worktree_drift_detected",
+      "what_changed": "HEAD"
+    },
+    {
+      "action": "sweep",
+      "rationale": "Routine sync drift: HEAD fast-forwarded (stale HEAD is a strict ancestor of current) with a byte-identical dirty-status digest; swept forward automatically without waking an agent.",
+      "resolved_by": "auto",
+      "stage": "implementation",
+      "timestamp": "2026-06-10T15:08:49Z",
+      "type": "worktree_drift_resolved"
+    },
+    {
+      "from": "implementation",
+      "timestamp": "2026-06-10T15:08:49Z",
+      "to": "review",
+      "type": "stage_advanced"
+    },
+    {
+      "base_branch": "main",
+      "reason": "already_up_to_date",
+      "timestamp": "2026-06-10T15:08:49Z",
+      "type": "worktree_sync_skipped"
+    },
+    {
+      "mode": "start",
+      "session_id": "01kts18hxk9fb73xww5kddb8zv",
+      "stage": "review",
+      "timestamp": "2026-06-10T15:08:54Z",
+      "type": "stage_agent_started"
+    },
+    {
+      "details": "ESLint: 112 pre-existing errors (no-unused-vars in React imports across src/ pages and components); SECURITY_AUDIT.md introduces zero new lint violations. Manual checks all pass: SECURITY_AUDIT.md exists at repo root, 11 distinct findings across 4 severity levels, all R1-R12 covered, findings grouped Critical → High → Medium → Low, all Type fields use conformant labels including M-04 (now reads \"Code change (via C-01 and H-03)\").",
+      "failed": 0,
+      "passed": 5,
+      "phase": 1,
+      "skipped": 0,
+      "timestamp": "2026-06-10T15:10:15Z",
+      "type": "test_results"
+    },
+    {
+      "change_summary": "APPROVE: SECURITY_AUDIT.md covers all 12 requirement areas with 11 accurate findings grouped by severity. The loop-back fix was correctly applied: M-04's Type field now reads \"Code change (via C-01 and H-03)\", satisfying AC-4. All 8 acceptance criteria pass.",
+      "revision": 2,
+      "stage": "review",
+      "timestamp": "2026-06-10T15:10:44Z",
+      "type": "stage_content_updated"
+    },
+    {
+      "alternatives_considered": [],
+      "decision": "Review verdict: APPROVE",
+      "rationale": "8/8 acceptance criteria passed, 4/5 automated checks passed (lint failure is pre-existing, unrelated to this task). Loop-back fix verified: M-04 Type field at SECURITY_AUDIT.md:259 now reads \"Code change (via C-01 and H-03)\", satisfying AC-4. All 11 findings have accurate severity ratings, verified file:line references, and conformant Type labels.",
+      "timestamp": "2026-06-10T15:10:54Z",
+      "type": "decision"
+    },
+    {
+      "stage": "review",
+      "summary": "APPROVE — all 8 acceptance criteria pass. Loop-back fix verified: M-04 Type field updated to \"Code change (via C-01 and H-03)\". SECURITY_AUDIT.md contains 11 findings across 4 severity levels covering all R1–R12 requirement areas. Ready to advance to release.",
+      "timestamp": "2026-06-10T15:11:15Z",
+      "type": "stage_work_complete",
+      "worktree_head": "e8ca68cc4d7470bc7e436ba79f98f56139f4b362",
+      "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     }
   ],
   "needsArchitecture": false,
@@ -436,40 +516,41 @@
     "rationale": "Audit produces a document (SECURITY_AUDIT.md) — no UI changes so design is skipped; single bounded output with no new system boundaries so architecture is skipped. Bug-fix template (scope → implementation → review → release) matches the workflow: implement the audit, review the findings, ship the document."
   },
   "stageApprovals": {
-    "scope": "2026-06-08T23:55:03Z"
+    "scope": "2026-06-08T23:55:03Z",
+    "implementation": "2026-06-10T15:08:47Z"
   },
   "stageContent": {
-    "implementation": "## Phase 1: Perform audit and write findings document\n\n**Status:** Complete\n\n**Artifact created:** `SECURITY_AUDIT.md` (22.6 KB) at repository root\n\n**Findings summary:**\n- 2 Critical: mock auth bypass (R1) and admin deactivation fully ineffective/user-reversible (R4+R11)\n- 3 High: no production build guard (R2), role display/enforcement discrepancy in admin panel (R5), admin self-demotion retains session access (R6)\n- 4 Medium: missing form validation (R7), NIF GDPR obligations (R8), missing HTTP security headers (R12), admin role chain assessment (R3)\n- 2 Low: CORS wildcard on Edge Function (R9), raw error messages in 500 responses (R10)\n\n**All 12 requirement areas covered (R1–R12).**\n\n**Key architectural finding:** `user_metadata` and `app_metadata` carry fundamentally different security guarantees in Supabase — `user_metadata` is user-writable via `supabase.auth.updateUser()`, while `app_metadata` requires the service role key. The `update-status` action incorrectly uses `user_metadata` for an access control field, allowing any user to reverse their own deactivation. The `update-role` action correctly uses `app_metadata`.\n\n**No deviations from plan.** Document matches all 8 acceptance criteria.",
-    "review": "## Verdict\n\n**Verdict:** REQUEST CHANGES\n**Files reviewed:** 9 files changed across 1 phases\n\nSECURITY_AUDIT.md covers all 12 requirement areas with 11 accurate findings grouped by severity. One AC fails: M-04's Type field uses \"No code change required\" instead of a required label (\"code change\" or \"infrastructure/backend configuration\"). Fix is a single-line change.\n\n### Automated Checks\n\n| Check | Result | Details |\n|-------|--------|---------|\n| ESLint | FAIL | 107 pre-existing no-unused-vars errors in React import statements across src/pages/ and src/components/; SECURITY_AUDIT.md introduces zero new lint violations (markdown file is not subject to ESLint) |\n| SECURITY_AUDIT.md exists at repo root | PASS |  |\n| Findings count (minimum 10) | PASS | 11 distinct findings across 4 severity levels |\n| All R1–R12 covered | PASS |  |\n| Findings grouped by severity | PASS | Sections ordered Critical → High → Medium → Low |\n\n### Acceptance Criteria (7/8 passed)\n\n- [x] AC-1: A `SECURITY_AUDIT.md` file is committed to the repository root containing all findings — PASS: SECURITY_AUDIT.md committed at repo root in commit d49dc2f; file is 22.6 KB, 367 lines, contains 11 findings\n- [x] AC-2: Each finding is rated Critical, High, Medium, or Low, and references the affected file(s) with line numbers — PASS: All 11 findings include a severity rating and file:line references; spot-checked: C-01 (AuthContext.jsx:7,10-11 confirmed), H-02 (Admin.jsx:146 confirmed), L-01 (index.ts:3-6 confirmed), L-02 (index.ts:99-103 confirmed)\n- [x] AC-3: Each finding includes a plain-language description of the risk and a concrete remediation recommendation — PASS: All 11 findings include a Risk section and a Remediation section; M-04 (informational) directs to C-01 and H-03 as its remediation path\n- [ ] AC-4: Each finding is labeled 'code change' or 'infrastructure/backend configuration' (or both) — FAIL: M-04's **Type** field reads 'No code change required' at SECURITY_AUDIT.md line 259 — does not match either required label. All other 10 findings use conformant labels (C-01: Code change, H-01: Code change / Infrastructure configuration, M-03: Infrastructure configuration, etc.)\n- [x] AC-5: R1 and R2 (mock mode bypass) are rated Critical or High and document the production deployment risk — PASS: R1 → C-01 Critical; R2 → H-01 High; both document production deployment risk explicitly at src/lib/supabase.js:6-10 and vite.config.js:1-7\n- [x] AC-6: R4 and R11 (inactive user bypass) are documented together with their combined practical impact — PASS: R4 and R11 combined in C-02; Gap A (status never checked in ProtectedRoute/AuthContext) and Gap B (user_metadata user-writable via supabase.auth.updateUser) documented together with combined impact\n- [x] AC-7: R5 (metadata display/enforcement discrepancy) is explicitly called out as an admin panel confusion risk — PASS: R5 → H-02; explicitly states 'An admin cannot tell from the panel whether a role change is actually in effect'; Admin.jsx:146 reads user_metadata?.role while AuthContext.jsx:19 enforces app_metadata?.role\n- [x] AC-8: Findings are grouped and ordered by severity (Critical → High → Medium → Low) — PASS: Document sections ordered: Critical Findings → High Findings → Medium Findings → Low Findings; remediation priority table lists all 10 items in severity order\n\n### Code Quality (Refactor Review)\n\n#### Label format\n\n- **WARNING:** `SECURITY_AUDIT.md:259` — M-04's **Type** field reads 'No code change required' — does not match either required label ('code change' or 'infrastructure/backend configuration') from AC-4; all other 10 findings use conformant labels. Suggested fix: Replace the Type field value with 'Code change (via C-01 and H-03)' — M-04's remediation section already directs readers to fix those two findings, so a code-change label is factually accurate\n\n### Security Assessment (Security Review)\n\nNo security issues found in changed files.\n\n### Decisions Made During Implementation\n\n- Audit findings committed as SECURITY_AUDIT.md at repo root so they persist and can be referenced in future remediation PRs\n- Two critical findings pre-identified during scope: mock mode auto-authentication (C-01) and admin deactivation bypass via user_metadata user-writability (C-02)\n- Lint failures (107 pre-existing no-unused-vars errors) not attributed to this task — SECURITY_AUDIT.md introduces zero new ESLint violations\n\n## Headline Findings\n\n- **recommended** — M-04's Type label does not match the required format — one-line fix needed to satisfy AC-4. See `### Code Quality (Label format)`.\n\n## Required Changes\n\n**Recommended**\n\n- SECURITY_AUDIT.md line 259: update M-04's **Type** field from 'No code change required' to 'Code change (via C-01 and H-03)' to match the AC-4 required label format\n\n"
+    "review": "## Verdict\n\n**Verdict:** APPROVE\n**Files reviewed:** 9 files changed across 1 phases\n\nSECURITY_AUDIT.md covers all 12 requirement areas with 11 accurate findings grouped by severity. The loop-back fix was correctly applied: M-04's Type field now reads \"Code change (via C-01 and H-03)\", satisfying AC-4. All 8 acceptance criteria pass.\n\n### Automated Checks\n\n| Check | Result | Details |\n|-------|--------|---------|\n| ESLint | FAIL | 112 pre-existing no-unused-vars errors in React import statements across src/pages/ and src/components/; SECURITY_AUDIT.md introduces zero new lint violations (markdown file is not subject to ESLint) |\n| SECURITY_AUDIT.md exists at repo root | PASS |  |\n| Findings count (minimum 10) | PASS | 11 distinct findings across 4 severity levels |\n| All R1-R12 covered | PASS |  |\n| Findings grouped by severity | PASS | Sections ordered Critical → High → Medium → Low |\n\n### Acceptance Criteria (8/8 passed)\n\n- [x] AC-1: A `SECURITY_AUDIT.md` file is committed to the repository root containing all findings — PASS: SECURITY_AUDIT.md present at repo root, 367 lines, 11 findings across 4 severity levels\n- [x] AC-2: Each finding is rated Critical, High, Medium, or Low, and references the affected file(s) with line numbers — PASS: All 11 findings include severity and file:line references; spot-checked C-01 (AuthContext.jsx:7,10-11), H-02 (Admin.jsx:146), L-01 (index.ts:3-6), L-02 (index.ts:99-103)\n- [x] AC-3: Each finding includes a plain-language description of the risk and a concrete remediation recommendation — PASS: All 11 findings include a Risk section and a Remediation section with concrete code or config instructions\n- [x] AC-4: Each finding is labeled 'code change' or 'infrastructure/backend configuration' (or both) — PASS: M-04 Type field at SECURITY_AUDIT.md line 259 now reads 'Code change (via C-01 and H-03)'; all 11 findings use conformant labels\n- [x] AC-5: R1 and R2 (mock mode bypass) are rated Critical or High and document the production deployment risk — PASS: R1 → C-01 Critical; R2 → H-01 High; both document production deployment risk at src/lib/supabase.js:6-10 and vite.config.js:1-7\n- [x] AC-6: R4 and R11 (inactive user bypass) are documented together with their combined practical impact — PASS: R4 and R11 combined in C-02; Gap A (status never checked in ProtectedRoute/AuthContext) and Gap B (user_metadata user-writable via supabase.auth.updateUser) documented with combined impact\n- [x] AC-7: R5 (metadata display/enforcement discrepancy) is explicitly called out as an admin panel confusion risk — PASS: H-02 explicitly states 'An admin cannot tell from the panel whether a role change is actually in effect'; Admin.jsx:146 reads user_metadata?.role while AuthContext.jsx:19 enforces app_metadata?.role\n- [x] AC-8: Findings are grouped and ordered by severity (Critical → High → Medium → Low) — PASS: Document sections ordered Critical Findings → High Findings → Medium Findings → Low Findings; remediation priority table lists all items in severity order\n\n### Code Quality (Refactor Review)\n\nNo code quality issues found in changed files.\n\n### Security Assessment (Security Review)\n\nNo security issues found in changed files.\n\n### Decisions Made During Implementation\n\n- Audit findings committed as SECURITY_AUDIT.md at repo root so they persist and can be referenced in future remediation PRs\n- Two critical findings pre-identified during scope: mock mode auto-authentication (C-01) and admin deactivation bypass via user_metadata user-writability (C-02)\n- Lint failures (pre-existing no-unused-vars errors) not attributed to this task — SECURITY_AUDIT.md introduces zero new ESLint violations\n- Loop-back fix applied: M-04 Type field updated from 'No code change required' to 'Code change (via C-01 and H-03)' to satisfy AC-4\n\n## Required Changes\n\nNone.\n",
+    "implementation": "## Phase 1: Perform audit and write findings document\n\n**Status:** Complete\n\n**Artifact created:** `SECURITY_AUDIT.md` (22.6 KB) at repository root\n\n**Findings summary:**\n- 2 Critical: mock auth bypass (R1) and admin deactivation fully ineffective/user-reversible (R4+R11)\n- 3 High: no production build guard (R2), role display/enforcement discrepancy in admin panel (R5), admin self-demotion retains session access (R6)\n- 4 Medium: missing form validation (R7), NIF GDPR obligations (R8), missing HTTP security headers (R12), admin role chain assessment (R3)\n- 2 Low: CORS wildcard on Edge Function (R9), raw error messages in 500 responses (R10)\n\n**All 12 requirement areas covered (R1–R12).**\n\n**Key architectural finding:** `user_metadata` and `app_metadata` carry fundamentally different security guarantees in Supabase — `user_metadata` is user-writable via `supabase.auth.updateUser()`, while `app_metadata` requires the service role key. The `update-status` action incorrectly uses `user_metadata` for an access control field, allowing any user to reverse their own deactivation. The `update-role` action correctly uses `app_metadata`.\n\n**No deviations from plan.** Document matches all 8 acceptance criteria."
   },
   "stages": {
-    "review": {
-      "status": "awaiting_approval",
-      "startedAt": "2026-06-09T00:00:51Z"
-    },
     "release": {
       "status": "not_started"
-    },
-    "design": {
-      "status": "skipped"
-    },
-    "implementation": {
-      "status": "awaiting_approval",
-      "approvedAt": "2026-06-09T00:00:48Z",
-      "startedAt": "2026-06-09T07:23:52Z"
     },
     "scope": {
       "status": "approved",
       "approvedAt": "2026-06-08T23:55:03Z",
       "startedAt": "2026-06-08T23:48:55Z"
     },
+    "review": {
+      "status": "awaiting_approval",
+      "startedAt": "2026-06-10T15:08:54Z"
+    },
     "architecture": {
       "status": "skipped"
+    },
+    "design": {
+      "status": "skipped"
+    },
+    "implementation": {
+      "status": "approved",
+      "approvedAt": "2026-06-10T15:08:47Z",
+      "startedAt": "2026-06-09T07:23:52Z"
     }
   },
   "worktreePath": "/Users/franciscolucas/Documents/TBN/.defract-worktrees/task-evaluate-app-security-01ktmt058jcn",
   "worktreeBaseBranch": "main",
-  "worktreeLastSyncedAt": "2026-06-09T07:23:52Z",
+  "worktreeLastSyncedAt": "2026-06-10T15:08:49Z",
   "loopBackHistory": [
     {
       "fromStage": "review",
@@ -481,15 +562,15 @@
     }
   ],
   "reviewPayload": {
-    "verdict": "request_changes",
-    "summary": "SECURITY_AUDIT.md covers all 12 requirement areas with 11 accurate findings grouped by severity. One AC fails: M-04's Type field uses \"No code change required\" instead of a required label (\"code change\" or \"infrastructure/backend configuration\"). Fix is a single-line change.",
+    "verdict": "approve",
+    "summary": "SECURITY_AUDIT.md covers all 12 requirement areas with 11 accurate findings grouped by severity. The loop-back fix was correctly applied: M-04's Type field now reads \"Code change (via C-01 and H-03)\", satisfying AC-4. All 8 acceptance criteria pass.",
     "filesReviewedCount": 9,
     "phasesReviewedCount": 1,
     "automatedChecks": [
       {
         "name": "ESLint",
         "result": "fail",
-        "detail": "107 pre-existing no-unused-vars errors in React import statements across src/pages/ and src/components/; SECURITY_AUDIT.md introduces zero new lint violations (markdown file is not subject to ESLint)"
+        "detail": "112 pre-existing no-unused-vars errors in React import statements across src/pages/ and src/components/; SECURITY_AUDIT.md introduces zero new lint violations (markdown file is not subject to ESLint)"
       },
       {
         "name": "SECURITY_AUDIT.md exists at repo root",
@@ -501,7 +582,7 @@
         "detail": "11 distinct findings across 4 severity levels"
       },
       {
-        "name": "All R1–R12 covered",
+        "name": "All R1-R12 covered",
         "result": "pass"
       },
       {
@@ -515,80 +596,61 @@
         "acId": "AC-1",
         "text": "A `SECURITY_AUDIT.md` file is committed to the repository root containing all findings",
         "status": "pass",
-        "evidence": "SECURITY_AUDIT.md committed at repo root in commit d49dc2f; file is 22.6 KB, 367 lines, contains 11 findings"
+        "evidence": "SECURITY_AUDIT.md present at repo root, 367 lines, 11 findings across 4 severity levels"
       },
       {
         "acId": "AC-2",
         "text": "Each finding is rated Critical, High, Medium, or Low, and references the affected file(s) with line numbers",
         "status": "pass",
-        "evidence": "All 11 findings include a severity rating and file:line references; spot-checked: C-01 (AuthContext.jsx:7,10-11 confirmed), H-02 (Admin.jsx:146 confirmed), L-01 (index.ts:3-6 confirmed), L-02 (index.ts:99-103 confirmed)"
+        "evidence": "All 11 findings include severity and file:line references; spot-checked C-01 (AuthContext.jsx:7,10-11), H-02 (Admin.jsx:146), L-01 (index.ts:3-6), L-02 (index.ts:99-103)"
       },
       {
         "acId": "AC-3",
         "text": "Each finding includes a plain-language description of the risk and a concrete remediation recommendation",
         "status": "pass",
-        "evidence": "All 11 findings include a Risk section and a Remediation section; M-04 (informational) directs to C-01 and H-03 as its remediation path"
+        "evidence": "All 11 findings include a Risk section and a Remediation section with concrete code or config instructions"
       },
       {
         "acId": "AC-4",
         "text": "Each finding is labeled 'code change' or 'infrastructure/backend configuration' (or both)",
-        "status": "fail",
-        "evidence": "M-04's **Type** field reads 'No code change required' at SECURITY_AUDIT.md line 259 — does not match either required label. All other 10 findings use conformant labels (C-01: Code change, H-01: Code change / Infrastructure configuration, M-03: Infrastructure configuration, etc.)"
+        "status": "pass",
+        "evidence": "M-04 Type field at SECURITY_AUDIT.md line 259 now reads 'Code change (via C-01 and H-03)'; all 11 findings use conformant labels"
       },
       {
         "acId": "AC-5",
         "text": "R1 and R2 (mock mode bypass) are rated Critical or High and document the production deployment risk",
         "status": "pass",
-        "evidence": "R1 → C-01 Critical; R2 → H-01 High; both document production deployment risk explicitly at src/lib/supabase.js:6-10 and vite.config.js:1-7"
+        "evidence": "R1 → C-01 Critical; R2 → H-01 High; both document production deployment risk at src/lib/supabase.js:6-10 and vite.config.js:1-7"
       },
       {
         "acId": "AC-6",
         "text": "R4 and R11 (inactive user bypass) are documented together with their combined practical impact",
         "status": "pass",
-        "evidence": "R4 and R11 combined in C-02; Gap A (status never checked in ProtectedRoute/AuthContext) and Gap B (user_metadata user-writable via supabase.auth.updateUser) documented together with combined impact"
+        "evidence": "R4 and R11 combined in C-02; Gap A (status never checked in ProtectedRoute/AuthContext) and Gap B (user_metadata user-writable via supabase.auth.updateUser) documented with combined impact"
       },
       {
         "acId": "AC-7",
         "text": "R5 (metadata display/enforcement discrepancy) is explicitly called out as an admin panel confusion risk",
         "status": "pass",
-        "evidence": "R5 → H-02; explicitly states 'An admin cannot tell from the panel whether a role change is actually in effect'; Admin.jsx:146 reads user_metadata?.role while AuthContext.jsx:19 enforces app_metadata?.role"
+        "evidence": "H-02 explicitly states 'An admin cannot tell from the panel whether a role change is actually in effect'; Admin.jsx:146 reads user_metadata?.role while AuthContext.jsx:19 enforces app_metadata?.role"
       },
       {
         "acId": "AC-8",
         "text": "Findings are grouped and ordered by severity (Critical → High → Medium → Low)",
         "status": "pass",
-        "evidence": "Document sections ordered: Critical Findings → High Findings → Medium Findings → Low Findings; remediation priority table lists all 10 items in severity order"
+        "evidence": "Document sections ordered Critical Findings → High Findings → Medium Findings → Low Findings; remediation priority table lists all items in severity order"
       }
     ],
-    "headlineFindings": [
-      {
-        "severity": "recommended",
-        "impact": "M-04's Type label does not match the required format — one-line fix needed to satisfy AC-4",
-        "sourceRef": "### Code Quality (Label format)"
-      }
-    ],
-    "requiredChanges": [
-      {
-        "text": "SECURITY_AUDIT.md line 259: update M-04's **Type** field from 'No code change required' to 'Code change (via C-01 and H-03)' to match the AC-4 required label format",
-        "severityGroup": "recommended"
-      }
-    ],
-    "codeQualityFindings": [
-      {
-        "category": "Label format",
-        "severity": "warning",
-        "file": "SECURITY_AUDIT.md",
-        "line": 259,
-        "description": "M-04's **Type** field reads 'No code change required' — does not match either required label ('code change' or 'infrastructure/backend configuration') from AC-4; all other 10 findings use conformant labels",
-        "fixOrRemediation": "Replace the Type field value with 'Code change (via C-01 and H-03)' — M-04's remediation section already directs readers to fix those two findings, so a code-change label is factually accurate"
-      }
-    ],
+    "headlineFindings": [],
+    "requiredChanges": [],
+    "codeQualityFindings": [],
     "securityFindings": [],
     "decisions": [
       "Audit findings committed as SECURITY_AUDIT.md at repo root so they persist and can be referenced in future remediation PRs",
       "Two critical findings pre-identified during scope: mock mode auto-authentication (C-01) and admin deactivation bypass via user_metadata user-writability (C-02)",
-      "Lint failures (107 pre-existing no-unused-vars errors) not attributed to this task — SECURITY_AUDIT.md introduces zero new ESLint violations"
+      "Lint failures (pre-existing no-unused-vars errors) not attributed to this task — SECURITY_AUDIT.md introduces zero new ESLint violations",
+      "Loop-back fix applied: M-04 Type field updated from 'No code change required' to 'Code change (via C-01 and H-03)' to satisfy AC-4"
     ],
-    "revision": 1
+    "revision": 2
   }
 }
