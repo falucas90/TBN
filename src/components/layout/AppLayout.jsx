@@ -8,16 +8,7 @@ export default function AppLayout({ children }) {
   return (
     <div className="app-frame">
       <Sidebar isCollapsed={collapsed} setIsCollapsed={setCollapsed} />
-      <main style={{
-        marginLeft: sideWidth,
-        transition: 'margin-left var(--t-slow) var(--ease)',
-        minHeight: '100vh',
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-        background: 'var(--obsidian)',
-      }}>
+      <main className="main-content" style={{ marginLeft: sideWidth }}>
         {children}
       </main>
     </div>

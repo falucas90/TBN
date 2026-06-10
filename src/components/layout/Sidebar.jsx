@@ -22,7 +22,8 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
   ];
 
   return (
-    <aside style={{
+    <>
+    <aside className="sidebar-desktop" style={{
       width,
       backgroundColor: 'var(--slate)',
       borderRight: '1px solid var(--hairline)',
@@ -137,5 +138,20 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
         </button>
       </div>
     </aside>
+
+    {/* Bottom nav — mobile only */}
+    <nav className="bottom-nav">
+      {navItems.map((item) => (
+        <NavLink
+          key={item.to}
+          to={item.to}
+          className={({ isActive }) => `bottom-nav__item${isActive ? ' bottom-nav__item--active' : ''}`}
+        >
+          <item.icon size={20} />
+          <span>{item.label}</span>
+        </NavLink>
+      ))}
+    </nav>
+    </>
   );
 }

@@ -108,7 +108,7 @@ export default function Settings() {
 
           <Card>
             <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1.5rem' }}>Perfil da Conta</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+            <div className="settings-grid">
               <FormField label="Nome Completo" required>
                 <input type="text" value={name} onChange={e => setName(e.target.value)} style={inputStyle} />
               </FormField>

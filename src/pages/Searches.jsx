@@ -88,7 +88,7 @@ export default function Searches() {
         </div>
 
         {/* Stats Row */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '3rem' }}>
+        <div className="stats-grid" style={{ marginBottom: '3rem' }}>
           <StatCard label="Matches Hoje" value={String(matchesToday)} trend="+1" trendLabel="vs ontem" icon={Search} />
           <StatCard label="Alta Margem" value={String(highMarginCount)} trend="↑" trendLabel="top tier" icon={TrendingUp} />
           <StatCard label="Alertas (7d)" value={alertCount7d === null ? '…' : String(alertCount7d)} trend="" trendLabel="últimos 7 dias" icon={Bell} />

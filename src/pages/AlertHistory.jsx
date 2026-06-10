@@ -113,7 +113,7 @@ export default function AlertHistory() {
               </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {alerts.map(alert => (
-                  <Card key={alert.id} noPadding style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.5rem' }}>
+                  <Card key={alert.id} noPadding className="alert-card-row">
                     <div style={{ flex: 1 }}>
                       <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.25rem' }}>
                         <span style={{ fontSize: '0.875rem', fontWeight: '500', color: 'var(--ash)' }}>{alert.platform}</span>
