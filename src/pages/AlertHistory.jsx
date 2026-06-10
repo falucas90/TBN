@@ -8,6 +8,15 @@ import { useToast } from '../context/ToastContext';
 import { useSearchParams } from 'react-router-dom';
 
 const DAY_MS = 86400000;
+
+// Car titles start with the model year ("2021 BMW 320e Touring") — skip a
+// leading 4-digit token so the brand is the first real word.
+function getBrand(carTitle) {
+  const words = carTitle.trim().split(/\s+/);
+  const brand = /^\d{4}$/.test(words[0]) ? words[1] : words[0];
+  return (brand ?? '').toLowerCase();
+}
+
 const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
 
 // Derive a Portuguese date-group label (and a sort timestamp) from createdAt,
@@ -65,7 +74,7 @@ export default function AlertHistory() {
 
   const brandOptions = useMemo(() => {
     if (!alerts) return [];
-    const brands = [...new Set(alerts.map(a => a.carTitle.split(' ')[0].toLowerCase()))].sort();
+    const brands = [...new Set(alerts.map(a => getBrand(a.carTitle)))].sort();
     return brands;
   }, [alerts]);
 
@@ -80,7 +89,7 @@ export default function AlertHistory() {
     .filter(a => lifecycle === 'saved' ? a.userStatus === 'saved'
       : lifecycle === 'new' ? (a.userStatus ?? 'new') === 'new'
       : a.userStatus !== 'dismissed')
-    .filter(a => filterBrand === 'all' || a.carTitle.toLowerCase().includes(filterBrand))
+    .filter(a => filterBrand === 'all' || getBrand(a.carTitle) === filterBrand)
     .filter(a => filterMargin === 'all' || a.marginEst >= parseInt(filterMargin))
     .filter(a => !searchText || a.carTitle.toLowerCase().includes(searchText.toLowerCase())),
   [alertsWithISV, lifecycle, filterBrand, filterMargin, searchText]);
