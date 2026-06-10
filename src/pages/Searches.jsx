@@ -1,4 +1,3 @@
-import React from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { Card, Button, Badge, StatCard } from '../components/ui';
 import { getSearches, updateSearch, deleteSearch as deleteSearchById } from '../services/searchesService';
@@ -77,7 +76,7 @@ export default function Searches() {
       <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
 
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem' }}>
           <div>
             <h1 style={{ fontSize: '1.75rem', fontWeight: '500', letterSpacing: '-0.02em', marginBottom: '0.25rem' }}>Pesquisas Ativas</h1>
             <p style={{ color: 'var(--dust)', fontSize: '13px' }}>Está a acompanhar {searches.length} pesquisas em {platformCount} plataformas.</p>
@@ -88,23 +87,36 @@ export default function Searches() {
         </div>
 
         {/* Stats Row */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '3rem' }}>
-          <StatCard label="Matches Hoje" value={String(matchesToday)} trend="+1" trendLabel="vs ontem" icon={Search} />
-          <StatCard label="Alta Margem" value={String(highMarginCount)} trend="↑" trendLabel="top tier" icon={TrendingUp} />
-          <StatCard label="Alertas (7d)" value={alertCount7d === null ? '…' : String(alertCount7d)} trend="" trendLabel="últimos 7 dias" icon={Bell} />
-          <StatCard label="Margem Média" value={`€${avgMarginValue.toLocaleString()}`} trend="+€120" trendLabel="vs mês passado" icon={TrendingUp} />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
+          <StatCard label="Matches Hoje" value={String(matchesToday)} trendLabel="em pesquisas ativas" icon={Search} />
+          <StatCard label="Alta Margem" value={String(highMarginCount)} trendLabel="margem > €3.000" icon={TrendingUp} />
+          <StatCard label="Alertas (7d)" value={alertCount7d === null ? '…' : String(alertCount7d)} trendLabel="últimos 7 dias" icon={Bell} />
+          <StatCard label="Margem Média" value={`€${avgMarginValue.toLocaleString()}`} trendLabel="em pesquisas ativas" icon={TrendingUp} />
         </div>
 
         {/* Searches List */}
         <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1.5rem' }}>As suas Pesquisas</h2>
-        
+
+        {searches.length === 0 && (
+          <Card style={{ textAlign: 'center', padding: '3rem 2rem' }}>
+            <Search size={32} style={{ color: 'var(--dust)', marginBottom: '1rem' }} />
+            <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>Ainda não tem pesquisas</h3>
+            <p style={{ color: 'var(--ash)', fontSize: '13px', marginBottom: '1.5rem' }}>
+              Crie a sua primeira pesquisa para começar a receber alertas de viaturas com margem.
+            </p>
+            <Link to="/searches/new">
+              <Button><Plus size={18} /> Criar primeira pesquisa</Button>
+            </Link>
+          </Card>
+        )}
+
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {searches.map(search => {
             const isActive = search.status === 'active';
             
             return (
               <Card key={search.id} style={{ opacity: isActive ? 1 : 0.6, transition: 'opacity 0.2s' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
                   
                   {/* Left info */}
                   <div style={{ flex: 1 }}>
@@ -120,7 +132,7 @@ export default function Searches() {
                     
                     <div style={{
                       fontSize: '13px', color: 'var(--ash)',
-                      display: 'flex', gap: '1rem', marginBottom: '1.5rem'
+                      display: 'flex', flexWrap: 'wrap', gap: '0.5rem 1rem', marginBottom: '1.5rem'
                     }}>
                       <span>Ano Mín: {search.criteria.minYear}</span>
                       <span>KMs Máx: {(search.criteria.maxMileage ?? search.criteria.maxKm ?? 0).toLocaleString()} km</span>
@@ -128,7 +140,7 @@ export default function Searches() {
                       <span>Plataformas: {search.sources.join(', ')}</span>
                     </div>
 
-                    <div style={{ display: 'flex', gap: '0.75rem' }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
                       {isActive ? (
                         <>
                           <Button variant="secondary" onClick={() => navigate('/alerts')}><ExternalLink size={16} /> Ver Resultados</Button>

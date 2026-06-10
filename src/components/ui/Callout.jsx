@@ -1,4 +1,3 @@
-import React from 'react';
 import { Info, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
 
 export default function Callout({ children, variant = 'info', title }) {

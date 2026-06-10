@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { Card, Button } from '../components/ui';
 import { FormField, CurrencyInput } from '../components/forms';
