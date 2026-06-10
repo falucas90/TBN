@@ -15,6 +15,9 @@ import AlertHistory from './pages/AlertHistory';
 import Settings from './pages/Settings';
 import Admin from './pages/Admin';
 import NotFound from './pages/NotFound';
+import IsvCalculator from './pages/IsvCalculator';
+import Terms from './pages/legal/Terms';
+import Privacy from './pages/legal/Privacy';
 
 function AuthLoadingSpinner() {
   return (
@@ -62,6 +65,9 @@ function App() {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/verify-email" element={<VerifyEmail />} />
+            <Route path="/isv" element={<IsvCalculator />} />
+            <Route path="/termos" element={<Terms />} />
+            <Route path="/privacidade" element={<Privacy />} />
 
             {/* Protected Routes */}
             <Route path="/" element={<ProtectedRoute><Searches /></ProtectedRoute>} />

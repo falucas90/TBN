@@ -34,6 +34,8 @@ export const mockSearches = [
 export const mockAlerts = [
   {
     id: 101,
+    searchId: 1,
+    userStatus: 'new',
     date: 'Today',
     carTitle: '2021 BMW 320e Touring M-Sport',
     platform: 'Mobile.de',
@@ -52,6 +54,8 @@ export const mockAlerts = [
   },
   {
     id: 102,
+    searchId: 1,
+    userStatus: 'new',
     date: 'Yesterday',
     carTitle: '2020 Volvo V60 T6 Recharge',
     platform: 'AutoScout24',

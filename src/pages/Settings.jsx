@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { Card, Button } from '../components/ui';
 import { FormField, CurrencyInput } from '../components/forms';
-import { Save, Download, Trash2, Mail, Building } from 'lucide-react';
+import { Save, Download, Trash2, Mail, Building, Lock } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { getProfile, updateProfile } from '../services/profilesService';
-import { exportUserData, deleteAccount } from '../services/authService';
+import { exportUserData, deleteAccount, updatePassword } from '../services/authService';
+import { supabaseConfigured } from '../lib/supabase';
 
 export default function Settings() {
   const { addToast } = useToast();
@@ -21,6 +22,9 @@ export default function Settings() {
   const [isSavingDefaults, setIsSavingDefaults] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isSavingPassword, setIsSavingPassword] = useState(false);
 
   // Load profile from Supabase (falls back to defaults if not configured)
   useEffect(() => {
@@ -77,6 +81,22 @@ export default function Settings() {
     } catch {
       addToast('Erro ao eliminar conta. Contacte suporte@crivo.pt.', 'danger');
       setIsDeleting(false);
+    }
+  }
+
+  async function handleChangePassword() {
+    if (newPassword.length < 8) { addToast('A palavra-passe deve ter pelo menos 8 caracteres.', 'warn'); return; }
+    if (newPassword !== confirmPassword) { addToast('As palavras-passe não coincidem.', 'warn'); return; }
+    setIsSavingPassword(true);
+    try {
+      await updatePassword(newPassword);
+      setNewPassword('');
+      setConfirmPassword('');
+      addToast('Palavra-passe atualizada com sucesso.', 'success');
+    } catch (err) {
+      addToast(err.message || 'Erro ao atualizar palavra-passe.', 'danger');
+    } finally {
+      setIsSavingPassword(false);
     }
   }
 
@@ -163,6 +183,32 @@ export default function Settings() {
                 <Save size={16} /> {isSavingDefaults ? 'A guardar…' : 'Guardar Padrões'}
               </Button>
             </div>
+          </Card>
+
+          <Card>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>Segurança</h2>
+            <p style={{ color: 'var(--ash)', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
+              Altere a palavra-passe da sua conta.
+            </p>
+            {!supabaseConfigured ? (
+              <p style={{ color: 'var(--dust)', fontSize: '0.875rem' }}>Indisponível em modo de demonstração.</p>
+            ) : (
+              <>
+                <div style={{ maxWidth: '300px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <FormField label="Nova Palavra-passe" required>
+                    <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} autoComplete="new-password" style={inputStyle} />
+                  </FormField>
+                  <FormField label="Confirmar Palavra-passe" required>
+                    <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} autoComplete="new-password" style={inputStyle} />
+                  </FormField>
+                </div>
+                <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
+                  <Button onClick={handleChangePassword} disabled={isSavingPassword || !newPassword}>
+                    <Lock size={16} /> {isSavingPassword ? 'A atualizar…' : 'Atualizar Palavra-passe'}
+                  </Button>
+                </div>
+              </>
+            )}
           </Card>
 
           <Card style={{ border: '1px solid var(--coral)' }}>
