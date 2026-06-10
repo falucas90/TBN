@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
-import { Card, Button } from '../components/ui';
+import { Card, Button, ConfirmDialog } from '../components/ui';
 import { FormField, CurrencyInput } from '../components/forms';
 import { Save, Download, Trash2, Mail, Building, Lock } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
@@ -22,6 +22,7 @@ export default function Settings() {
   const [isSavingDefaults, setIsSavingDefaults] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isSavingPassword, setIsSavingPassword] = useState(false);
@@ -71,10 +72,7 @@ export default function Settings() {
   }
 
   async function handleDeleteAccount() {
-    const confirmed = window.confirm(
-      'Tem a certeza que quer eliminar a sua conta? Todos os dados (pesquisas, alertas, perfil) serão permanentemente apagados. Esta ação é irreversível.'
-    );
-    if (!confirmed) return;
+    setShowDeleteDialog(false);
     setIsDeleting(true);
     try {
       await deleteAccount();
@@ -129,8 +127,8 @@ export default function Settings() {
           <Card>
             <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1.5rem' }}>Perfil da Conta</h2>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-              <FormField label="Nome Completo" required>
-                <input type="text" value={name} onChange={e => setName(e.target.value)} style={inputStyle} />
+              <FormField label="Nome Completo" required htmlFor="settings-name">
+                <input id="settings-name" type="text" value={name} onChange={e => setName(e.target.value)} style={inputStyle} />
               </FormField>
               <FormField label="Nome da Empresa">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.625rem 0' }}>
@@ -144,8 +142,8 @@ export default function Settings() {
                   <span style={{ fontWeight: '500' }}>{currentUser?.email}</span>
                 </div>
               </FormField>
-              <FormField label="Telefone / WhatsApp">
-                <input type="text" value={phone} onChange={e => setPhone(e.target.value)}
+              <FormField label="Telefone / WhatsApp" htmlFor="settings-phone">
+                <input id="settings-phone" type="text" value={phone} onChange={e => setPhone(e.target.value)}
                   placeholder="+351 912 345 678" style={inputStyle} />
               </FormField>
             </div>
@@ -220,13 +218,24 @@ export default function Settings() {
               <Button variant="secondary" onClick={handleExport} disabled={isExporting}>
                 <Download size={16} /> {isExporting ? 'A exportar…' : 'Exportar Dados (JSON)'}
               </Button>
-              <Button variant="danger" onClick={handleDeleteAccount} disabled={isDeleting}>
+              <Button variant="danger" onClick={() => setShowDeleteDialog(true)} disabled={isDeleting}>
                 <Trash2 size={16} /> {isDeleting ? 'A eliminar…' : 'Eliminar Conta'}
               </Button>
             </div>
           </Card>
 
         </div>
+
+        <ConfirmDialog
+          open={showDeleteDialog}
+          title="Eliminar conta"
+          description="Tem a certeza que quer eliminar a sua conta? Todos os dados (pesquisas, alertas, perfil) serão permanentemente apagados. Esta ação é irreversível."
+          confirmLabel="Eliminar Conta"
+          danger
+          confirmText="ELIMINAR"
+          onConfirm={handleDeleteAccount}
+          onCancel={() => setShowDeleteDialog(false)}
+        />
       </div>
     </AppLayout>
   );

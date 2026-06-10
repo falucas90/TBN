@@ -99,8 +99,9 @@ export default function Login() {
           <p style={{ color: 'var(--dust)', marginBottom: '2.5rem', fontSize: 'var(--fs-body)' }}>Aceda à sua conta</p>
 
           <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <FormField label="Email" required>
+            <FormField label="Email" required htmlFor="login-email">
               <input
+                id="login-email"
                 type="email"
                 className="input"
                 placeholder="stand@exemplo.pt"
@@ -108,21 +109,24 @@ export default function Login() {
                 onChange={(e) => { setEmail(e.target.value); setError(''); }}
               />
             </FormField>
-            <FormField label="Palavra-passe" required>
+            <FormField label="Palavra-passe" required htmlFor="login-password">
               <div style={{ position: 'relative' }}>
                 <input
+                  id="login-password"
                   type={showPassword ? 'text' : 'password'}
                   className="input"
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => { setPassword(e.target.value); setError(''); }}
                 />
-                <span
+                <button
+                  type="button"
                   onClick={() => setShowPassword(v => !v)}
-                  style={{ position: 'absolute', right: 12, top: 10, fontSize: 12, color: 'var(--dust)', cursor: 'pointer', userSelect: 'none' }}
+                  aria-label={showPassword ? 'Ocultar palavra-passe' : 'Mostrar palavra-passe'}
+                  style={{ position: 'absolute', right: 12, top: 10, fontSize: 12, color: 'var(--dust)', cursor: 'pointer', userSelect: 'none', background: 'none', border: 'none', padding: 0, fontFamily: 'inherit' }}
                 >
                   {showPassword ? 'hide' : 'show'}
-                </span>
+                </button>
               </div>
               <div style={{ textAlign: 'right', marginTop: 6 }}>
                 <Link to="/forgot-password" style={{ color: 'var(--emerald)', fontSize: 12 }}>Esqueceu-se da palavra-passe?</Link>

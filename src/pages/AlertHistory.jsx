@@ -5,9 +5,11 @@ import { getAlerts, getAlertsBySearch, updateAlertStatus } from '../services/ale
 import { calculateISV } from '../lib/isv';
 import { ExternalLink, Search, Bookmark, X } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
+import { useAlerts } from '../context/AlertsContext';
 import { useSearchParams } from 'react-router-dom';
 
 const DAY_MS = 86400000;
+const PAGE_SIZE = 50;
 
 // Car titles start with the model year ("2021 BMW 320e Touring") — skip a
 // leading 4-digit token so the brand is the first real word.
@@ -16,7 +18,6 @@ function getBrand(carTitle) {
   const brand = /^\d{4}$/.test(words[0]) ? words[1] : words[0];
   return (brand ?? '').toLowerCase();
 }
-
 const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
 
 // Derive a Portuguese date-group label (and a sort timestamp) from createdAt,
@@ -41,23 +42,51 @@ function getDateGroup(alert) {
 
 export default function AlertHistory() {
   const { addToast } = useToast();
+  const { clearUnread } = useAlerts();
   const [searchParams, setSearchParams] = useSearchParams();
   const searchFilter = searchParams.get('search');
+
+  useEffect(() => {
+    clearUnread();
+  }, [clearUnread]);
 
   const [alerts, setAlerts] = useState(null);
   const [filterBrand, setFilterBrand] = useState('all');
   const [filterMargin, setFilterMargin] = useState('all');
   const [searchText, setSearchText] = useState('');
   const [lifecycle, setLifecycle] = useState('all');
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   useEffect(() => {
     setAlerts(null);
-    const fetch = searchFilter ? getAlertsBySearch(searchFilter) : getAlerts();
-    fetch.then(setAlerts).catch(() => {
+    setOffset(0);
+    setHasMore(false);
+    const fetch = searchFilter ? getAlertsBySearch(searchFilter) : getAlerts({ limit: PAGE_SIZE, offset: 0 });
+    fetch.then(data => {
+      setAlerts(data);
+      if (!searchFilter) setHasMore(data.length === PAGE_SIZE);
+    }).catch(() => {
       addToast('Erro ao carregar alertas.', 'danger');
       setAlerts([]);
     });
   }, [addToast, searchFilter]);
+
+  const loadMore = async () => {
+    const nextOffset = offset + PAGE_SIZE;
+    setIsLoadingMore(true);
+    try {
+      const more = await getAlerts({ limit: PAGE_SIZE, offset: nextOffset });
+      setAlerts(prev => [...(prev ?? []), ...more]);
+      setOffset(nextOffset);
+      setHasMore(more.length === PAGE_SIZE);
+    } catch {
+      addToast('Erro ao carregar mais alertas.', 'danger');
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
 
   const setAlertStatus = async (id, userStatus) => {
     const prev = alerts;
@@ -250,6 +279,14 @@ export default function AlertHistory() {
             </div>
           ))}
         </div>
+
+        {hasMore && !searchFilter && (
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem' }}>
+            <Button variant="secondary" onClick={loadMore} disabled={isLoadingMore}>
+              {isLoadingMore ? 'A carregar…' : 'Carregar mais'}
+            </Button>
+          </div>
+        )}
 
        </div>
     </AppLayout>

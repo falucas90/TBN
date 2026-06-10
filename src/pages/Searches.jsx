@@ -1,7 +1,7 @@
 import AppLayout from '../components/layout/AppLayout';
-import { Card, Button, Badge, StatCard } from '../components/ui';
+import { Card, Button, Badge, StatCard, ConfirmDialog } from '../components/ui';
 import { getSearches, updateSearch, deleteSearch as deleteSearchById } from '../services/searchesService';
-import { getAlerts } from '../services/alertsService';
+import { getAlertCountSince } from '../services/alertsService';
 import { Search, TrendingUp, Bell, Plus, Play, Pause, ExternalLink } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
@@ -12,6 +12,7 @@ export default function Searches() {
   const navigate = useNavigate();
   const [searches, setSearches] = useState(undefined);
   const [alertCount7d, setAlertCount7d] = useState(null);
+  const [searchToDelete, setSearchToDelete] = useState(null);
 
   useEffect(() => {
     getSearches().then(setSearches).catch(() => {
@@ -19,9 +20,7 @@ export default function Searches() {
       setSearches([]);
     });
     const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
-    getAlerts({ limit: 500 }).then(alerts => {
-      setAlertCount7d(alerts.filter(a => !a.createdAt || a.createdAt >= cutoff).length);
-    }).catch(() => setAlertCount7d(0));
+    getAlertCountSince(cutoff).then(setAlertCount7d).catch(() => setAlertCount7d(0));
   }, [addToast]);
 
   const toggleSearchStatus = async (id) => {
@@ -40,8 +39,7 @@ export default function Searches() {
   };
 
   const deleteSearch = async (id) => {
-    const target = searches.find(s => s.id === id);
-    if (!window.confirm(`Eliminar a pesquisa "${target?.title}"? Esta ação é irreversível.`)) return;
+    setSearchToDelete(null);
     const snapshot = searches;
     setSearches(prev => prev.filter(s => s.id !== id));
     try {
@@ -152,7 +150,7 @@ export default function Searches() {
                       <Link to={`/searches/${search.id}/edit`}>
                         <Button variant="ghost">Editar</Button>
                       </Link>
-                      <Button variant="ghost" onClick={() => deleteSearch(search.id)}>Eliminar</Button>
+                      <Button variant="ghost" onClick={() => setSearchToDelete(search)}>Eliminar</Button>
                     </div>
                   </div>
 
@@ -172,6 +170,16 @@ export default function Searches() {
             );
           })}
         </div>
+
+        <ConfirmDialog
+          open={Boolean(searchToDelete)}
+          title="Eliminar pesquisa"
+          description={`Eliminar a pesquisa "${searchToDelete?.title}"? Esta ação é irreversível.`}
+          confirmLabel="Eliminar"
+          danger
+          onConfirm={() => deleteSearch(searchToDelete.id)}
+          onCancel={() => setSearchToDelete(null)}
+        />
       </div>
     </AppLayout>
   );

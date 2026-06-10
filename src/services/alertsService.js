@@ -16,6 +16,19 @@ export async function getAlerts({ limit = 50, offset = 0 } = {}) {
   return data.map(mapAlert);
 }
 
+export async function getAlertCountSince(isoDate) {
+  if (!supabaseConfigured) {
+    return mockAlerts.filter(a => !a.createdAt || a.createdAt >= isoDate).length;
+  }
+  // alerts has its own user_id column with owner-select RLS, so no join is needed
+  const { count, error } = await supabase
+    .from('alerts')
+    .select('*', { count: 'exact', head: true })
+    .gte('created_at', isoDate);
+  if (error) throw error;
+  return count ?? 0;
+}
+
 export async function updateAlertStatus(id, userStatus) {
   if (!supabaseConfigured) {
     const alert = mockAlerts.find(a => String(a.id) === String(id));

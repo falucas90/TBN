@@ -1,10 +1,12 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Search, Bell, Settings, LogOut, ChevronLeft, ChevronRight, Shield } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useAlerts } from '../../context/AlertsContext';
 import { SieveMark, Wordmark } from '../ui/Logo';
 
 export default function Sidebar({ isCollapsed, setIsCollapsed }) {
   const { logout, currentUser } = useAuth();
+  const { unreadCount } = useAlerts();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -55,6 +57,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
         {!isCollapsed && (
           <button
             onClick={() => setIsCollapsed(true)}
+            aria-label="Recolher menu"
             style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--dust)', padding: '4px', borderRadius: 'var(--r-sm)' }}
           >
             <ChevronLeft size={16} />
@@ -68,6 +71,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
           <div style={{ textAlign: 'center', marginBottom: '8px' }}>
             <button
               onClick={() => setIsCollapsed(false)}
+              aria-label="Expandir menu"
               style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--dust)', padding: '4px', borderRadius: 'var(--r-sm)' }}
             >
               <ChevronRight size={16} />
@@ -96,10 +100,31 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
                   marginLeft: '-2px',
                   whiteSpace: 'nowrap',
                   transition: 'color var(--t-fast), background var(--t-fast)',
+                  position: 'relative',
                 })}
               >
                 <item.icon size={16} style={{ flexShrink: 0 }} />
                 {!isCollapsed && <span>{item.label}</span>}
+                {item.to === '/alerts' && unreadCount > 0 && (
+                  <span style={{
+                    position: isCollapsed ? 'absolute' : 'static',
+                    top: isCollapsed ? '4px' : undefined,
+                    right: isCollapsed ? '6px' : undefined,
+                    marginLeft: isCollapsed ? undefined : 'auto',
+                    minWidth: '16px',
+                    height: '16px',
+                    padding: '0 4px',
+                    borderRadius: '999px',
+                    backgroundColor: 'var(--emerald)',
+                    color: '#fff',
+                    fontSize: '10px',
+                    fontWeight: '600',
+                    lineHeight: '16px',
+                    textAlign: 'center',
+                  }}>
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
               </NavLink>
             </li>
           ))}
