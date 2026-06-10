@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, StepIndicator } from '../components/ui';
+import { Badge, Button, StepIndicator } from '../components/ui';
 import { BrandLockup } from '../components/ui/Logo';
 import { FormField } from '../components/forms';
 import { Link, useNavigate } from 'react-router-dom';
@@ -20,6 +20,16 @@ function mapSignupError(error) {
   return 'Ocorreu um erro no registo. Tente novamente.';
 }
 
+// Mock formatting for the placeholder payment inputs (to be replaced by Stripe Elements)
+function formatCardNumber(value) {
+  return value.replace(/\D/g, '').slice(0, 16).replace(/(\d{4})(?=\d)/g, '$1 ');
+}
+
+function formatExpiry(value) {
+  const digits = value.replace(/\D/g, '').slice(0, 4);
+  return digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits;
+}
+
 export default function Signup() {
   const { signup } = useAuth();
   const navigate = useNavigate();
@@ -30,6 +40,9 @@ export default function Signup() {
   const [password, setPassword] = useState('');
   const [company, setCompany] = useState('');
   const [nif, setNif] = useState('');
+  const [cardNumber, setCardNumber] = useState('');
+  const [cardExpiry, setCardExpiry] = useState('');
+  const [cardCvc, setCardCvc] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -73,7 +86,7 @@ export default function Signup() {
   };
 
   return (
-    <div style={{ display: 'flex', height: '100vh', background: 'var(--obsidian)' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--obsidian)' }}>
       {/* Left brand panel */}
       <div style={{ flex: 1, background: 'var(--emerald)', color: '#fff', padding: '4rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
         <div style={{ marginBottom: 16 }}><BrandLockup markSize={36} wordSize={22} /></div>
@@ -126,9 +139,68 @@ export default function Signup() {
                   <FormField label="Nome da Empresa" required>
                     <input type="text" className="input" value={company} onChange={(e) => setCompany(e.target.value)} />
                   </FormField>
-                  <FormField label="NIF" required>
-                    <input type="text" className="input" value={nif} onChange={(e) => setNif(e.target.value)} />
+
+                  {/* Pagamento — mock inputs until Stripe Elements are wired in */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <span className="eyebrow">Pagamento</span>
+                    <div style={{ flex: 1, height: 1, background: 'var(--hairline)' }} />
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '12px 14px', background: 'var(--slate)', border: '1px solid var(--hairline)', borderRadius: 'var(--r-md)' }}>
+                    <div>
+                      <div style={{ fontSize: 'var(--fs-body)', fontWeight: 600 }}>Plano Pro</div>
+                      <div style={{ fontSize: 'var(--fs-micro)', color: 'var(--dust)' }}>
+                        <span className="mono" style={{ fontWeight: 500 }}>€ 49</span>/mês
+                      </div>
+                    </div>
+                    <Badge variant="success">14 dias grátis</Badge>
+                  </div>
+
+                  <FormField label="Número do cartão">
+                    <input
+                      type="text"
+                      className="input mono"
+                      inputMode="numeric"
+                      autoComplete="cc-number"
+                      placeholder="1234 5678 9012 3456"
+                      value={cardNumber}
+                      onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
+                    />
                   </FormField>
+                  <div className="form-grid-2">
+                    <FormField label="Validade">
+                      <input
+                        type="text"
+                        className="input mono"
+                        inputMode="numeric"
+                        autoComplete="cc-exp"
+                        placeholder="MM/AA"
+                        value={cardExpiry}
+                        onChange={(e) => setCardExpiry(formatExpiry(e.target.value))}
+                      />
+                    </FormField>
+                    <FormField label="CVC">
+                      <input
+                        type="text"
+                        className="input mono"
+                        inputMode="numeric"
+                        autoComplete="cc-csc"
+                        placeholder="123"
+                        value={cardCvc}
+                        onChange={(e) => setCardCvc(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                      />
+                    </FormField>
+                  </div>
+                  <p style={{ fontSize: 12, color: 'var(--dust)', margin: 0 }}>🔒 Pagamento seguro processado pela Stripe</p>
+
+                  <FormField label="NIF" required>
+                    <>
+                      <input type="text" className="input" value={nif} onChange={(e) => setNif(e.target.value)} />
+                      <span className="field__hint">Para faturação</span>
+                    </>
+                  </FormField>
+
+                  <p style={{ fontSize: 13, color: 'var(--ash)', margin: 0 }}>Só será cobrado após os 14 dias.</p>
                   {error && <p style={{ color: 'var(--coral)', fontSize: 13, margin: 0 }}>{error}</p>}
                   <Button variant="primary" fullWidth onClick={handleSignup} disabled={isSubmitting}>
                     {isSubmitting ? 'A registar...' : 'Concluir Registo'}
