@@ -5,7 +5,7 @@
   "phase": 0,
   "totalPhases": 1,
   "createdAt": "2026-06-09T07:24:32Z",
-  "updatedAt": "2026-06-09T07:25:20Z",
+  "updatedAt": "2026-06-10T15:37:51Z",
   "events": [
     {
       "base_branch": "main",
@@ -34,9 +34,25 @@
       "type": "stage_work_complete",
       "worktree_head": "1773f2efa01a200f59c5ff446b52ee6fa622412b",
       "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "exit_code": 143,
+      "session_id": "01ktnm9j7rwj04vea3xv4vhq10",
+      "timed_out": false,
+      "timestamp": "2026-06-10T15:37:51Z",
+      "type": "agent_exited"
     }
   ],
   "stages": {
+    "implementation": {
+      "status": "not_started"
+    },
+    "review": {
+      "status": "not_started"
+    },
+    "architecture": {
+      "status": "not_started"
+    },
     "design": {
       "status": "not_started"
     },
@@ -44,16 +60,7 @@
       "status": "awaiting_approval",
       "startedAt": "2026-06-09T07:24:32Z"
     },
-    "implementation": {
-      "status": "not_started"
-    },
-    "architecture": {
-      "status": "not_started"
-    },
     "release": {
-      "status": "not_started"
-    },
-    "review": {
       "status": "not_started"
     }
   },

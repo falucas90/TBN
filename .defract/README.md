@@ -8,12 +8,12 @@ This project uses [defract](https://defract.dev) for structured AI-assisted deve
 |------|-------|--------|
 | Add multi-factor authentication and advanced security hardening | scope | active |
 | Build dealer management interface | scope | active |
-| Evaluate app security | implementation | active |
 | Add a catch-all redirect route in App.jsx | release | completed |
 | Add authentication and admin view | release | completed |
 | Add delete support to the Searches page | release | completed |
 | Apply brand and margin filters in AlertHistory | release | completed |
 | Audit codebase for needed improvements and fixes | release | completed |
+| Evaluate app security | release | completed |
 | Fix app crash: Supabase not configured | release | completed |
 | Fix login page layout: email and password inputs too small | release | completed |
 | Replace Mock Data with Real Data Sources | release | completed |

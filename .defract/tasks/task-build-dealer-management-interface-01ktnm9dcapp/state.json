@@ -3,9 +3,9 @@
   "status": "active",
   "stage": "scope",
   "phase": 0,
-  "totalPhases": 1,
+  "totalPhases": 2,
   "createdAt": "2026-06-09T07:24:28Z",
-  "updatedAt": "2026-06-09T07:25:26Z",
+  "updatedAt": "2026-06-10T15:41:00Z",
   "events": [
     {
       "base_branch": "main",
@@ -34,29 +34,92 @@
       "type": "stage_work_complete",
       "worktree_head": "1773f2efa01a200f59c5ff446b52ee6fa622412b",
       "worktree_status_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "base_branch": "main",
+      "merged_commits": 10,
+      "timestamp": "2026-06-10T15:38:05Z",
+      "type": "worktree_synced"
+    },
+    {
+      "mode": "approve_initial",
+      "session_id": "01kts2xzxsd7yr6zcdsdswr9nw",
+      "stage": "scope",
+      "timestamp": "2026-06-10T15:38:05Z",
+      "type": "stage_agent_started"
+    },
+    {
+      "change_summary": "Full scope — adds activity stats columns, plan editing, and dealer detail side panel to the admin page",
+      "revision": 2,
+      "timestamp": "2026-06-10T15:40:41Z",
+      "type": "scope_update"
+    },
+    {
+      "rationale": "UI changes (new columns, side panel) require design pass. Architecture skipped — task is well-contained within the admin subsystem: primarily Admin.jsx and authService.js, builds directly on existing role/status editing patterns with no new system boundaries.",
+      "stages": [
+        "scope",
+        "design",
+        "implementation",
+        "review",
+        "release"
+      ],
+      "template": "full-feature",
+      "tier": "standard",
+      "timestamp": "2026-06-10T15:40:47Z",
+      "type": "workflow_classified"
+    },
+    {
+      "alternatives_considered": [],
+      "decision": "Activity stats fetched via Edge Function rather than direct Supabase client queries",
+      "rationale": "Searches and alerts tables are scoped by RLS to the authenticated user. An admin querying another dealer's row counts requires the service role key, which is only accessible server-side in the Edge Function. The existing `update-user-role` Edge Function already uses the admin API for the same reason, so extending it with a `get-stats` action is consistent with the established pattern.",
+      "timestamp": "2026-06-10T15:40:54Z",
+      "type": "decision"
+    },
+    {
+      "alternatives_considered": [],
+      "decision": "Plan editing follows the existing role-column pattern — inline select with dirty-check save button",
+      "rationale": "The role column already demonstrates the inline select + pending state + save button flow with toast feedback and audit logging. Reusing this pattern for plan editing keeps the table visually consistent and avoids introducing a new interaction model (e.g. click-to-edit popover or modal) just for plan changes.",
+      "timestamp": "2026-06-10T15:41:00Z",
+      "type": "decision"
     }
   ],
+  "needsArchitecture": false,
+  "needsDesign": true,
+  "workflow": {
+    "tier": "standard",
+    "template": "full-feature",
+    "stages": [
+      "scope",
+      "design",
+      "implementation",
+      "review",
+      "release"
+    ],
+    "classifiedBy": "scope-agent",
+    "rationale": "UI changes (new columns, side panel) require design pass. Architecture skipped — task is well-contained within the admin subsystem: primarily Admin.jsx and authService.js, builds directly on existing role/status editing patterns with no new system boundaries."
+  },
   "stages": {
     "release": {
+      "status": "not_started"
+    },
+    "architecture": {
+      "status": "skipped"
+    },
+    "review": {
       "status": "not_started"
     },
     "implementation": {
       "status": "not_started"
     },
     "scope": {
-      "status": "awaiting_approval",
-      "startedAt": "2026-06-09T07:24:28Z"
+      "status": "in_progress",
+      "startedAt": "2026-06-10T15:38:05Z"
     },
     "design": {
-      "status": "not_started"
-    },
-    "review": {
-      "status": "not_started"
-    },
-    "architecture": {
       "status": "not_started"
     }
   },
   "worktreePath": "/Users/franciscolucas/Documents/TBN/.defract-worktrees/task-build-dealer-management-interface-01ktnm9dcapp",
-  "worktreeBaseBranch": "main"
+  "worktreeBaseBranch": "main",
+  "worktreeLastSyncedAt": "2026-06-10T15:38:05Z"
 }
