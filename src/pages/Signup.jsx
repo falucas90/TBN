@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Card, Button, StepIndicator } from '../components/ui';
+import { useState } from 'react';
+import { Button, StepIndicator } from '../components/ui';
 import { BrandLockup } from '../components/ui/Logo';
 import { FormField } from '../components/forms';
 import { Link, useNavigate } from 'react-router-dom';

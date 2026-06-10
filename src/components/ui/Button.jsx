@@ -1,4 +1,3 @@
-import React from 'react';
 
 export default function Button({ children, variant = 'default', size, fullWidth, className = '', ...props }) {
   const cls = [

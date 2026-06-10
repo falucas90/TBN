@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useContext, useState, useCallback } from 'react';
 import { Info, CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
 
 const ToastContext = createContext(null);
@@ -64,4 +64,5 @@ export function ToastProvider({ children }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useToast = () => useContext(ToastContext);

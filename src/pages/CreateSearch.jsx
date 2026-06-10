@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Btn, Icon, Switch } from '../components/ui/Primitives';
 import { useToast } from '../context/ToastContext';
@@ -18,7 +18,7 @@ const COUNTRIES = { germany: 'Alemanha', france: 'França', netherlands: 'Holand
 
 // Simple audience estimate based on active country count
 function estimateAudience(countrySel, brand, minYear, maxKm) {
-  const activeCount = Object.values(countrySel).filter(Boolean).length;
+
   const base = Math.max(0, 120 - (2024 - Number(minYear)) * 3 - Math.floor(Number(maxKm) / 5000));
   const byCountry = {
     germany: Math.round(base * 0.45),
@@ -170,7 +170,7 @@ export default function CreateSearch() {
       </div>
 
       <div className="page__body" style={{ maxWidth: '1000px', margin: '0 auto', width: '100%' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(500px, 1fr) 350px', gap: '32px', alignItems: 'start' }}>
+        <div className="create-grid">
 
           <div className="stack gap-6">
             {/* Section 1 — Vehicle */}
@@ -297,7 +297,7 @@ export default function CreateSearch() {
               <div className="card__body stack gap-4">
                 <h3 style={{ fontSize: '15px', fontWeight: '600' }}>Audiência Estimada</h3>
                 <p style={{ color: 'var(--ash)', fontSize: '13px' }}>
-                  Anúncios correspondentes antes de aplicar os cálculos de rentabilidade:
+                  Anúncios correspondentes antes de aplicar os cálculos de rentabilidade (estimativa indicativa):
                 </p>
                 <div className="stack gap-1">
                   <span style={{ fontSize: '32px', fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--bone)' }}>{audience.total}</span>

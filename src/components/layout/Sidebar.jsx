@@ -1,4 +1,3 @@
-import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Search, Bell, Settings, LogOut, ChevronLeft, ChevronRight, Shield } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
