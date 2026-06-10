@@ -2,6 +2,7 @@ export { default as Badge } from './Badge';
 export { default as Button } from './Button';
 export { default as Card } from './Card';
 export { default as Callout } from './Callout';
+export { default as ConfirmDialog } from './ConfirmDialog';
 export { default as Toggle } from './Toggle';
 export { default as SegmentedControl } from './SegmentedControl';
 export { default as Slider } from './Slider';

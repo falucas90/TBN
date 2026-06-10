@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import PageTop from '../components/layout/PageTop';
 import { Btn, Icon, Pill, Seg, Switch } from '../components/ui/Primitives';
+import { ConfirmDialog } from '../components/ui';
 import WhatsAppCard from '../components/ui/WhatsAppCard';
 import { useToast } from '../context/ToastContext';
 import { createSearch, updateSearch, getSearchById, deleteSearch } from '../services/searchesService';
@@ -64,6 +65,7 @@ export default function CreateSearch() {
   const [alertChannels, setAlertChannels] = useState({ whatsapp: true, email: false });
   const [dailySummary, setDailySummary] = useState(true);
   const [status, setStatus] = useState('active');
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   // Load existing search in edit mode
   useEffect(() => {
@@ -82,6 +84,8 @@ export default function CreateSearch() {
       if (s.criteria?.countries) setCountries(s.criteria.countries);
       setMinMargin(s.minMargin || 2500);
       setAlertThreshold(s.alertThreshold || 3000);
+      if (s.alertChannels) setAlertChannels(s.alertChannels);
+      if (s.dailySummary !== undefined) setDailySummary(s.dailySummary);
       setStatus(s.status || 'active');
     }).finally(() => setLoading(false));
   }, [id, isEdit, addToast, navigate]);
@@ -125,7 +129,7 @@ export default function CreateSearch() {
     setIsSubmitting(true);
     try {
       if (isEdit) {
-        await updateSearch(Number(id), buildPayload(newStatus));
+        await updateSearch(id, buildPayload(newStatus));
         addToast(newStatus === 'active' ? 'Pesquisa atualizada com sucesso!' : 'Pesquisa guardada em pausa.', 'success');
       } else {
         await createSearch(buildPayload(newStatus));
@@ -140,10 +144,10 @@ export default function CreateSearch() {
   };
 
   const handleDelete = async () => {
-    if (!window.confirm('Eliminar esta pesquisa? Esta ação é irreversível.')) return;
+    setConfirmDelete(false);
     setIsSubmitting(true);
     try {
-      await deleteSearch(Number(id));
+      await deleteSearch(id);
       addToast('Pesquisa eliminada.', 'warn');
       navigate('/searches');
     } catch {
@@ -158,12 +162,21 @@ export default function CreateSearch() {
 
   return (
     <AppLayout>
+      <ConfirmDialog
+        open={confirmDelete}
+        title="Eliminar pesquisa"
+        description="Esta ação é irreversível. Deixará de receber alertas desta pesquisa."
+        confirmLabel="Eliminar"
+        danger
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmDelete(false)}
+      />
       <div className="page">
         <PageTop
           title={isEdit ? 'Editar pesquisa' : 'Nova pesquisa'}
           sub="Calibra os filtros. Guarda. Começa a receber alertas."
           right={<>
-            {isEdit && <Btn variant="danger" onClick={handleDelete} disabled={isSubmitting}>Eliminar</Btn>}
+            {isEdit && <Btn variant="danger" onClick={() => setConfirmDelete(true)} disabled={isSubmitting}>Eliminar</Btn>}
             <Btn variant="ghost" onClick={() => navigate('/searches')} disabled={isSubmitting}>Cancelar</Btn>
             <Btn variant="ghost" onClick={() => handleSave('paused')} disabled={isSubmitting}>
               {isEdit && status === 'active' ? 'Guardar em pausa' : 'Guardar rascunho'}

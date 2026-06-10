@@ -1,4 +1,3 @@
-import React from 'react';
 
 export default function Slider({ value, min, max, onChange, label, unit = '' }) {
   return (

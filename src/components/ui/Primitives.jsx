@@ -1,4 +1,3 @@
-import React from 'react';
 
 /* ——————————————————————————— Sieve Mark ——————————————————————————— */
 export function SieveMark({ size = 22, color = "currentColor", strokeWidth = 2.5 }) {

@@ -18,6 +18,12 @@
 }
 .app-login .login { flex: 1; }
 
+/* Mobile: single column, bottom tab bar */
+.app--mobile {
+  grid-template-columns: 1fr;
+}
+.app--mobile .page { padding-bottom: 60px; }
+
 /* ——————— Grain — SVG noise overlay ——————— */
 .grain::after {
   content: "";

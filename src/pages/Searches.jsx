@@ -4,7 +4,7 @@ import AppLayout from '../components/layout/AppLayout';
 import PageTop from '../components/layout/PageTop';
 import { Btn, Dot, Icon, NumPair } from '../components/ui/Primitives';
 import { getSearches } from '../services/searchesService';
-import { getAlerts } from '../services/alertsService';
+import { getAlertCountSince } from '../services/alertsService';
 import { useToast } from '../context/ToastContext';
 
 function summarize(s) {
@@ -33,9 +33,7 @@ export default function Searches() {
       setSearches([]);
     });
     const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
-    getAlerts({ limit: 500 }).then(alerts => {
-      setAlertCount7d(alerts.filter(a => !a.createdAt || a.createdAt >= cutoff).length);
-    }).catch(() => setAlertCount7d(0));
+    getAlertCountSince(cutoff).then(setAlertCount7d).catch(() => setAlertCount7d(0));
   }, [addToast]);
 
   const shown = useMemo(() => {

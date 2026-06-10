@@ -1,4 +1,3 @@
-import React from 'react';
 
 export default function StatCard({ label, value, trend, trendLabel, icon: Icon }) {
   const isNeg = trend && trend.toString().startsWith('-');

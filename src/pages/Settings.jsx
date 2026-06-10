@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import PageTop from '../components/layout/PageTop';
 import { Btn, Pill, Dot, Switch } from '../components/ui/Primitives';
+import { ConfirmDialog } from '../components/ui';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { getProfile, updateProfile } from '../services/profilesService';
@@ -23,6 +24,7 @@ export default function Settings() {
   const [notifChannel, setNotifChannel] = useState('WhatsApp');
   const [isExporting, setIsExporting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [confirmDeleteAccount, setConfirmDeleteAccount] = useState(false);
 
   useEffect(() => {
     getProfile().then(profile => {
@@ -85,10 +87,7 @@ export default function Settings() {
   }
 
   async function handleDeleteAccount() {
-    const confirmed = window.confirm(
-      'Tem a certeza que quer eliminar a sua conta? Todos os dados (pesquisas, alertas, perfil) serão permanentemente apagados. Esta ação é irreversível.'
-    );
-    if (!confirmed) return;
+    setConfirmDeleteAccount(false);
     setIsDeleting(true);
     try {
       await deleteAccount();
@@ -108,6 +107,15 @@ export default function Settings() {
 
   return (
     <AppLayout>
+      <ConfirmDialog
+        open={confirmDeleteAccount}
+        title="Eliminar conta"
+        description="Todos os dados (pesquisas, alertas, perfil) serão permanentemente apagados. Esta ação é irreversível."
+        confirmLabel="Eliminar conta"
+        danger
+        onConfirm={handleDeleteAccount}
+        onCancel={() => setConfirmDeleteAccount(false)}
+      />
       <div className="page">
         <PageTop
           title="Definições"
@@ -232,7 +240,7 @@ export default function Settings() {
                     <div className="settings__row-label">Eliminar conta</div>
                     <div className="settings__row-desc">Todos os dados são permanentemente apagados.</div>
                   </div>
-                  <Btn variant="danger" size="sm" onClick={handleDeleteAccount} disabled={isDeleting}>
+                  <Btn variant="danger" size="sm" onClick={() => setConfirmDeleteAccount(true)} disabled={isDeleting}>
                     {isDeleting ? 'A eliminar…' : 'Eliminar'}
                   </Btn>
                 </div>

@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
+import { AlertsProvider } from './context/AlertsContext';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 
 // Pages
@@ -18,6 +19,8 @@ import AlertHistory from './pages/AlertHistory';
 import Settings from './pages/Settings';
 import Admin from './pages/Admin';
 import NotFound from './pages/NotFound';
+import Terms from './pages/legal/Terms';
+import Privacy from './pages/legal/Privacy';
 
 function AuthLoadingSpinner() {
   return (
@@ -58,6 +61,7 @@ function App() {
     <ErrorBoundary>
     <AuthProvider>
       <ToastProvider>
+        <AlertsProvider>
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Landing />} />
@@ -66,6 +70,8 @@ function App() {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/verify-email" element={<VerifyEmail />} />
+            <Route path="/termos" element={<Terms />} />
+            <Route path="/privacidade" element={<Privacy />} />
 
             {/* Protected Routes */}
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
@@ -79,6 +85,7 @@ function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
+        </AlertsProvider>
       </ToastProvider>
     </AuthProvider>
     </ErrorBoundary>

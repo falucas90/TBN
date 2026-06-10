@@ -1,0 +1,38 @@
+-- ============================================================
+-- Crivo — Daily summary scheduling (pg_cron + pg_net)
+-- ============================================================
+-- This migration is intentionally COMMENTED OUT: the edge-function URL and
+-- the webhook secret are project-specific, so the snippet cannot be applied
+-- as-is. To enable the daily digest:
+--
+--   1. Deploy the function:  supabase functions deploy daily-summary --no-verify-jwt
+--   2. Set the secrets:      supabase secrets set WEBHOOK_SECRET=... RESEND_API_KEY=... ALERT_FROM_EMAIL=...
+--   3. Enable the pg_cron and pg_net extensions
+--      (Dashboard → Database → Extensions, or the SQL below).
+--   4. Replace <PROJECT-REF> and <WEBHOOK-SECRET> in the snippet below and
+--      run it in the SQL Editor.
+--
+-- Note: pg_cron on Supabase runs in UTC. Europe/Lisbon is UTC+0 in winter
+-- and UTC+1 in summer — '0 8 * * *' fires at 08:00 Lisbon in winter and
+-- 09:00 in summer. Use '0 7 * * *' if you prefer 08:00 during summer time.
+--
+-- create extension if not exists pg_cron;
+-- create extension if not exists pg_net;
+--
+-- select cron.schedule(
+--   'crivo-daily-summary',          -- job name (unique)
+--   '0 8 * * *',                    -- every day at 08:00 UTC (see note above)
+--   $$
+--   select net.http_post(
+--     url     := 'https://<PROJECT-REF>.supabase.co/functions/v1/daily-summary',
+--     headers := jsonb_build_object(
+--       'Content-Type', 'application/json',
+--       'x-webhook-secret', '<WEBHOOK-SECRET>'
+--     ),
+--     body    := '{}'::jsonb
+--   );
+--   $$
+-- );
+--
+-- To remove the job later:
+-- select cron.unschedule('crivo-daily-summary');

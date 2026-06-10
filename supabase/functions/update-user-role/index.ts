@@ -50,14 +50,67 @@ Deno.serve(async (req) => {
       { auth: { autoRefreshToken: false, persistSession: false } }
     );
 
-    const { action, userId, role, status } = await req.json();
+    const { action, userId, role, status, page: rawPage, perPage: rawPerPage } = await req.json();
 
     if (action === 'list') {
-      const { data, error } = await supabaseAdmin.auth.admin.listUsers();
+      const page = Number.isInteger(rawPage) && rawPage >= 1 ? rawPage : 1;
+      const perPage = Number.isInteger(rawPerPage) && rawPerPage >= 1 && rawPerPage <= 100 ? rawPerPage : 25;
+      const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage });
       if (error) throw error;
-      return new Response(JSON.stringify({ users: data.users }), {
+      const users = data.users ?? [];
+      // supabase-js v2 exposes `total` on the listUsers response; fall back to
+      // a hasMore flag if it is unavailable.
+      const total = typeof data.total === 'number' ? data.total : null;
+      const body: Record<string, unknown> = { users, page, perPage };
+      if (total !== null) {
+        body.total = total;
+        body.hasMore = page * perPage < total;
+      } else {
+        body.hasMore = users.length === perPage;
+      }
+      return new Response(JSON.stringify(body), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
+    }
+
+    if (action === 'stats') {
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+
+      let totalUsers = 0;
+      const { data: usersData, error: usersError } = await supabaseAdmin.auth.admin.listUsers({
+        page: 1,
+        perPage: 1,
+      });
+      if (!usersError && typeof usersData?.total === 'number') {
+        totalUsers = usersData.total;
+      } else {
+        const { count, error: profilesError } = await supabaseAdmin
+          .from('profiles')
+          .select('*', { count: 'exact', head: true });
+        if (profilesError) throw profilesError;
+        totalUsers = count ?? 0;
+      }
+
+      const [totalSearchesRes, activeSearchesRes, totalAlertsRes, alerts7dRes] = await Promise.all([
+        supabaseAdmin.from('searches').select('*', { count: 'exact', head: true }),
+        supabaseAdmin.from('searches').select('*', { count: 'exact', head: true }).eq('status', 'active'),
+        supabaseAdmin.from('alerts').select('*', { count: 'exact', head: true }),
+        supabaseAdmin.from('alerts').select('*', { count: 'exact', head: true }).gte('created_at', sevenDaysAgo),
+      ]);
+      const firstError =
+        totalSearchesRes.error || activeSearchesRes.error || totalAlertsRes.error || alerts7dRes.error;
+      if (firstError) throw firstError;
+
+      return new Response(
+        JSON.stringify({
+          totalUsers,
+          activeSearches: activeSearchesRes.count ?? 0,
+          totalSearches: totalSearchesRes.count ?? 0,
+          alerts7d: alerts7dRes.count ?? 0,
+          totalAlerts: totalAlertsRes.count ?? 0,
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     if (action === 'update-role') {
@@ -93,9 +146,9 @@ Deno.serve(async (req) => {
         });
       }
       const { data: target } = await supabaseAdmin.auth.admin.getUserById(userId);
-      const oldStatus = target?.user?.user_metadata?.status ?? 'active';
+      const oldStatus = target?.user?.app_metadata?.status ?? 'active';
       const { data, error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
-        user_metadata: { status },
+        app_metadata: { status },
       });
       if (error) throw error;
       await supabaseAdmin.from('audit_logs').insert({

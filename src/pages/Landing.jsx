@@ -113,9 +113,9 @@ function SiteFooter() {
           <span className="site-footer__meta">Crivo · v1.0 · Lisboa</span>
         </div>
         <div className="site-footer__links">
-          <a href="#">Termos e Condições</a>
-          <a href="#">Privacidade</a>
-          <a href="#">Contacto</a>
+          <Link to="/termos">Termos e Condições</Link>
+          <Link to="/privacidade">Privacidade</Link>
+          <a href="mailto:suporte@crivo.pt">Contacto</a>
         </div>
       </div>
     </footer>

@@ -1,4 +1,3 @@
-import React from 'react';
 
 export default function CurrencyInput({ value, onChange, ...props }) {
   const handleFocus = e => {
