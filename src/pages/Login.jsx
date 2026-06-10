@@ -159,9 +159,10 @@ export default function Login() {
         <div style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', padding: '1.5rem 4rem', display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--dust)', borderTop: '1px solid var(--hairline)' }}>
           <div>© 2026 Crivo</div>
           <div style={{ display: 'flex', gap: 16 }}>
-            {[['Termos', 'Termos de serviço em breve.'], ['Privacidade', 'Política de privacidade em breve.'], ['Suporte', 'Para suporte, contacte support@crivo.pt']].map(([label, msg]) => (
-              <button key={label} onClick={() => addToast(msg, 'info')} style={{ background: 'none', border: 'none', padding: 0, color: 'inherit', fontSize: 'inherit', cursor: 'pointer' }}>{label}</button>
-            ))}
+            <Link to="/isv" style={{ color: 'inherit' }}>Calculadora ISV</Link>
+            <Link to="/termos" style={{ color: 'inherit' }}>Termos</Link>
+            <Link to="/privacidade" style={{ color: 'inherit' }}>Privacidade</Link>
+            <button onClick={() => addToast('Para suporte, contacte suporte@crivo.pt', 'info')} style={{ background: 'none', border: 'none', padding: 0, color: 'inherit', fontSize: 'inherit', cursor: 'pointer' }}>Suporte</button>
           </div>
         </div>
       </div>

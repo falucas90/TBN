@@ -143,7 +143,7 @@ export default function Searches() {
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
                       {isActive ? (
                         <>
-                          <Button variant="secondary" onClick={() => navigate('/alerts')}><ExternalLink size={16} /> Ver Resultados</Button>
+                          <Button variant="secondary" onClick={() => navigate(`/alerts?search=${search.id}`)}><ExternalLink size={16} /> Ver Resultados</Button>
                           <Button variant="ghost" onClick={() => toggleSearchStatus(search.id)}><Pause size={16} /> Pausar</Button>
                         </>
                       ) : (

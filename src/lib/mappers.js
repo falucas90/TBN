@@ -20,6 +20,7 @@ export function mapSearch(row) {
 export function mapAlert(row) {
   return {
     id: row.id,
+    searchId: row.search_id,
     date: row.date,
     carTitle: row.car_title,
     platform: row.platform,
@@ -32,6 +33,7 @@ export function mapAlert(row) {
     transportEst: row.transport_est,
     marketPrice: row.market_price,
     flags: row.flags ?? [],
+    userStatus: row.user_status ?? 'new',
     createdAt: row.created_at,
   };
 }

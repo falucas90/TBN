@@ -1,10 +1,11 @@
 import { useState, useEffect, useMemo } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { Card, Badge, Button } from '../components/ui';
-import { getAlerts } from '../services/alertsService';
+import { getAlerts, getAlertsBySearch, updateAlertStatus } from '../services/alertsService';
 import { calculateISV } from '../lib/isv';
-import { ExternalLink, Search } from 'lucide-react';
+import { ExternalLink, Search, Bookmark, X } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
+import { useSearchParams } from 'react-router-dom';
 
 const DAY_MS = 86400000;
 const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
@@ -31,18 +32,36 @@ function getDateGroup(alert) {
 
 export default function AlertHistory() {
   const { addToast } = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const searchFilter = searchParams.get('search');
 
   const [alerts, setAlerts] = useState(null);
   const [filterBrand, setFilterBrand] = useState('all');
   const [filterMargin, setFilterMargin] = useState('all');
   const [searchText, setSearchText] = useState('');
+  const [lifecycle, setLifecycle] = useState('all');
 
   useEffect(() => {
-    getAlerts().then(setAlerts).catch(() => {
+    setAlerts(null);
+    const fetch = searchFilter ? getAlertsBySearch(searchFilter) : getAlerts();
+    fetch.then(setAlerts).catch(() => {
       addToast('Erro ao carregar alertas.', 'danger');
       setAlerts([]);
     });
-  }, [addToast]);
+  }, [addToast, searchFilter]);
+
+  const setAlertStatus = async (id, userStatus) => {
+    const prev = alerts;
+    setAlerts(all => all.map(a => a.id === id ? { ...a, userStatus } : a));
+    try {
+      await updateAlertStatus(id, userStatus);
+      if (userStatus === 'saved') addToast('Alerta guardado.', 'success');
+      else if (userStatus === 'dismissed') addToast('Alerta ignorado.', 'info');
+    } catch {
+      setAlerts(prev);
+      addToast('Erro ao atualizar alerta.', 'danger');
+    }
+  };
 
   const brandOptions = useMemo(() => {
     if (!alerts) return [];
@@ -58,10 +77,13 @@ export default function AlertHistory() {
   }), [alerts]);
 
   const filteredAlerts = useMemo(() => alertsWithISV
+    .filter(a => lifecycle === 'saved' ? a.userStatus === 'saved'
+      : lifecycle === 'new' ? (a.userStatus ?? 'new') === 'new'
+      : a.userStatus !== 'dismissed')
     .filter(a => filterBrand === 'all' || a.carTitle.toLowerCase().includes(filterBrand))
     .filter(a => filterMargin === 'all' || a.marginEst >= parseInt(filterMargin))
     .filter(a => !searchText || a.carTitle.toLowerCase().includes(searchText.toLowerCase())),
-  [alertsWithISV, filterBrand, filterMargin, searchText]);
+  [alertsWithISV, lifecycle, filterBrand, filterMargin, searchText]);
 
   // Array of [label, alerts] entries, sorted newest-first
   const groupedAlerts = useMemo(() => {
@@ -133,6 +155,28 @@ export default function AlertHistory() {
           </div>
         </div>
 
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+          <div className="seg">
+            {[['all', 'Todos'], ['new', 'Novos'], ['saved', 'Guardados']].map(([key, label]) => (
+              <button key={key} className="seg__opt" aria-selected={lifecycle === key} onClick={() => setLifecycle(key)}>
+                {label}
+              </button>
+            ))}
+          </div>
+          {searchFilter && (
+            <span className="pill pill--emerald">
+              Filtrado por pesquisa
+              <button
+                onClick={() => setSearchParams({})}
+                aria-label="Limpar filtro de pesquisa"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', display: 'flex', padding: 0 }}
+              >
+                <X size={12} />
+              </button>
+            </span>
+          )}
+        </div>
+
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           {groupedAlerts.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--ash)' }}>
@@ -169,7 +213,27 @@ export default function AlertHistory() {
                            €{Math.round(alert.marginEst).toLocaleString()}
                          </div>
                       </div>
-                      <Button onClick={() => window.open(alert.listingUrl, '_blank', 'noopener,noreferrer')}><ExternalLink size={16} /> Ver</Button>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <Button
+                          variant="ghost"
+                          aria-label={alert.userStatus === 'saved' ? 'Remover dos guardados' : 'Guardar alerta'}
+                          onClick={() => setAlertStatus(alert.id, alert.userStatus === 'saved' ? 'new' : 'saved')}
+                        >
+                          <Bookmark
+                            size={16}
+                            fill={alert.userStatus === 'saved' ? 'var(--emerald)' : 'none'}
+                            color={alert.userStatus === 'saved' ? 'var(--emerald)' : 'currentColor'}
+                          />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          aria-label="Ignorar alerta"
+                          onClick={() => setAlertStatus(alert.id, 'dismissed')}
+                        >
+                          <X size={16} />
+                        </Button>
+                        <Button onClick={() => window.open(alert.listingUrl, '_blank', 'noopener,noreferrer')}><ExternalLink size={16} /> Ver</Button>
+                      </div>
                     </div>
                   </Card>
                 ))}
