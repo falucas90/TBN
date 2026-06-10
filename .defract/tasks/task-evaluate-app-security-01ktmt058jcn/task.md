@@ -3,7 +3,7 @@ defract:
   id: task-evaluate-app-security-01ktmt058jcn
   type: task
   status: active
-  stage: review
+  stage: release
   phase: 0
   total_phases: 1
   priority: normal
@@ -207,4 +207,31 @@ No security issues found in changed files.
 ## Required Changes
 
 None.
+
+## Release
+
+## Release Notes
+
+### What was built
+- Structured security audit of the autoseek application covering authentication flows, access control, data handling, and Edge Function security
+- `SECURITY_AUDIT.md` committed to repository root with 11 findings across 4 severity levels (2 Critical, 3 High, 4 Medium, 2 Low)
+- All 12 requirement areas (R1–R12) audited and documented with severity ratings, file:line references, and remediation recommendations
+- Two critical findings: silent mock-mode authentication bypass when Supabase env vars are absent (C-01), and admin deactivation bypass via user-writable `user_metadata` (C-02)
+- Each finding labeled as "Code change", "Infrastructure/backend configuration", or both per AC-4
+
+### Key decisions
+- Audit findings committed as `SECURITY_AUDIT.md` at repo root so they persist and can be referenced in future remediation tasks
+- Two highest-priority findings pre-identified during scope: mock mode auto-authentication (C-01) and inactive user bypass (C-02)
+- Pre-existing lint failures (112 no-unused-vars errors in React imports) not attributed to this task — SECURITY_AUDIT.md introduces zero new ESLint violations
+- Loop-back fix applied: M-04 Type field updated from "No code change required" to "Code change (via C-01 and H-03)" to satisfy AC-4
+
+### Changes by phase
+- **Phase 1: Perform audit and write findings document** — SECURITY_AUDIT.md written at repository root (367 lines, 22.6 KB) covering all R1–R12 requirement areas. Commits: d49dc2f (initial audit), 6f04ee4 (loop-back fix: M-04 Type field)
+
+## Verification
+
+- Production build: PASS (vite build, 1829 modules, 261.76 kB bundle)
+- All 8 acceptance criteria: PASS
+- Review verdict: APPROVE (2026-06-10, reviewer session 01kts18hxk9fb73xww5kddb8zv)
+- Code pushed: PASS (feature/task-evaluate-app-security-01ktmt058jcn pushed to origin, ref 26e0c93)
 
