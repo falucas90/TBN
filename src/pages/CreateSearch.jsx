@@ -79,6 +79,8 @@ export default function CreateSearch() {
       if (s.criteria?.countries) setCountries(s.criteria.countries);
       setMinMargin(s.minMargin || 2500);
       setAlertThreshold(s.alertThreshold || 3000);
+      if (s.alertChannels) setAlertChannels(s.alertChannels);
+      if (s.dailySummary !== undefined) setDailySummary(s.dailySummary);
     }).finally(() => setLoading(false));
   }, [id, isEdit, addToast, navigate]);
 
@@ -121,7 +123,7 @@ export default function CreateSearch() {
     setIsSubmitting(true);
     try {
       if (isEdit) {
-        await updateSearch(Number(id), buildPayload('active'));
+        await updateSearch(id, buildPayload('active'));
         addToast('Pesquisa atualizada com sucesso!', 'success');
       } else {
         await createSearch(buildPayload('active'));
@@ -139,7 +141,7 @@ export default function CreateSearch() {
     setIsSubmitting(true);
     try {
       if (isEdit) {
-        await updateSearch(Number(id), buildPayload('paused'));
+        await updateSearch(id, buildPayload('paused'));
       } else {
         await createSearch(buildPayload('paused'));
       }
