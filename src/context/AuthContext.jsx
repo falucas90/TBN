@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { supabase, supabaseConfigured } from '../lib/supabase';
-import { loginWithCredentials, loginWithGoogle, logoutUser, signupUser } from '../services/authService';
+import { loginWithCredentials, logoutUser, signupUser } from '../services/authService';
 
 const AuthContext = createContext(null);
 
@@ -34,10 +34,6 @@ export function AuthProvider({ children }) {
     await loginWithCredentials(email, password);
   };
 
-  const loginGoogle = async () => {
-    await loginWithGoogle();
-  };
-
   const signup = async (email, password, metadata) => {
     await signupUser(email, password, metadata);
   };
@@ -50,7 +46,7 @@ export function AuthProvider({ children }) {
   const isAuthenticated = !!currentUser;
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, currentUser, isLoading, login, loginGoogle, signup, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, currentUser, isLoading, login, signup, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -21,7 +21,7 @@ function mapAuthError(error) {
 }
 
 export default function Login() {
-  const { isAuthenticated, login, loginGoogle } = useAuth();
+  const { isAuthenticated, login } = useAuth();
   const { addToast } = useToast();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
@@ -54,14 +54,6 @@ export default function Login() {
       setError(mapAuthError(err));
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  const handleGoogle = async () => {
-    try {
-      await loginGoogle();
-    } catch (err) {
-      setError(mapAuthError(err));
     }
   };
 
@@ -139,15 +131,6 @@ export default function Login() {
               </Button>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', margin: '8px 0', color: 'var(--chalk)' }}>
-              <div style={{ flex: 1, height: 1, background: 'var(--hairline)' }} />
-              <span style={{ padding: '0 12px', fontSize: 12 }}>ou</span>
-              <div style={{ flex: 1, height: 1, background: 'var(--hairline)' }} />
-            </div>
-
-            <Button type="button" variant="default" fullWidth onClick={handleGoogle}>
-              Continuar com o Google
-            </Button>
           </form>
 
           <div style={{ marginTop: '2.5rem', textAlign: 'center', fontSize: 13, color: 'var(--dust)' }}>

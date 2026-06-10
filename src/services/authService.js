@@ -7,15 +7,6 @@ export async function loginWithCredentials(email, password) {
   return data.user;
 }
 
-export async function loginWithGoogle() {
-  if (!supabase) return;
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: window.location.origin + '/searches' },
-  });
-  if (error) throw error;
-}
-
 export async function logoutUser() {
   if (!supabase) return;
   const { error } = await supabase.auth.signOut();
