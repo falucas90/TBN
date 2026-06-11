@@ -127,7 +127,7 @@ Import the repo; build command `npm run build` and publish directory `dist` come
 
 The frontend is useless without its backend. Complete the [Supabase setup](#supabase-setup) first:
 
-1. Apply migrations `001`–`006` from `supabase/migrations/` **in order**.
+1. Apply migrations `001`–`007` from `supabase/migrations/` **in order**.
 2. Deploy the 4 edge functions: `update-user-role` and `delete-account` (default JWT verification), and `notify-alert` and `daily-summary` with `--no-verify-jwt` (see [Notifications](#notifications)).
 3. Set the function secrets (`WEBHOOK_SECRET`, `RESEND_API_KEY`, optional `ALERT_FROM_EMAIL`) and wire up the Database Webhook and daily-summary cron job.
 4. Set the build env vars above on the host.
