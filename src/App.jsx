@@ -21,6 +21,7 @@ import AdminOverview from './pages/admin/AdminOverview';
 import AdminStands from './pages/admin/AdminStands';
 import AdminBilling from './pages/admin/AdminBilling';
 import AdminLogs from './pages/admin/AdminLogs';
+import AdminFeedback from './pages/admin/AdminFeedback';
 import NotFound from './pages/NotFound';
 import Terms from './pages/legal/Terms';
 import Privacy from './pages/legal/Privacy';
@@ -88,6 +89,7 @@ function App() {
             <Route path="/admin/stands" element={<AdminRoute><AdminStands /></AdminRoute>} />
             <Route path="/admin/billing" element={<AdminRoute><AdminBilling /></AdminRoute>} />
             <Route path="/admin/logs" element={<AdminRoute><AdminLogs /></AdminRoute>} />
+            <Route path="/admin/feedback" element={<AdminRoute><AdminFeedback /></AdminRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

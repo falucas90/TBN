@@ -61,16 +61,18 @@ dealer sees will be wrong.
       Expected: one row returned. (Realtime in the app filters by
       `user_id=eq.<id>` — see `src/context/AlertsContext.jsx`.)
 
-- [ ] **Deploy the four edge functions.** Action — note that `notify-alert` and
-      `daily-summary` are called by a webhook / cron (not a logged-in user), so
-      they deploy with `--no-verify-jwt`; the admin functions deploy plain:
+- [ ] **Deploy the five edge functions.** Action — note that `notify-alert`,
+      `daily-summary` and `notify-feedback` are called by a webhook / cron (not
+      a logged-in user), so they deploy with `--no-verify-jwt`; the admin
+      functions deploy plain:
       ```bash
       supabase functions deploy update-user-role
       supabase functions deploy delete-account
       supabase functions deploy notify-alert --no-verify-jwt
       supabase functions deploy daily-summary --no-verify-jwt
+      supabase functions deploy notify-feedback --no-verify-jwt
       ```
-      Expected: all four show as deployed in Dashboard → Edge Functions.
+      Expected: all five show as deployed in Dashboard → Edge Functions.
 
 - [ ] **Set the function secrets.** Action:
       ```bash
@@ -78,8 +80,12 @@ dealer sees will be wrong.
         WEBHOOK_SECRET=<random-string> \
         RESEND_API_KEY=<resend-key> \
         ALERT_FROM_EMAIL=alertas@crivo.pt \
-        ALLOWED_ORIGIN=<app-origin>
+        ALLOWED_ORIGIN=<app-origin> \
+        FEEDBACK_EMAIL=<admin-inbox>
       ```
+      `FEEDBACK_EMAIL` is the inbox that receives new-feedback notifications
+      from `notify-feedback`; without it the function returns
+      `{ "sent": false }` and skips sending.
       `ALERT_FROM_EMAIL` is optional (defaults to `alertas@crivo.pt`).
       `ALLOWED_ORIGIN` is optional and pins the CORS origin of all four edge
       functions to the deployed app (e.g. `https://app.crivo.pt`); unset, it
@@ -107,6 +113,13 @@ dealer sees will be wrong.
       Expected: webhook saved. (`notify-alert` rejects with 401 if the header is
       missing or wrong; it only sends when the alert's `search_id` resolves to
       an **active** search with `alert_channels.email = true`.)
+
+- [ ] **Create the Database Webhook for feedback notifications.** Action: same
+      as the alerts webhook, but table `feedback`, event **INSERT**, URL
+      `https://<PROJECT-REF>.supabase.co/functions/v1/notify-feedback`, with
+      the same `x-webhook-secret` header. Expected: submitting feedback in the
+      app emails `FEEDBACK_EMAIL`, and the entry appears in **Admin →
+      Feedback** for triage (approve → copy the Claude prompt → mark resolved).
 
 - [ ] **(Optional) Schedule the daily digest.** Action: 006 ships the snippet
       commented out because the URL and secret are project-specific. To enable,

@@ -40,6 +40,7 @@ export default function Sidebar() {
     { to: '/admin/stands', icon: 'car', label: 'Stands' },
     { to: '/admin/billing', icon: 'euro', label: 'Faturação' },
     { to: '/admin/logs', icon: 'clock', label: 'Logs & auditoria' },
+    { to: '/admin/feedback', icon: 'chat', label: 'Feedback' },
   ];
 
   const isAdmin = currentUser?.role === 'admin';
