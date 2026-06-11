@@ -1,59 +1,32 @@
-/* CRIVO — Admin theme (dark inversion of the design tokens, ported from the
-   design bundle's admin.css) + admin-only styles.
-   Scoped under .admin-theme so the customer app keeps its paper-light theme. */
+/* CRIVO — Admin screens embedded in the main (light) app.
+   Ported from the design bundle's admin-embed.css — token-driven, no dark overrides. */
 
-.admin-theme {
-  /* ——— Surfaces (ink, dark) ——— */
-  --obsidian:  #121410;
-  --graphite:  #1A1C17;
-  --slate:     #22241E;
-  --slate-2:   #2A2C25;
-  --hairline:  #2A2C25;
-  --hairline-strong: #3B3E35;
-
-  /* ——— Ink (paper) ——— */
-  --bone: #ECEBE2;
-  --ash:  #A6A99A;
-  --dust: #7E8173;
-  --chalk:#54574C;
-
-  /* ——— Signal (lifted for dark) ——— */
-  --emerald: #3DD68C;
-  --emerald-ink: #0E100C;
-  --mint:    #5BD9A9;
-  --amber:   #E0B14E;
-  --coral:   #E06A6A;
-
-  --emerald-12: rgba(61,214,140,0.10);
-  --emerald-20: rgba(61,214,140,0.18);
-  --amber-12:   rgba(224,177,78,0.12);
-  --coral-12:   rgba(224,106,106,0.12);
-
-  background: var(--obsidian);
-  color: var(--bone);
+/* Sidebar section label */
+.side__section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 18px 12px 6px;
+  font-size: 10px;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--dust);
+}
+.side__section::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--hairline);
 }
 
-/* Grain multiplies to black on dark — switch to screen */
-.admin-theme .grain::after { mix-blend-mode: screen; opacity: 0.032; }
-
-/* Hardcoded light values in the shared stylesheets, re-pointed */
-.admin-theme .side { background: #171911; }
-.admin-theme .avatar { background: linear-gradient(135deg, #2A2C25, #34372E); }
-.admin-theme .btn:hover { background: var(--slate-2); }
-.admin-theme .btn--primary { color: var(--emerald-ink); }
-.admin-theme .btn--primary:hover { background: #57DE9C; border-color: #57DE9C; }
-.admin-theme .side__exit:hover { color: var(--bone); background: rgba(255,255,255,0.06); }
-.admin-theme ::-webkit-scrollbar-thumb { background: #34372E; border: 2px solid var(--obsidian); }
-.admin-theme ::-webkit-scrollbar-thumb:hover { background: #44483C; }
-
-/* Admin badge next to the wordmark */
+/* Admin badge */
 .side__admin-tag {
   font-family: var(--font-mono);
   font-size: 9.5px;
   letter-spacing: 0.1em;
   color: var(--amber);
   background: var(--amber-12);
-  border: 1px solid rgba(224,177,78,0.3);
+  border: 1px solid rgba(184,132,18,0.3);
   border-radius: var(--r-sm);
   padding: 2px 6px;
   line-height: 1.4;

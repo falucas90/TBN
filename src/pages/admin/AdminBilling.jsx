@@ -1,4 +1,4 @@
-import AdminLayout from '../../components/layout/AdminLayout';
+import AppLayout from '../../components/layout/AppLayout';
 import PageTop from '../../components/layout/PageTop';
 import { Btn, Pill } from '../../components/ui/Primitives';
 import { useToast } from '../../context/ToastContext';
@@ -22,7 +22,7 @@ const PLANS = [
 export default function AdminBilling() {
   const { addToast } = useToast();
   return (
-    <AdminLayout>
+    <AppLayout>
       <div className="page">
         <PageTop
           title="Faturação"
@@ -77,6 +77,6 @@ export default function AdminBilling() {
           </div>
         </div>
       </div>
-    </AdminLayout>
+    </AppLayout>
   );
 }

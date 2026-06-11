@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import AdminLayout from '../../components/layout/AdminLayout';
+import AppLayout from '../../components/layout/AppLayout';
 import PageTop from '../../components/layout/PageTop';
 import { Btn, Icon, Pill, Seg } from '../../components/ui/Primitives';
 import { listUsers, updateUserRole, updateUserStatus } from '../../services/authService';
@@ -82,7 +82,7 @@ export default function AdminStands() {
     .filter((u) => view === 'Todos' || (view === 'Ativos' ? statusOf(u) === 'active' : statusOf(u) !== 'active'));
 
   return (
-    <AdminLayout>
+    <AppLayout>
       <div className="page">
         <PageTop
           title="Stands"
@@ -173,6 +173,6 @@ export default function AdminStands() {
           </div>
         </div>
       </div>
-    </AdminLayout>
+    </AppLayout>
   );
 }

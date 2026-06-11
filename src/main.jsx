@@ -6,6 +6,7 @@ import './styles/tokens.css'
 import './styles/global.css'
 import './styles/components.css'
 import './styles/app.css'
+import './styles/admin.css'
 
 if (import.meta.env.VITE_SENTRY_DSN) {
   Sentry.init({

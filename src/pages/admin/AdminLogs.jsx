@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import AdminLayout from '../../components/layout/AdminLayout';
+import AppLayout from '../../components/layout/AppLayout';
 import PageTop from '../../components/layout/PageTop';
 import { Pill, Seg } from '../../components/ui/Primitives';
 import { getAuditLogs, listUsers } from '../../services/authService';
@@ -41,7 +41,7 @@ export default function AdminLogs() {
   ), [logs, filter]);
 
   return (
-    <AdminLayout>
+    <AppLayout>
       <div className="page">
         <PageTop
           title="Logs & auditoria"
@@ -76,6 +76,6 @@ export default function AdminLogs() {
           </div>
         </div>
       </div>
-    </AdminLayout>
+    </AppLayout>
   );
 }

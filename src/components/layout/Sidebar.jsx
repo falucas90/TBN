@@ -33,8 +33,31 @@ export default function Sidebar() {
     { to: '/alerts', icon: 'bell', label: 'Histórico de alertas', count: counts.alerts },
     { to: '/isv', icon: 'calc', label: 'Calculadora ISV' },
     { to: '/settings', icon: 'settings', label: 'Definições' },
-    ...(currentUser?.role === 'admin' ? [{ to: '/admin', icon: 'alert', label: 'Admin' }] : []),
   ];
+
+  const adminItems = [
+    { to: '/admin', icon: 'sparkle', label: 'Visão geral', end: true },
+    { to: '/admin/stands', icon: 'car', label: 'Stands' },
+    { to: '/admin/billing', icon: 'euro', label: 'Faturação' },
+    { to: '/admin/logs', icon: 'clock', label: 'Logs & auditoria' },
+  ];
+
+  const isAdmin = currentUser?.role === 'admin';
+
+  const renderItem = (it) => (
+    <NavLink
+      key={it.to}
+      to={it.to}
+      end={it.end}
+      className={({ isActive }) => `side__item ${isActive ? 'side__item--active' : ''}`}
+    >
+      {it.icon === 'sieve'
+        ? <SieveMark size={16} color="currentColor" />
+        : <Icon name={it.icon} size={16} />}
+      <span>{it.label}</span>
+      {it.count != null && <span className="side__count">{it.count}</span>}
+    </NavLink>
+  );
 
   const fullName = currentUser?.user_metadata?.full_name || currentUser?.email || 'Utilizador';
   const company = currentUser?.user_metadata?.company || 'Crivo';
@@ -47,19 +70,15 @@ export default function Sidebar() {
         <span className="side__brand-word">CRIVO</span>
       </div>
       <nav className="side__nav">
-        {items.map(it => (
-          <NavLink
-            key={it.to}
-            to={it.to}
-            className={({ isActive }) => `side__item ${isActive ? 'side__item--active' : ''}`}
-          >
-            {it.icon === 'sieve'
-              ? <SieveMark size={16} color="currentColor" />
-              : <Icon name={it.icon} size={16} />}
-            <span>{it.label}</span>
-            {it.count != null && <span className="side__count">{it.count}</span>}
-          </NavLink>
-        ))}
+        {items.map(renderItem)}
+        {isAdmin && (
+          <>
+            <div className="side__section">
+              <span>Admin</span>
+            </div>
+            {adminItems.map(renderItem)}
+          </>
+        )}
       </nav>
       <div className="side__user">
         <div className="avatar">{initials}</div>

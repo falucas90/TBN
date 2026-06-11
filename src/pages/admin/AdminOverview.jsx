@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import AdminLayout from '../../components/layout/AdminLayout';
+import AppLayout from '../../components/layout/AppLayout';
 import PageTop from '../../components/layout/PageTop';
 import { Dot, Pill, Seg } from '../../components/ui/Primitives';
 import { getAdminStats } from '../../services/authService';
@@ -33,7 +33,7 @@ export default function AdminOverview() {
   const today = new Date().toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long' });
 
   return (
-    <AdminLayout>
+    <AppLayout>
       <div className="page">
         <PageTop
           title="Visão geral"
@@ -103,6 +103,6 @@ export default function AdminOverview() {
           </div>
         </div>
       </div>
-    </AdminLayout>
+    </AppLayout>
   );
 }

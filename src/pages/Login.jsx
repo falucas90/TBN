@@ -38,8 +38,8 @@ export default function Login() {
     }
     setIsSubmitting(true);
     try {
-      const user = await login(email, password);
-      navigate(user?.role === 'admin' ? '/admin' : '/dashboard');
+      await login(email, password);
+      navigate('/dashboard');
     } catch (err) {
       setError(mapAuthError(err));
     } finally {
