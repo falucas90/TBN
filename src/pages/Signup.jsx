@@ -10,7 +10,7 @@ function mapSignupError(error) {
     return 'Este email já está registado.';
   }
   if (msg.includes('password should be at least')) {
-    return 'A palavra-passe deve ter pelo menos 6 caracteres.';
+    return 'A palavra-passe deve ter pelo menos 8 caracteres.';
   }
   if (msg.includes('invalid email') || msg.includes('unable to validate email')) {
     return 'Email inválido.';
