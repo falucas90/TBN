@@ -6,14 +6,14 @@ import { useToast } from './ToastContext';
 const AlertsContext = createContext(null);
 
 export function AlertsProvider({ children }) {
-  const { currentUser } = useAuth();
+  const { companyId } = useAuth();
   const { addToast } = useToast();
   const [unreadCount, setUnreadCount] = useState(0);
 
-  const userId = currentUser?.id;
-
   useEffect(() => {
-    if (!supabaseConfigured || !userId) return;
+    // Alerts are a company-wide queue; platform admins (no company)
+    // have nothing to subscribe to. RLS also enforces this server-side.
+    if (!supabaseConfigured || !companyId) return;
 
     const channel = supabase
       .channel('alerts-feed')
@@ -21,7 +21,7 @@ export function AlertsProvider({ children }) {
         event: 'INSERT',
         schema: 'public',
         table: 'alerts',
-        filter: `user_id=eq.${userId}`,
+        filter: `company_id=eq.${companyId}`,
       }, (payload) => {
         setUnreadCount(count => count + 1);
         addToast(`Novo alerta: ${payload.new.car_title}`, 'info');
@@ -32,7 +32,7 @@ export function AlertsProvider({ children }) {
       supabase.removeChannel(channel);
       setUnreadCount(0);
     };
-  }, [userId, addToast]);
+  }, [companyId, addToast]);
 
   const clearUnread = useCallback(() => setUnreadCount(0), []);
 

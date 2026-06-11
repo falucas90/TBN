@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { mapSearch, mapAlert, mapProfile } from './mappers';
+import { mapSearch, mapAlert, mapProfile, mapCompany } from './mappers';
 
 describe('mapSearch', () => {
   const row = {
@@ -111,22 +111,18 @@ describe('mapProfile', () => {
     const p = mapProfile({
       id: 'uuid-1',
       full_name: 'Maria Silva',
-      company: 'Stand Lisboa',
-      nif: '123456789',
       phone: '+351912345678',
-      default_transport_cost: 750,
-      min_margin: 1800,
       notif_channel: 'whatsapp',
+      company_id: 'company-1',
+      company_role: 'owner',
     });
     expect(p).toEqual({
       id: 'uuid-1',
       fullName: 'Maria Silva',
-      company: 'Stand Lisboa',
-      nif: '123456789',
       phone: '+351912345678',
-      defaultTransportCost: 750,
-      minMargin: 1800,
       notifChannel: 'whatsapp',
+      companyId: 'company-1',
+      companyRole: 'owner',
     });
   });
 
@@ -135,5 +131,26 @@ describe('mapProfile', () => {
     expect(p.id).toBe('uuid-2');
     expect(p.fullName).toBeUndefined();
     expect(p.notifChannel).toBeUndefined();
+  });
+});
+
+describe('mapCompany', () => {
+  it('maps snake_case columns to camelCase fields', () => {
+    const c = mapCompany({
+      id: 'company-1',
+      name: 'Stand Lisboa',
+      nif: '123456789',
+      status: 'active',
+      default_transport_cost: 750,
+      min_margin: 1800,
+    });
+    expect(c).toEqual({
+      id: 'company-1',
+      name: 'Stand Lisboa',
+      nif: '123456789',
+      status: 'active',
+      defaultTransportCost: 750,
+      minMargin: 1800,
+    });
   });
 });

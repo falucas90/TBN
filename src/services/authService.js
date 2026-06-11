@@ -94,10 +94,12 @@ export async function getAdminStats() {
   };
 }
 
-export async function inviteUser(email) {
+// Invites a new stand: the signup trigger creates a company (named
+// `companyName` when given) with the invitee as its owner.
+export async function inviteUser(email, companyName) {
   if (!supabase) return;
   const { data, error } = await supabase.functions.invoke('update-user-role', {
-    body: { action: 'invite', email },
+    body: { action: 'invite', email, ...(companyName ? { companyName } : {}) },
   });
   if (error) {
     // FunctionsHttpError hides the response body behind `context`; surface the
