@@ -66,7 +66,9 @@ Invite flows: a platform admin invites a new stand (the signup trigger creates t
 
 ### Notifications
 
-Two edge functions deliver email notifications (via [Resend](https://resend.com)): `notify-alert` sends an instant email when an alert row is inserted, and `daily-summary` sends a per-user digest of the last 24 hours.
+Two edge functions deliver email notifications (via [Resend](https://resend.com)): `notify-alert` sends an instant email when an alert row is inserted, and `daily-summary` sends one digest per company of the last 24 hours.
+
+**Who receives them:** notifications follow the company scoping — the team shares one alert queue, so **every active member of the alert's company** is emailed, not just the member who created the search. The existing per-search switches still gate whether anything is sent at all (`alert_channels.email` for instant alerts, `daily_summary` for the digest), and a **suspended company receives nothing** (mirroring `current_company_id()` cutting off app access). `profiles.notif_channel` is a per-member *channel preference* (WhatsApp/Email/SMS), not an opt-out: since email is the only implemented channel and the default preference is WhatsApp, filtering on it would silently disable notifications for anyone who never changed the default — so today all members get email, and `notif_channel` will become the per-member router once WhatsApp/SMS delivery exists.
 
 1. Deploy with `--no-verify-jwt` — the callers are a Database Webhook and a cron job, not logged-in users; auth is the shared `x-webhook-secret` header instead:
    ```bash
