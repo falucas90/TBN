@@ -94,6 +94,8 @@ Two edge functions deliver email notifications (via [Resend](https://resend.com)
 
 WhatsApp delivery is not implemented yet — it requires WhatsApp Business API credentials (see the TODO in `supabase/functions/notify-alert/index.ts`).
 
+Before launching the closed beta, follow the step-by-step provisioning and end-to-end smoke runbook in [`docs/BETA_CHECKLIST.md`](docs/BETA_CHECKLIST.md).
+
 ## Error monitoring
 
 Error monitoring with [Sentry](https://sentry.io) is optional and disabled by default. Set `VITE_SENTRY_DSN` in `.env` to your project's DSN to enable it — uncaught render errors caught by the error boundary are then reported with the current build mode as the environment. When the variable is unset, Sentry is never initialized and the app behaves exactly as before.

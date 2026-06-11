@@ -8,7 +8,8 @@
     "build": "vite build",
     "lint": "eslint .",
     "test": "vitest run",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "seed:alert": "node scripts/seed-test-alert.mjs"
   },
   "dependencies": {
     "@sentry/react": "^10.57.0",
