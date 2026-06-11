@@ -7,7 +7,7 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 export default [
   { ignores: ['dist', 'supabase/functions'] },
   {
-    files: ['vite.config.js'],
+    files: ['vite.config.js', 'eslint.config.js'],
     languageOptions: { globals: globals.node },
   },
   {
@@ -39,9 +39,5 @@ export default [
         { allowConstantExport: true },
       ],
     },
-  },
-  {
-    files: ['vite.config.js'],
-    languageOptions: { globals: { ...globals.node } },
   },
 ]
