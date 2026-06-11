@@ -1,0 +1,118 @@
+/* CRIVO — Admin screens embedded in the main (light) app.
+   Ported from the design bundle's admin-embed.css — token-driven, no dark overrides. */
+
+/* Sidebar section label */
+.side__section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 18px 12px 6px;
+  font-size: 10px;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--dust);
+}
+.side__section::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--hairline);
+}
+
+/* Admin badge */
+.side__admin-tag {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  color: var(--amber);
+  background: var(--amber-12);
+  border: 1px solid rgba(184,132,18,0.3);
+  border-radius: var(--r-sm);
+  padding: 2px 6px;
+  line-height: 1.4;
+}
+
+/* ——————— Stat row ——————— */
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.admin-stat {
+  background: var(--graphite);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.admin-stat__label {
+  font-size: 10.5px;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--dust);
+}
+.admin-stat__value {
+  font-size: 26px;
+  letter-spacing: var(--tracking-tight);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.admin-stat__delta { font-size: 11.5px; color: var(--dust); }
+.admin-stat__delta--up { color: var(--emerald); }
+.admin-stat__delta--down { color: var(--coral); }
+
+/* ——————— Mini bar chart ——————— */
+.bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 120px;
+}
+.bars__bar {
+  flex: 1;
+  background: var(--emerald-20);
+  border-top: 2px solid var(--emerald);
+  border-radius: 2px 2px 0 0;
+  min-height: 4px;
+  transition: background var(--t-fast);
+}
+.bars__bar:hover { background: var(--emerald-12); }
+.bars__labels {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
+}
+.bars__labels span {
+  flex: 1;
+  text-align: center;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--chalk);
+}
+
+/* ——————— Log rows ——————— */
+.log-row {
+  display: grid;
+  grid-template-columns: 150px 110px 1fr auto;
+  gap: 16px;
+  align-items: baseline;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--hairline);
+  font-size: 12.5px;
+}
+.log-row:last-child { border-bottom: 0; }
+.log-row:hover { background: var(--slate); }
+.log-row__time { font-family: var(--font-mono); font-size: 11px; color: var(--dust); }
+.log-row__actor { color: var(--ash); }
+.log-row__msg { color: var(--bone); }
+
+/* Plan distribution */
+.plan-dist { display: flex; flex-direction: column; gap: 12px; }
+.plan-dist__row { display: grid; grid-template-columns: 80px 1fr 64px; gap: 12px; align-items: center; font-size: 12.5px; }
+.plan-dist__bar { height: 6px; border-radius: var(--r-full); background: var(--slate-2); overflow: hidden; }
+.plan-dist__fill { height: 100%; border-radius: var(--r-full); background: var(--emerald); }
+.plan-dist__num { text-align: right; font-variant-numeric: tabular-nums; color: var(--ash); }

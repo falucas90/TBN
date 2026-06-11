@@ -50,7 +50,8 @@ cp .env.example .env
    supabase functions deploy update-user-role
    supabase functions deploy delete-account
    ```
-3. To grant a user admin access, set `{"role": "admin"}` in their `app_metadata` (Dashboard → Authentication → Users). The Admin panel and audit log are only visible to admins.
+3. **Disable public self-signup (required for the invite-only beta).** In the Supabase Dashboard → Authentication → Sign In / Up, turn **off** "Allow new users to sign up". Removing the signup UI alone is not enforcement — only this setting makes the public API reject self-signups too. Admin invites via `auth.admin.inviteUserByEmail` (the "Convidar utilizador" action in the Admin panel, backed by the `update-user-role` edge function) still work with signups disabled; invited users receive an email link to set their password. The `/signup` page now shows an invite notice instead of a registration form.
+4. To grant a user admin access, set `{"role": "admin"}` in their `app_metadata` (Dashboard → Authentication → Users). The Admin panel and audit log are only visible to admins.
 
 ### Notifications
 
@@ -63,9 +64,9 @@ Two edge functions deliver email notifications (via [Resend](https://resend.com)
    ```
 2. Set the required secrets:
    ```bash
-   supabase secrets set WEBHOOK_SECRET=<random-string> RESEND_API_KEY=<resend-key> ALERT_FROM_EMAIL=alertas@crivo.pt
+   supabase secrets set WEBHOOK_SECRET=<random-string> RESEND_API_KEY=<resend-key> ALERT_FROM_EMAIL=alertas@crivo.pt ALLOWED_ORIGIN=<app-origin>
    ```
-   `ALERT_FROM_EMAIL` is optional (defaults to `alertas@crivo.pt`). Without `RESEND_API_KEY` the functions log the composed email and return `{ "sent": false }` — safe to deploy before keys exist.
+   `ALERT_FROM_EMAIL` is optional (defaults to `alertas@crivo.pt`). Without `RESEND_API_KEY` the functions log the composed email and return `{ "sent": false }` — safe to deploy before keys exist. `ALLOWED_ORIGIN` is optional and pins the CORS `Access-Control-Allow-Origin` of **all** edge functions to the app origin (e.g. `https://app.crivo.pt`); when unset it defaults to `*` so local development keeps working.
 3. Create the Database Webhook for instant alerts (Dashboard → Database → Webhooks → Create):
    - Table: `alerts`, event: **INSERT**
    - Type: HTTP request, method **POST**, URL: `https://<PROJECT-REF>.supabase.co/functions/v1/notify-alert`
@@ -94,9 +95,46 @@ Two edge functions deliver email notifications (via [Resend](https://resend.com)
 
 WhatsApp delivery is not implemented yet — it requires WhatsApp Business API credentials (see the TODO in `supabase/functions/notify-alert/index.ts`).
 
+Before launching the closed beta, follow the step-by-step provisioning and end-to-end smoke runbook in [`docs/BETA_CHECKLIST.md`](docs/BETA_CHECKLIST.md).
+
 ## Error monitoring
 
 Error monitoring with [Sentry](https://sentry.io) is optional and disabled by default. Set `VITE_SENTRY_DSN` in `.env` to your project's DSN to enable it — uncaught render errors caught by the error boundary are then reported with the current build mode as the environment. When the variable is unset, Sentry is never initialized and the app behaves exactly as before.
+
+## Deployment
+
+The app is a static SPA (Vite → `dist/`) and deploys to any static host. Config for the two common targets is committed: `vercel.json` and `netlify.toml` (plus `public/_redirects` as a fallback).
+
+### Build environment variables
+
+Set these on the host so the production build talks to your Supabase project (without them the build still succeeds but ships in mock mode):
+
+| Variable | Required | Description |
+|---|---|---|
+| `VITE_SUPABASE_URL` | yes | Supabase project URL |
+| `VITE_SUPABASE_ANON_KEY` | yes | Supabase anon/public key |
+| `VITE_SENTRY_DSN` | optional | Sentry DSN to enable [error monitoring](#error-monitoring) |
+
+### Vercel
+
+Import the repo, pick the **Vite** framework preset (or "Other"), leave build command `npm run build` and output directory `dist` — both are also pinned in `vercel.json`. Add the env vars above under Settings → Environment Variables, then deploy. The `rewrites` rule in `vercel.json` sends every path to `/index.html`; Vercel serves existing static files (including `/assets/*`) before applying rewrites, so the catch-all does not shadow real assets.
+
+### Netlify
+
+Import the repo; build command `npm run build` and publish directory `dist` come from `netlify.toml`. Set framework to "Vite" or "Other", add the env vars above under Site settings → Environment variables, then deploy. The `/* → /index.html` redirect (in both `netlify.toml` and `public/_redirects`) provides the SPA fallback.
+
+### Before first deploy
+
+The frontend is useless without its backend. Complete the [Supabase setup](#supabase-setup) first:
+
+1. Apply migrations `001`–`007` from `supabase/migrations/` **in order**.
+2. Deploy the 4 edge functions: `update-user-role` and `delete-account` (default JWT verification), and `notify-alert` and `daily-summary` with `--no-verify-jwt` (see [Notifications](#notifications)).
+3. Set the function secrets (`WEBHOOK_SECRET`, `RESEND_API_KEY`, optional `ALERT_FROM_EMAIL` and `ALLOWED_ORIGIN`) and wire up the Database Webhook and daily-summary cron job.
+4. Set the build env vars above on the host.
+
+### SPA routing
+
+The app uses `BrowserRouter` with real paths (`/searches`, `/alerts`, `/isv`, …). Deep links and refreshes only work because the host rewrites unknown paths to `/index.html` — the `rewrites`/`redirects` rules above. Removing them brings back 404s on direct navigation to client routes.
 
 ## Project structure
 

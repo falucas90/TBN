@@ -94,6 +94,24 @@ export async function getAdminStats() {
   };
 }
 
+export async function inviteUser(email) {
+  if (!supabase) return;
+  const { data, error } = await supabase.functions.invoke('update-user-role', {
+    body: { action: 'invite', email },
+  });
+  if (error) {
+    // FunctionsHttpError hides the response body behind `context`; surface the
+    // PT message returned by the edge function (e.g. the 409 "já tem conta").
+    let message = error.message;
+    try {
+      const body = await error.context?.json?.();
+      if (body?.error) message = body.error;
+    } catch { /* keep generic message */ }
+    throw new Error(message);
+  }
+  return data.user;
+}
+
 export async function updateUserRole(userId, role) {
   if (!supabase) return;
   const { data, error } = await supabase.functions.invoke('update-user-role', {

@@ -17,7 +17,10 @@ import Searches from './pages/Searches';
 import CreateSearch from './pages/CreateSearch';
 import AlertHistory from './pages/AlertHistory';
 import Settings from './pages/Settings';
-import Admin from './pages/Admin';
+import AdminOverview from './pages/admin/AdminOverview';
+import AdminStands from './pages/admin/AdminStands';
+import AdminBilling from './pages/admin/AdminBilling';
+import AdminLogs from './pages/admin/AdminLogs';
 import NotFound from './pages/NotFound';
 import Terms from './pages/legal/Terms';
 import Privacy from './pages/legal/Privacy';
@@ -52,7 +55,7 @@ function AdminRoute({ children }) {
   const { isAuthenticated, currentUser, isLoading } = useAuth();
   if (isLoading) return <AuthLoadingSpinner />;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
-  if (currentUser?.role !== 'admin') return <Navigate to="/searches" replace />;
+  if (currentUser?.role !== 'admin') return <Navigate to="/dashboard" replace />;
   return children;
 }
 
@@ -81,7 +84,10 @@ function App() {
             <Route path="/alerts" element={<ProtectedRoute><AlertHistory /></ProtectedRoute>} />
             <Route path="/isv" element={<ProtectedRoute><IsvCalculator /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-            <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
+            <Route path="/admin" element={<AdminRoute><AdminOverview /></AdminRoute>} />
+            <Route path="/admin/stands" element={<AdminRoute><AdminStands /></AdminRoute>} />
+            <Route path="/admin/billing" element={<AdminRoute><AdminBilling /></AdminRoute>} />
+            <Route path="/admin/logs" element={<AdminRoute><AdminLogs /></AdminRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

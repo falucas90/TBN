@@ -1,9 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { corsHeaders } from '../_shared/cors.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -50,7 +46,40 @@ Deno.serve(async (req) => {
       { auth: { autoRefreshToken: false, persistSession: false } }
     );
 
-    const { action, userId, role, status, page: rawPage, perPage: rawPerPage } = await req.json();
+    const { action, userId, role, status, email, page: rawPage, perPage: rawPerPage } = await req.json();
+
+    if (action === 'invite') {
+      const cleanEmail = typeof email === 'string' ? email.trim() : '';
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+        return new Response(JSON.stringify({ error: 'Email inválido' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      const { data, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(cleanEmail, {
+        data: { role: 'dealer' },
+      });
+      if (error) {
+        const msg = (error.message || '').toLowerCase();
+        if (error.status === 422 || msg.includes('already been registered') || msg.includes('already registered') || msg.includes('email_exists')) {
+          return new Response(JSON.stringify({ error: 'Este email já tem conta.' }), {
+            status: 409,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        throw error;
+      }
+      await supabaseAdmin.from('audit_logs').insert({
+        admin_id: caller.id,
+        target_id: data.user?.id ?? null,
+        action: 'invite',
+        old_value: null,
+        new_value: cleanEmail,
+      });
+      return new Response(JSON.stringify({ user: data.user }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     if (action === 'list') {
       const page = Number.isInteger(rawPage) && rawPage >= 1 ? rawPage : 1;
@@ -144,6 +173,13 @@ Deno.serve(async (req) => {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
+      }
+      // Self-lockout guard: an admin must not deactivate their own account.
+      if (userId === caller.id && status !== 'active') {
+        return new Response(
+          JSON.stringify({ error: 'Não pode desativar a sua própria conta.' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
       const { data: target } = await supabaseAdmin.auth.admin.getUserById(userId);
       const oldStatus = target?.user?.app_metadata?.status ?? 'active';

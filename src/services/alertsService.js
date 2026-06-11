@@ -43,7 +43,7 @@ export async function updateAlertStatus(id, userStatus) {
 }
 
 export async function getAlertsBySearch(searchId) {
-  if (!supabaseConfigured) return mockAlerts.filter(a => a.searchId === searchId);
+  if (!supabaseConfigured) return mockAlerts.filter(a => String(a.searchId) === String(searchId));
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return [];
   // Verify ownership via join — only returns results if the search belongs to this user
