@@ -1,15 +1,11 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { sendEmail, formatEur, escapeHtml } from '../_shared/email.ts';
+import { corsHeaders } from '../_shared/cors.ts';
 
 // Daily digest of alerts.
 // Designed to be invoked on a schedule (pg_cron + pg_net, or an external cron
 // hitting the function URL). Auth is a shared secret header (x-webhook-secret),
 // so deploy with --no-verify-jwt.
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-webhook-secret',
-};
 
 const jsonResponse = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
