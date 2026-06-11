@@ -63,9 +63,9 @@ Two edge functions deliver email notifications (via [Resend](https://resend.com)
    ```
 2. Set the required secrets:
    ```bash
-   supabase secrets set WEBHOOK_SECRET=<random-string> RESEND_API_KEY=<resend-key> ALERT_FROM_EMAIL=alertas@crivo.pt
+   supabase secrets set WEBHOOK_SECRET=<random-string> RESEND_API_KEY=<resend-key> ALERT_FROM_EMAIL=alertas@crivo.pt ALLOWED_ORIGIN=<app-origin>
    ```
-   `ALERT_FROM_EMAIL` is optional (defaults to `alertas@crivo.pt`). Without `RESEND_API_KEY` the functions log the composed email and return `{ "sent": false }` — safe to deploy before keys exist.
+   `ALERT_FROM_EMAIL` is optional (defaults to `alertas@crivo.pt`). Without `RESEND_API_KEY` the functions log the composed email and return `{ "sent": false }` — safe to deploy before keys exist. `ALLOWED_ORIGIN` is optional and pins the CORS `Access-Control-Allow-Origin` of **all** edge functions to the app origin (e.g. `https://app.crivo.pt`); when unset it defaults to `*` so local development keeps working.
 3. Create the Database Webhook for instant alerts (Dashboard → Database → Webhooks → Create):
    - Table: `alerts`, event: **INSERT**
    - Type: HTTP request, method **POST**, URL: `https://<PROJECT-REF>.supabase.co/functions/v1/notify-alert`
@@ -128,7 +128,7 @@ The frontend is useless without its backend. Complete the [Supabase setup](#supa
 
 1. Apply migrations `001`–`006` from `supabase/migrations/` **in order**.
 2. Deploy the 4 edge functions: `update-user-role` and `delete-account` (default JWT verification), and `notify-alert` and `daily-summary` with `--no-verify-jwt` (see [Notifications](#notifications)).
-3. Set the function secrets (`WEBHOOK_SECRET`, `RESEND_API_KEY`, optional `ALERT_FROM_EMAIL`) and wire up the Database Webhook and daily-summary cron job.
+3. Set the function secrets (`WEBHOOK_SECRET`, `RESEND_API_KEY`, optional `ALERT_FROM_EMAIL` and `ALLOWED_ORIGIN`) and wire up the Database Webhook and daily-summary cron job.
 4. Set the build env vars above on the host.
 
 ### SPA routing

@@ -63,14 +63,25 @@ dealer sees will be wrong.
       supabase secrets set \
         WEBHOOK_SECRET=<random-string> \
         RESEND_API_KEY=<resend-key> \
-        ALERT_FROM_EMAIL=alertas@crivo.pt
+        ALERT_FROM_EMAIL=alertas@crivo.pt \
+        ALLOWED_ORIGIN=<app-origin>
       ```
       `ALERT_FROM_EMAIL` is optional (defaults to `alertas@crivo.pt`).
+      `ALLOWED_ORIGIN` is optional and pins the CORS origin of all four edge
+      functions to the deployed app (e.g. `https://app.crivo.pt`); unset, it
+      defaults to `*` (fine for local dev, set it for production).
       `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are injected automatically.
       Without `RESEND_API_KEY` the email helper only logs the composed message
       and returns `{ "sent": false }` — safe, but no real emails. Expected:
       `supabase secrets list` shows `WEBHOOK_SECRET`, `RESEND_API_KEY`,
-      `ALERT_FROM_EMAIL`.
+      `ALERT_FROM_EMAIL`, `ALLOWED_ORIGIN`.
+
+- [ ] **Set the Auth minimum password length to 8.** Action: Dashboard →
+      Authentication → Providers → Email → "Minimum password length" → **8**
+      (Supabase defaults to 6). The client forms (signup, login, reset) all
+      validate 8+, so the server must match or short passwords created via the
+      API would slip through. Expected: signup with a 7-character password is
+      rejected by the API.
 
 - [ ] **Create the Database Webhook for instant alerts.** Action: Dashboard →
       Database → Webhooks → Create.
