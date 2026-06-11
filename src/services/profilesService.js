@@ -19,12 +19,12 @@ export async function updateProfile(patch) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('Not authenticated');
 
+  // Business defaults (transport cost, margin) live on the company —
+  // see companiesService. Only personal fields are updatable here.
   const dbPatch = {};
-  if (patch.fullName !== undefined)            dbPatch.full_name = patch.fullName;
-  if (patch.phone !== undefined)               dbPatch.phone = patch.phone;
-  if (patch.defaultTransportCost !== undefined) dbPatch.default_transport_cost = patch.defaultTransportCost;
-  if (patch.minMargin !== undefined)           dbPatch.min_margin = patch.minMargin;
-  if (patch.notifChannel !== undefined)        dbPatch.notif_channel = patch.notifChannel;
+  if (patch.fullName !== undefined)     dbPatch.full_name = patch.fullName;
+  if (patch.phone !== undefined)        dbPatch.phone = patch.phone;
+  if (patch.notifChannel !== undefined) dbPatch.notif_channel = patch.notifChannel;
 
   const { error } = await supabase
     .from('profiles')

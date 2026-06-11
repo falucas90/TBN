@@ -7,12 +7,15 @@ import { ConfirmDialog } from '../components/ui';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { getProfile, updateProfile } from '../services/profilesService';
+import { getCompany, updateCompany } from '../services/companiesService';
+import { listMembers, inviteMember, updateMemberRole, removeMember } from '../services/teamService';
 import { exportUserData, deleteAccount } from '../services/authService';
 
 export default function Settings() {
   const { addToast } = useToast();
-  const { currentUser, logout } = useAuth();
+  const { currentUser, companyRole, logout } = useAuth();
   const navigate = useNavigate();
+  const isOwner = companyRole === 'owner';
 
   const [name, setName] = useState(currentUser?.user_metadata?.full_name || '');
   const [phone, setPhone] = useState(currentUser?.user_metadata?.phone || '');
@@ -26,16 +29,39 @@ export default function Settings() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [confirmDeleteAccount, setConfirmDeleteAccount] = useState(false);
 
+  // Company (stand) — business identity and calculation defaults
+  const [company, setCompany] = useState(null);
+  const [companyName, setCompanyName] = useState('');
+  const [companyNif, setCompanyNif] = useState('');
+  const [editingCompany, setEditingCompany] = useState(false);
+
+  // Team — owner-only management
+  const [members, setMembers] = useState(null);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [isInviting, setIsInviting] = useState(false);
+  const [confirmRemoveMember, setConfirmRemoveMember] = useState(null);
+
   useEffect(() => {
     getProfile().then(profile => {
       if (!profile) return;
       if (profile.fullName) setName(profile.fullName);
       if (profile.phone) setPhone(profile.phone);
-      setTransportCost(profile.defaultTransportCost);
-      setMinMargin(profile.minMargin);
       setNotifChannel(profile.notifChannel);
     }).catch(() => {});
+    getCompany().then(c => {
+      if (!c) return;
+      setCompany(c);
+      setCompanyName(c.name || '');
+      setCompanyNif(c.nif || '');
+      setTransportCost(c.defaultTransportCost);
+      setMinMargin(c.minMargin);
+    }).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (!isOwner) return;
+    listMembers().then(setMembers).catch(() => setMembers([]));
+  }, [isOwner]);
 
   async function saveName() {
     if (!name.trim()) { addToast('O nome não pode estar vazio.', 'warn'); return; }
@@ -58,12 +84,72 @@ export default function Settings() {
     }
   }
 
+  async function saveCompany() {
+    if (!companyName.trim()) { addToast('O nome da empresa não pode estar vazio.', 'warn'); return; }
+    try {
+      const updated = await updateCompany(company.id, {
+        name: companyName.trim(),
+        nif: companyNif.trim() || null,
+      });
+      setCompany(updated);
+      setEditingCompany(false);
+      addToast('Dados da empresa guardados.', 'success');
+    } catch (err) {
+      addToast(err.message || 'Erro ao guardar dados da empresa.', 'danger');
+    }
+  }
+
   async function saveDefaults() {
     try {
-      await updateProfile({ defaultTransportCost: transportCost, minMargin, notifChannel });
+      if (isOwner && company) {
+        await updateCompany(company.id, { defaultTransportCost: transportCost, minMargin });
+      }
+      await updateProfile({ notifChannel });
       addToast('Definições padrão guardadas.', 'success');
     } catch (err) {
       addToast(err.message || 'Erro ao guardar definições.', 'danger');
+    }
+  }
+
+  async function handleInviteMember() {
+    const email = inviteEmail.trim();
+    if (!email.includes('@') || !email.includes('.')) {
+      addToast('Introduza um endereço de email válido.', 'danger');
+      return;
+    }
+    setIsInviting(true);
+    try {
+      await inviteMember(email);
+      addToast(`Convite enviado para ${email}.`, 'success');
+      setInviteEmail('');
+      setMembers(await listMembers());
+    } catch (err) {
+      addToast(err.message || 'Erro ao enviar convite.', 'danger');
+    } finally {
+      setIsInviting(false);
+    }
+  }
+
+  async function handleMemberRole(member, newRole) {
+    try {
+      await updateMemberRole(member.id, newRole);
+      setMembers(prev => prev.map(m => m.id === member.id ? { ...m, companyRole: newRole } : m));
+      addToast('Função atualizada.', 'success');
+    } catch (err) {
+      addToast(err.message || 'Erro ao atualizar função.', 'danger');
+    }
+  }
+
+  async function handleRemoveMember() {
+    const member = confirmRemoveMember;
+    setConfirmRemoveMember(null);
+    if (!member) return;
+    try {
+      await removeMember(member.id);
+      setMembers(prev => prev.filter(m => m.id !== member.id));
+      addToast('Membro removido da equipa.', 'warn');
+    } catch (err) {
+      addToast(err.message || 'Erro ao remover membro.', 'danger');
     }
   }
 
@@ -102,9 +188,6 @@ export default function Settings() {
     navigate('/login');
   }
 
-  const company = currentUser?.user_metadata?.company;
-  const nif = currentUser?.user_metadata?.nif;
-
   return (
     <AppLayout>
       <ConfirmDialog
@@ -115,6 +198,15 @@ export default function Settings() {
         danger
         onConfirm={handleDeleteAccount}
         onCancel={() => setConfirmDeleteAccount(false)}
+      />
+      <ConfirmDialog
+        open={!!confirmRemoveMember}
+        title="Remover membro"
+        description={`${confirmRemoveMember?.email || 'Este utilizador'} perde o acesso ao stand e a conta é desativada.`}
+        confirmLabel="Remover"
+        danger
+        onConfirm={handleRemoveMember}
+        onCancel={() => setConfirmRemoveMember(null)}
       />
       <div className="page">
         <PageTop
@@ -145,13 +237,94 @@ export default function Settings() {
                   <div className="settings__row-desc">{currentUser?.email || '—'}</div>
                 </div>
               </div>
+            </section>
+
+            <section className="settings__section">
+              <div className="settings__section-title">Empresa</div>
               <div className="settings__row">
-                <div>
-                  <div className="settings__row-label">Empresa</div>
-                  <div className="settings__row-desc">{company ? `${company}${nif ? ` · NIF ${nif}` : ''}` : '—'}</div>
+                <div style={{ flex: 1 }}>
+                  <div className="settings__row-label">Stand</div>
+                  {editingCompany ? (
+                    <div className="row gap-2" style={{ marginTop: 8, maxWidth: 480 }}>
+                      <input className="input" placeholder="Nome do stand" value={companyName} onChange={e => setCompanyName(e.target.value)} />
+                      <input className="input" placeholder="NIF" style={{ width: 140 }} value={companyNif} onChange={e => setCompanyNif(e.target.value)} />
+                      <Btn variant="primary" size="sm" onClick={saveCompany}>Guardar</Btn>
+                    </div>
+                  ) : (
+                    <div className="settings__row-desc">
+                      {company ? `${company.name}${company.nif ? ` · NIF ${company.nif}` : ''}` : '—'}
+                    </div>
+                  )}
+                </div>
+                <div className="row gap-2">
+                  <Pill mono>{isOwner ? 'Responsável' : 'Membro'}</Pill>
+                  {isOwner && !editingCompany && company && (
+                    <Btn variant="ghost" size="sm" onClick={() => setEditingCompany(true)}>Editar</Btn>
+                  )}
                 </div>
               </div>
             </section>
+
+            {isOwner && (
+              <section className="settings__section">
+                <div className="settings__section-title">Equipa</div>
+                <div className="settings__row">
+                  <div style={{ flex: 1 }}>
+                    <div className="settings__row-label">Convidar membro</div>
+                    <div className="settings__row-desc">O convidado entra no stand e partilha pesquisas e alertas.</div>
+                  </div>
+                  <div className="row gap-2">
+                    <input
+                      className="input"
+                      type="email"
+                      style={{ width: 240 }}
+                      placeholder="email@stand.pt"
+                      value={inviteEmail}
+                      onChange={e => setInviteEmail(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter') handleInviteMember(); }}
+                      disabled={isInviting}
+                    />
+                    <Btn size="sm" variant="primary" onClick={handleInviteMember} disabled={isInviting}>
+                      {isInviting ? 'A enviar…' : 'Convidar'}
+                    </Btn>
+                  </div>
+                </div>
+                {(members ?? []).map(member => {
+                  const isSelf = member.id === currentUser?.id;
+                  return (
+                    <div className="settings__row" key={member.id}>
+                      <div>
+                        <div className="settings__row-label">{member.fullName || member.email || '—'}</div>
+                        <div className="settings__row-desc">
+                          {member.email}{member.status !== 'active' ? ' · conta bloqueada' : ''}
+                        </div>
+                      </div>
+                      {isSelf ? (
+                        <Pill tone="emerald"><Dot tone="emerald" />Responsável (você)</Pill>
+                      ) : (
+                        <div className="row gap-2">
+                          <select
+                            className="select"
+                            style={{ width: 140 }}
+                            value={member.companyRole}
+                            onChange={e => handleMemberRole(member, e.target.value)}
+                          >
+                            <option value="owner">Responsável</option>
+                            <option value="member">Membro</option>
+                          </select>
+                          <Btn size="sm" variant="danger" onClick={() => setConfirmRemoveMember(member)}>Remover</Btn>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+                {members !== null && members.length === 0 && (
+                  <div className="settings__row">
+                    <div className="settings__row-desc">Ainda sem membros na equipa.</div>
+                  </div>
+                )}
+              </section>
+            )}
 
             <section className="settings__section">
               <div className="settings__section-title">WhatsApp</div>
@@ -185,16 +358,20 @@ export default function Settings() {
               <div className="settings__row">
                 <div>
                   <div className="settings__row-label">Custo de transporte padrão</div>
-                  <div className="settings__row-desc">Usado quando o anúncio não tem custo de transporte.</div>
+                  <div className="settings__row-desc">
+                    {isOwner ? 'Usado quando o anúncio não tem custo de transporte. Aplica-se a todo o stand.' : 'Definido pelo responsável do stand.'}
+                  </div>
                 </div>
-                <input className="input tnum" type="number" style={{ width: 120 }} value={transportCost} onChange={e => setTransportCost(Number(e.target.value))} onBlur={saveDefaults} />
+                <input className="input tnum" type="number" style={{ width: 120 }} value={transportCost} onChange={e => setTransportCost(Number(e.target.value))} onBlur={saveDefaults} disabled={!isOwner} />
               </div>
               <div className="settings__row">
                 <div>
                   <div className="settings__row-label">Margem mínima alvo</div>
-                  <div className="settings__row-desc">Limiar padrão para novas pesquisas.</div>
+                  <div className="settings__row-desc">
+                    {isOwner ? 'Limiar padrão para novas pesquisas. Aplica-se a todo o stand.' : 'Definido pelo responsável do stand.'}
+                  </div>
                 </div>
-                <input className="input tnum" type="number" style={{ width: 120 }} value={minMargin} onChange={e => setMinMargin(Number(e.target.value))} onBlur={saveDefaults} />
+                <input className="input tnum" type="number" style={{ width: 120 }} value={minMargin} onChange={e => setMinMargin(Number(e.target.value))} onBlur={saveDefaults} disabled={!isOwner} />
               </div>
               <div className="settings__row">
                 <div>
