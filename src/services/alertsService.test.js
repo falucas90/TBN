@@ -36,9 +36,9 @@ describe('getAlertsBySearch (mock mode)', () => {
     expect(await service.getAlertsBySearch(999)).toEqual([]);
   });
 
-  it('uses strict equality: a string searchId does not match numeric ids', async () => {
-    // Unlike getSearchById/updateAlertStatus, this filter is NOT String()-coerced.
-    expect(await service.getAlertsBySearch('1')).toEqual([]);
+  it('matches a string searchId against numeric ids (URL params arrive as strings)', async () => {
+    const alerts = await service.getAlertsBySearch('1');
+    expect(alerts).toHaveLength(2);
   });
 });
 
