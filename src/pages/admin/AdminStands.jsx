@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import AppLayout from '../../components/layout/AppLayout';
 import PageTop from '../../components/layout/PageTop';
 import { Btn, Icon, Pill, Seg } from '../../components/ui/Primitives';
-import { listUsers, updateUserRole, updateUserStatus } from '../../services/authService';
+import { inviteUser, listUsers, updateUserRole, updateUserStatus } from '../../services/authService';
 import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
 
@@ -19,6 +19,9 @@ export default function AdminStands() {
   const [view, setView] = useState('Todos');
   const [pendingRoles, setPendingRoles] = useState({});
   const [savingRows, setSavingRows] = useState({});
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [isInviting, setIsInviting] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     setUsers(null);
@@ -35,7 +38,26 @@ export default function AdminStands() {
         addToast('Erro ao carregar utilizadores.', 'danger');
         setUsers([]);
       });
-  }, [page, addToast]);
+  }, [page, refreshKey, addToast]);
+
+  async function handleInvite() {
+    const email = inviteEmail.trim();
+    if (!email.includes('@') || !email.includes('.')) {
+      addToast('Introduza um endereço de email válido.', 'danger');
+      return;
+    }
+    setIsInviting(true);
+    try {
+      await inviteUser(email);
+      addToast(`Convite enviado para ${email}.`, 'success');
+      setInviteEmail('');
+      setRefreshKey((k) => k + 1);
+    } catch (err) {
+      addToast(err.message || 'Erro ao enviar convite.', 'danger');
+    } finally {
+      setIsInviting(false);
+    }
+  }
 
   const statusOf = (u) => u.app_metadata?.status || u.user_metadata?.status || 'active';
 
@@ -96,6 +118,22 @@ export default function AdminStands() {
           </>}
         />
         <div className="page__body" style={{ overflowY: 'auto', padding: '8px 32px 24px' }}>
+          <div className="row gap-2" style={{ marginBottom: 16 }}>
+            <span style={{ fontSize: 12.5, fontWeight: 500 }}>Convidar utilizador</span>
+            <input
+              className="input"
+              type="email"
+              style={{ width: 260 }}
+              placeholder="email@stand.pt"
+              value={inviteEmail}
+              onChange={(e) => setInviteEmail(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleInvite(); }}
+              disabled={isInviting}
+            />
+            <Btn size="sm" variant="primary" onClick={handleInvite} disabled={isInviting}>
+              {isInviting ? 'A enviar…' : 'Enviar convite'}
+            </Btn>
+          </div>
           <table className="t">
             <thead>
               <tr>

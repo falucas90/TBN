@@ -38,6 +38,17 @@ dealer sees will be wrong.
         applying it is a no-op (see step "Schedule daily-summary" below).
       Expected: no SQL errors; the three tables plus `audit_logs` exist.
 
+- [ ] **Disable public self-signup (invite-only beta).** Action: Dashboard →
+      Authentication → Sign In / Up → turn **off** "Allow new users to sign
+      up". The frontend no longer shows a signup form (the `/signup` page is an
+      invite notice), but the UI removal alone is not enforcement — only this
+      setting makes the public API reject self-signups too. Admin invites via
+      `auth.admin.inviteUserByEmail` (Admin panel → Stands → "Convidar
+      utilizador", or Dashboard → Authentication → Users → "Invite user") keep
+      working with signups disabled; invited users receive an email link to set
+      their password. Expected: setting saved; direct `supabase.auth.signUp`
+      calls return an error while invites still go out.
+
 - [ ] **Verify realtime is enabled on `alerts`.** Action: 005 already adds the
       table to the publication. Confirm with:
       ```sql
@@ -152,17 +163,18 @@ dealer sees will be wrong.
 > inboxes ready (a primary dealer account and a second account you will promote
 > to admin).
 
-1. [ ] **Sign up.** Action: at `/signup`, create the dealer account (password
-       must be **at least 8 characters** — enforced client-side and by Supabase).
-       Expected: signup succeeds and you are told to confirm your email.
+1. [ ] **Invite the dealer account.** Action: public self-signup is disabled
+       (the `/signup` page is just an invite notice), so invite the dealer
+       account from Dashboard → Authentication → Users → "Invite user" (or,
+       once an admin account exists, from the Admin panel → Stands →
+       "Convidar utilizador"). Expected: the invite is sent.
 
-2. [ ] **Receive the confirmation email.** Action: check the inbox. Expected: a
-       Supabase confirmation email arrives. (If "Confirm email" is disabled in
-       Auth settings, you skip straight to login — decide which you want for the
-       beta.)
+2. [ ] **Receive the invite email.** Action: check the inbox. Expected: a
+       Supabase invite email arrives with a link to accept it.
 
-3. [ ] **Confirm the email.** Action: click the confirmation link. Expected: the
-       account is marked confirmed.
+3. [ ] **Accept the invite and set a password.** Action: click the invite link
+       and set a password (**at least 8 characters** — enforced by Supabase).
+       Expected: the account is created and confirmed.
 
 4. [ ] **Log in.** Action: log in at `/login` with the credentials. Expected:
        you land in the app (e.g. `/searches`).
@@ -170,7 +182,8 @@ dealer sees will be wrong.
 5. [ ] **Verify the `profiles` row was auto-created.** Action: in the SQL Editor
        run `select id, full_name, company, nif from public.profiles;`. Expected:
        exactly one row for the new user — created by the `handle_new_user`
-       trigger from migration 001 (populated from signup metadata).
+       trigger from migration 001. (Invited users have no signup-form metadata,
+       so `full_name` / `company` / `nif` may be empty — that is expected.)
 
 6. [ ] **Create a search.** Action: in the app create a search; make sure its
        status is **active** and that **email alerts are enabled** for it (so the
@@ -219,8 +232,9 @@ dealer sees will be wrong.
         `crivo-dados-YYYY-MM-DD.json` file downloads containing `user`,
         `profile`, `searches` and `alerts` arrays for this user.
 
-14. [ ] **Create a second account and promote it to admin.** Action: sign up a
-        second account; in Dashboard → Authentication → Users, set its
+14. [ ] **Create a second account and promote it to admin.** Action: invite a
+        second account (Dashboard → Authentication → Users → "Invite user")
+        and accept the invite; in Dashboard → Authentication → Users, set its
         `app_metadata` to `{"role":"admin"}`. Expected: saved. (Log out/in so
         the new JWT carries the role.)
 
@@ -305,10 +319,12 @@ column for it today. All beta alerts are treated as EU imports.
   are not wired up. Daily summary is email-only too.
 - **No billing.** This is a free closed beta; there is no subscription, metering
   or paywall.
-- **No rate limiting / CAPTCHA.** Signup and the `/isv` calculator have no rate
-  limiting or bot protection. Keep the beta invite-only / closed.
-- **Password minimum is 8 characters.** Enforced in the signup form and by
-  Supabase Auth; no other complexity rules.
+- **No rate limiting / CAPTCHA.** The `/isv` calculator has no rate limiting or
+  bot protection. Public self-signup is disabled (invite-only beta), which
+  removes the signup abuse surface.
+- **Password minimum is 8 characters.** Enforced by Supabase Auth; invited
+  users set their password via the invite-email link. No other complexity
+  rules.
 - **Admin enforcement requires `app_metadata`.** Admin access depends on
   `app_metadata.role === 'admin'` on the user (set in the Dashboard). The
   frontend route guard and the `update-user-role` function and the `audit_logs`

@@ -14,7 +14,7 @@ function SiteNav() {
         </Link>
         <div className="site-nav__actions">
           <Link className="btn btn--ghost" to="/login">Entrar</Link>
-          <Link className="btn btn--primary" to="/signup">Criar conta</Link>
+          <a className="btn btn--primary" href="mailto:suporte@crivo.pt">Pedir convite</a>
         </div>
       </div>
     </nav>
@@ -37,12 +37,12 @@ function Hero() {
             já com ISV, custo landed em Portugal e margem estimada.
           </p>
           <div className="hero__cta">
-            <Link className="btn btn--primary btn--lg" to="/signup">
-              Criar conta
+            <a className="btn btn--primary btn--lg" href="mailto:suporte@crivo.pt">
+              Pedir convite
               <Icon name="arrow" size={14} />
-            </Link>
+            </a>
           </div>
-          <p className="hero__note">Sem cartão de crédito · Primeira pesquisa em 2 minutos</p>
+          <p className="hero__note">Beta privada · Acesso por convite · Gratuito durante a beta</p>
         </div>
         <div className="hero__visual">
           <span className="hero__visual-label">Alerta · WhatsApp · em tempo real</span>

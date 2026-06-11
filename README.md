@@ -50,7 +50,8 @@ cp .env.example .env
    supabase functions deploy update-user-role
    supabase functions deploy delete-account
    ```
-3. To grant a user admin access, set `{"role": "admin"}` in their `app_metadata` (Dashboard → Authentication → Users). The Admin panel and audit log are only visible to admins.
+3. **Disable public self-signup (required for the invite-only beta).** In the Supabase Dashboard → Authentication → Sign In / Up, turn **off** "Allow new users to sign up". Removing the signup UI alone is not enforcement — only this setting makes the public API reject self-signups too. Admin invites via `auth.admin.inviteUserByEmail` (the "Convidar utilizador" action in the Admin panel, backed by the `update-user-role` edge function) still work with signups disabled; invited users receive an email link to set their password. The `/signup` page now shows an invite notice instead of a registration form.
+4. To grant a user admin access, set `{"role": "admin"}` in their `app_metadata` (Dashboard → Authentication → Users). The Admin panel and audit log are only visible to admins.
 
 ### Notifications
 

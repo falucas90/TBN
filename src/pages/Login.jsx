@@ -87,9 +87,8 @@ export default function Login() {
           <div style={{ textAlign: 'center', fontSize: 11.5, marginTop: 16 }}>
             <Link to="/forgot-password" style={{ color: 'var(--dust)' }}>Esqueceu-se da palavra-passe?</Link>
           </div>
-          <div style={{ textAlign: 'center', fontSize: 12, color: 'var(--ash)', marginTop: 4 }}>
-            Não tem conta?{' '}
-            <Link to="/signup" style={{ color: 'var(--emerald)', fontWeight: 500 }}>Criar conta</Link>
+          <div style={{ textAlign: 'center', fontSize: 12, color: 'var(--dust)', marginTop: 4 }}>
+            Beta privada — acesso por convite
           </div>
         </form>
         <div className="login__footnote">v1.0 · Lisboa</div>
