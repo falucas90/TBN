@@ -8,6 +8,14 @@ import { useToast } from '../context/ToastContext';
 
 const eur = (v) => `€ ${Math.round(v).toLocaleString('pt-PT')}`;
 
+// Car titles start with the model year ("2021 BMW 320e Touring") — skip a
+// leading 4-digit token so the brand is the first real word.
+function getBrand(carTitle) {
+  const words = carTitle.trim().split(/\s+/);
+  const brand = /^\d{4}$/.test(words[0]) ? words[1] : words[0];
+  return (brand ?? '').toLowerCase();
+}
+
 function dayLabel(date) {
   if (date === 'Today') return 'Hoje';
   if (date === 'Yesterday') return 'Ontem';
@@ -39,7 +47,7 @@ export default function AlertHistory() {
 
   const brandOptions = useMemo(() => {
     if (!alerts) return [];
-    return [...new Set(alerts.map(a => a.carTitle.split(' ').find(w => /^[A-Za-z]/.test(w))?.toLowerCase()).filter(Boolean))].sort();
+    return [...new Set(alerts.map(a => getBrand(a.carTitle)).filter(Boolean))].sort();
   }, [alerts]);
 
   const enriched = useMemo(() => (alerts ?? []).map(alert => {
@@ -50,7 +58,7 @@ export default function AlertHistory() {
   }), [alerts]);
 
   const filtered = useMemo(() => enriched
-    .filter(a => filterBrand === 'all' || a.carTitle.toLowerCase().includes(filterBrand))
+    .filter(a => filterBrand === 'all' || getBrand(a.carTitle) === filterBrand)
     .filter(a => filterMargin === 'all' || a.marginEst >= parseInt(filterMargin, 10))
     .filter(a => !searchText || a.carTitle.toLowerCase().includes(searchText.toLowerCase())),
   [enriched, filterBrand, filterMargin, searchText]);
