@@ -1,11 +1,16 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { sendEmail, formatEur, escapeHtml } from '../_shared/email.ts';
+import { getCompanyRecipients } from '../_shared/recipients.ts';
 import { corsHeaders } from '../_shared/cors.ts';
 
 // Daily digest of alerts.
 // Designed to be invoked on a schedule (pg_cron + pg_net, or an external cron
 // hitting the function URL). Auth is a shared secret header (x-webhook-secret),
 // so deploy with --no-verify-jwt.
+//
+// Alerts are company-scoped: one digest is composed per company with the
+// daily summary enabled and sent to every active member of that company
+// (see _shared/recipients.ts).
 
 const jsonResponse = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -31,15 +36,17 @@ Deno.serve(async (req) => {
       { auth: { autoRefreshToken: false, persistSession: false } }
     );
 
-    // Users who own at least one active search with the daily summary enabled
+    // Companies with at least one active search with the daily summary enabled
     const { data: searches, error: searchError } = await supabaseAdmin
       .from('searches')
-      .select('user_id')
+      .select('company_id')
       .eq('status', 'active')
       .eq('daily_summary', true);
     if (searchError) throw searchError;
 
-    const userIds = [...new Set((searches ?? []).map((s) => s.user_id))];
+    const companyIds = [
+      ...new Set((searches ?? []).map((s) => s.company_id).filter(Boolean)),
+    ];
 
     const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     let processed = 0;
@@ -47,13 +54,13 @@ Deno.serve(async (req) => {
     let skipped = 0;
     const results: Record<string, unknown>[] = [];
 
-    for (const userId of userIds) {
+    for (const companyId of companyIds) {
       processed++;
       try {
         const { data: alerts, error: alertsError } = await supabaseAdmin
           .from('alerts')
           .select('car_title, platform, price_original, listing_url, created_at')
-          .eq('user_id', userId)
+          .eq('company_id', companyId)
           .gte('created_at', since)
           .order('created_at', { ascending: false });
         if (alertsError) throw alertsError;
@@ -63,12 +70,14 @@ Deno.serve(async (req) => {
           continue;
         }
 
-        const { data: userData, error: userError } =
-          await supabaseAdmin.auth.admin.getUserById(userId);
-        if (userError) throw userError;
-        const email = userData?.user?.email;
-        if (!email) {
+        const recipients = await getCompanyRecipients(supabaseAdmin, companyId);
+        if (recipients.length === 0) {
           skipped++;
+          results.push({
+            companyId,
+            sent: false,
+            reason: 'Empresa sem membros ativos com email (ou suspensa)',
+          });
           continue;
         }
 
@@ -83,25 +92,47 @@ Deno.serve(async (req) => {
           .join('\n');
         const html = `
           <h2>Resumo diário Crivo</h2>
-          <p>Nas últimas 24 horas registámos <strong>${alerts.length}</strong> novos alertas para as suas pesquisas:</p>
+          <p>Nas últimas 24 horas registámos <strong>${alerts.length}</strong> novos alertas para as pesquisas da sua empresa:</p>
           <ul>
             ${items}
           </ul>
-          <p style="color:#888;font-size:12px;">Recebeu este email porque ativou o resumo diário numa pesquisa Crivo.</p>
+          <p style="color:#888;font-size:12px;">Recebeu este email porque a sua empresa ativou o resumo diário numa pesquisa Crivo.</p>
         `;
 
-        const result = await sendEmail(email, subject, html);
-        if (result.sent) {
-          sent++;
-        } else {
-          skipped++;
+        // One digest per member; one failure never blocks the rest of the team.
+        let delivered = 0;
+        const memberResults: Record<string, unknown>[] = [];
+        for (const recipient of recipients) {
+          try {
+            const result = await sendEmail(recipient.email, subject, html);
+            if (result.sent) delivered++;
+            memberResults.push({ userId: recipient.userId, ...result });
+          } catch (err) {
+            console.error(
+              `[daily-summary] falha para o membro ${recipient.userId}:`,
+              err
+            );
+            memberResults.push({
+              userId: recipient.userId,
+              sent: false,
+              reason: err.message,
+            });
+          }
         }
-        results.push({ userId, alerts: alerts.length, ...result });
+        sent += delivered;
+        if (delivered === 0) skipped++;
+        results.push({
+          companyId,
+          alerts: alerts.length,
+          recipients: recipients.length,
+          delivered,
+          results: memberResults,
+        });
       } catch (err) {
-        // Never let one user's failure crash the batch
-        console.error(`[daily-summary] falha para o utilizador ${userId}:`, err);
+        // Never let one company's failure crash the batch
+        console.error(`[daily-summary] falha para a empresa ${companyId}:`, err);
         skipped++;
-        results.push({ userId, sent: false, reason: err.message });
+        results.push({ companyId, sent: false, reason: err.message });
       }
     }
 

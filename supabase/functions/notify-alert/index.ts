@@ -1,11 +1,15 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { sendEmail, formatEur, escapeHtml } from '../_shared/email.ts';
+import { getCompanyRecipients } from '../_shared/recipients.ts';
 import { corsHeaders } from '../_shared/cors.ts';
 
 // Instant alert notifier.
 // Designed to be called by a Supabase Database Webhook on INSERT into
 // public.alerts. Auth is a shared secret header (x-webhook-secret), so deploy
 // with --no-verify-jwt.
+//
+// Alerts are company-scoped: every active member of the alert's company is
+// emailed, not just the search creator (see _shared/recipients.ts).
 
 const jsonResponse = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -44,7 +48,7 @@ Deno.serve(async (req) => {
     }
     const { data: search, error: searchError } = await supabaseAdmin
       .from('searches')
-      .select('id, title, status, alert_channels')
+      .select('id, title, status, alert_channels, company_id')
       .eq('id', alert.search_id)
       .maybeSingle();
     if (searchError) throw searchError;
@@ -58,13 +62,19 @@ Deno.serve(async (req) => {
       return jsonResponse({ sent: false, reason: 'Canal de email desativado para esta pesquisa' });
     }
 
-    // Resolve the user's email
-    const { data: userData, error: userError } =
-      await supabaseAdmin.auth.admin.getUserById(alert.user_id);
-    if (userError) throw userError;
-    const email = userData?.user?.email;
-    if (!email) {
-      return jsonResponse({ sent: false, reason: 'Utilizador sem email' });
+    // Resolve the recipients: all active members of the alert's company.
+    // alerts_set_company fills company_id on insert; the search is the
+    // fallback for rows that predate the trigger.
+    const companyId = alert.company_id ?? search.company_id;
+    if (!companyId) {
+      return jsonResponse({ sent: false, reason: 'Alerta sem empresa associada' });
+    }
+    const recipients = await getCompanyRecipients(supabaseAdmin, companyId);
+    if (recipients.length === 0) {
+      return jsonResponse({
+        sent: false,
+        reason: 'Empresa sem membros ativos com email (ou suspensa)',
+      });
     }
 
     // Compose the Portuguese email
@@ -79,16 +89,34 @@ Deno.serve(async (req) => {
         <li>Preço de mercado: ${formatEur(alert.market_price)}</li>
       </ul>
       ${alert.listing_url ? `<p><a href="${escapeHtml(alert.listing_url)}">Ver anúncio</a></p>` : ''}
-      <p style="color:#888;font-size:12px;">Recebeu este email porque ativou alertas por email nesta pesquisa Crivo.</p>
+      <p style="color:#888;font-size:12px;">Recebeu este email porque a sua empresa tem alertas por email ativos nesta pesquisa Crivo.</p>
     `;
 
-    const result = await sendEmail(email, subject, html);
+    // One email per member; one failure never blocks the rest of the team.
+    let delivered = 0;
+    const results: Record<string, unknown>[] = [];
+    for (const recipient of recipients) {
+      try {
+        const result = await sendEmail(recipient.email, subject, html);
+        if (result.sent) delivered++;
+        results.push({ userId: recipient.userId, ...result });
+      } catch (err) {
+        console.error(`[notify-alert] falha para o membro ${recipient.userId}:`, err);
+        results.push({ userId: recipient.userId, sent: false, reason: err.message });
+      }
+    }
 
     // TODO(whatsapp): send via WhatsApp when search.alert_channels.whatsapp is
-    // true. Requires WhatsApp Business API credentials (Meta Cloud API or a
-    // provider like Twilio) — not implemented yet.
+    // true, routing per member on profiles.notif_channel. Requires WhatsApp
+    // Business API credentials (Meta Cloud API or a provider like Twilio) —
+    // not implemented yet.
 
-    return jsonResponse(result);
+    return jsonResponse({
+      sent: delivered > 0,
+      recipients: recipients.length,
+      delivered,
+      results,
+    });
   } catch (err) {
     return jsonResponse({ error: err.message }, 500);
   }
