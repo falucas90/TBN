@@ -1,11 +1,39 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import PageTop from '../components/layout/PageTop';
 import { Btn, Dot, Icon, NumPair } from '../components/ui/Primitives';
-import { getSearches } from '../services/searchesService';
+import { OnboardingPanel } from '../components/ui';
+import { getSearches, createSearch } from '../services/searchesService';
 import { getAlertCountSince } from '../services/alertsService';
 import { useToast } from '../context/ToastContext';
+
+const ONBOARDING_KEY = 'crivo_onboarding_dismissed';
+
+const SAMPLE_PAYLOAD = {
+  title: '[Exemplo] BMW Série 3',
+  status: 'paused',
+  criteria: {
+    brand: 'BMW',
+    model: 'Série 3',
+    minYear: 2018,
+    maxYear: 2024,
+    minKm: 0,
+    maxKm: 120000,
+    maxMileage: 120000,
+    minPrice: 0,
+    maxPrice: 30000,
+    fuel: 'Diesel',
+    countries: { germany: true, france: false, netherlands: false, belgium: false, spain: false },
+  },
+  sources: ['Mobile.de'],
+  minMargin: 2500,
+  alertThreshold: 3000,
+  alertChannels: { whatsapp: false, email: true },
+  dailySummary: true,
+  matchesToday: 0,
+  avgMargin: 2500,
+};
 
 function summarize(s) {
   const c = s.criteria || {};
@@ -26,15 +54,37 @@ export default function Searches() {
   const [query, setQuery] = useState('');
   const [searches, setSearches] = useState(undefined);
   const [alertCount7d, setAlertCount7d] = useState(null);
+  const [onboardingDismissed, setOnboardingDismissed] = useState(
+    () => typeof localStorage !== 'undefined' && localStorage.getItem(ONBOARDING_KEY) === '1'
+  );
 
-  useEffect(() => {
+  const loadSearches = useCallback(() => (
     getSearches().then(setSearches).catch(() => {
       addToast('Erro ao carregar pesquisas.', 'danger');
       setSearches([]);
-    });
+    })
+  ), [addToast]);
+
+  useEffect(() => {
+    loadSearches();
     const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
     getAlertCountSince(cutoff).then(setAlertCount7d).catch(() => setAlertCount7d(0));
-  }, [addToast]);
+  }, [loadSearches]);
+
+  const dismissOnboarding = useCallback(() => {
+    try { localStorage.setItem(ONBOARDING_KEY, '1'); } catch { /* ignore */ }
+    setOnboardingDismissed(true);
+  }, []);
+
+  const createSampleSearch = useCallback(async () => {
+    try {
+      await createSearch(SAMPLE_PAYLOAD);
+      await loadSearches();
+      addToast('Pesquisa de exemplo criada — pode editá-la ou eliminá-la.', 'success');
+    } catch {
+      addToast('Erro ao criar pesquisa de exemplo.', 'danger');
+    }
+  }, [addToast, loadSearches]);
 
   const shown = useMemo(() => {
     if (!searches) return [];
@@ -62,6 +112,9 @@ export default function Searches() {
           </>}
         />
         <div className="page__body">
+          {!onboardingDismissed && (
+            <OnboardingPanel onCreateSample={createSampleSearch} onDismiss={dismissOnboarding} />
+          )}
           {searches === undefined ? (
             <div className="searches-grid">
               {[1, 2, 3].map(i => (

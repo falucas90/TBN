@@ -1,5 +1,6 @@
 import Sidebar from './Sidebar';
 import MobileNav from './MobileNav';
+import { FeedbackWidget } from '../ui';
 import { useMediaQuery } from '../../lib/useMediaQuery';
 
 export default function AppLayout({ children }) {
@@ -10,6 +11,7 @@ export default function AppLayout({ children }) {
       <div className="app app--mobile">
         {children}
         <MobileNav />
+        <FeedbackWidget />
       </div>
     );
   }
@@ -18,6 +20,7 @@ export default function AppLayout({ children }) {
     <div className="app">
       <Sidebar />
       {children}
+      <FeedbackWidget />
     </div>
   );
 }

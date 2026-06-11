@@ -94,9 +94,46 @@ Two edge functions deliver email notifications (via [Resend](https://resend.com)
 
 WhatsApp delivery is not implemented yet — it requires WhatsApp Business API credentials (see the TODO in `supabase/functions/notify-alert/index.ts`).
 
+Before launching the closed beta, follow the step-by-step provisioning and end-to-end smoke runbook in [`docs/BETA_CHECKLIST.md`](docs/BETA_CHECKLIST.md).
+
 ## Error monitoring
 
 Error monitoring with [Sentry](https://sentry.io) is optional and disabled by default. Set `VITE_SENTRY_DSN` in `.env` to your project's DSN to enable it — uncaught render errors caught by the error boundary are then reported with the current build mode as the environment. When the variable is unset, Sentry is never initialized and the app behaves exactly as before.
+
+## Deployment
+
+The app is a static SPA (Vite → `dist/`) and deploys to any static host. Config for the two common targets is committed: `vercel.json` and `netlify.toml` (plus `public/_redirects` as a fallback).
+
+### Build environment variables
+
+Set these on the host so the production build talks to your Supabase project (without them the build still succeeds but ships in mock mode):
+
+| Variable | Required | Description |
+|---|---|---|
+| `VITE_SUPABASE_URL` | yes | Supabase project URL |
+| `VITE_SUPABASE_ANON_KEY` | yes | Supabase anon/public key |
+| `VITE_SENTRY_DSN` | optional | Sentry DSN to enable [error monitoring](#error-monitoring) |
+
+### Vercel
+
+Import the repo, pick the **Vite** framework preset (or "Other"), leave build command `npm run build` and output directory `dist` — both are also pinned in `vercel.json`. Add the env vars above under Settings → Environment Variables, then deploy. The `rewrites` rule in `vercel.json` sends every path to `/index.html`; Vercel serves existing static files (including `/assets/*`) before applying rewrites, so the catch-all does not shadow real assets.
+
+### Netlify
+
+Import the repo; build command `npm run build` and publish directory `dist` come from `netlify.toml`. Set framework to "Vite" or "Other", add the env vars above under Site settings → Environment variables, then deploy. The `/* → /index.html` redirect (in both `netlify.toml` and `public/_redirects`) provides the SPA fallback.
+
+### Before first deploy
+
+The frontend is useless without its backend. Complete the [Supabase setup](#supabase-setup) first:
+
+1. Apply migrations `001`–`006` from `supabase/migrations/` **in order**.
+2. Deploy the 4 edge functions: `update-user-role` and `delete-account` (default JWT verification), and `notify-alert` and `daily-summary` with `--no-verify-jwt` (see [Notifications](#notifications)).
+3. Set the function secrets (`WEBHOOK_SECRET`, `RESEND_API_KEY`, optional `ALERT_FROM_EMAIL`) and wire up the Database Webhook and daily-summary cron job.
+4. Set the build env vars above on the host.
+
+### SPA routing
+
+The app uses `BrowserRouter` with real paths (`/searches`, `/alerts`, `/isv`, …). Deep links and refreshes only work because the host rewrites unknown paths to `/index.html` — the `rewrites`/`redirects` rules above. Removing them brings back 404s on direct navigation to client routes.
 
 ## Project structure
 
