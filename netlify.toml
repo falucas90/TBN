@@ -7,3 +7,12 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
+# Security headers (see docs/SECURITY.md).
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"

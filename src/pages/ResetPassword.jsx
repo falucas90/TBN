@@ -45,6 +45,10 @@ export default function ResetPassword() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) return;
+    if (password.length < 8) {
+      setError('A palavra-passe deve ter pelo menos 8 caracteres.');
+      return;
+    }
     setError('');
     setIsSubmitting(true);
     try {

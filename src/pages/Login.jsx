@@ -32,8 +32,8 @@ export default function Login() {
       setError('Introduza um endereço de email válido.');
       return;
     }
-    if (password.length < 6) {
-      setError('A palavra-passe deve ter pelo menos 6 caracteres.');
+    if (password.length < 8) {
+      setError('A palavra-passe deve ter pelo menos 8 caracteres.');
       return;
     }
     setIsSubmitting(true);

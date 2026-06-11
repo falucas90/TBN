@@ -1,9 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { corsHeaders } from '../_shared/cors.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -177,6 +173,13 @@ Deno.serve(async (req) => {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
+      }
+      // Self-lockout guard: an admin must not deactivate their own account.
+      if (userId === caller.id && status !== 'active') {
+        return new Response(
+          JSON.stringify({ error: 'Não pode desativar a sua própria conta.' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
       const { data: target } = await supabaseAdmin.auth.admin.getUserById(userId);
       const oldStatus = target?.user?.app_metadata?.status ?? 'active';

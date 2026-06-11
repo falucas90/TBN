@@ -82,6 +82,10 @@ export default function AdminStands() {
 
   async function handleToggleStatus(user) {
     const newStatus = statusOf(user) === 'active' ? 'inactive' : 'active';
+    if (user.id === currentUser?.id && newStatus !== 'active') {
+      addToast('Não pode desativar a sua própria conta.', 'warn');
+      return;
+    }
     try {
       await updateUserStatus(user.id, newStatus);
       setUsers((prev) => prev.map((u) =>
