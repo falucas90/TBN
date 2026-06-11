@@ -20,6 +20,7 @@ export default function AdminStands() {
   const [pendingRoles, setPendingRoles] = useState({});
   const [savingRows, setSavingRows] = useState({});
   const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteCompany, setInviteCompany] = useState('');
   const [isInviting, setIsInviting] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -48,9 +49,10 @@ export default function AdminStands() {
     }
     setIsInviting(true);
     try {
-      await inviteUser(email);
+      await inviteUser(email, inviteCompany.trim() || undefined);
       addToast(`Convite enviado para ${email}.`, 'success');
       setInviteEmail('');
+      setInviteCompany('');
       setRefreshKey((k) => k + 1);
     } catch (err) {
       addToast(err.message || 'Erro ao enviar convite.', 'danger');
@@ -123,14 +125,23 @@ export default function AdminStands() {
         />
         <div className="page__body" style={{ overflowY: 'auto', padding: '8px 32px 24px' }}>
           <div className="row gap-2" style={{ marginBottom: 16 }}>
-            <span style={{ fontSize: 12.5, fontWeight: 500 }}>Convidar utilizador</span>
+            <span style={{ fontSize: 12.5, fontWeight: 500 }}>Convidar stand</span>
             <input
               className="input"
               type="email"
-              style={{ width: 260 }}
+              style={{ width: 240 }}
               placeholder="email@stand.pt"
               value={inviteEmail}
               onChange={(e) => setInviteEmail(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleInvite(); }}
+              disabled={isInviting}
+            />
+            <input
+              className="input"
+              style={{ width: 200 }}
+              placeholder="Nome do stand (opcional)"
+              value={inviteCompany}
+              onChange={(e) => setInviteCompany(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') handleInvite(); }}
               disabled={isInviting}
             />

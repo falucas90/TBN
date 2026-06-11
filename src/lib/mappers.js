@@ -42,11 +42,20 @@ export function mapProfile(row) {
   return {
     id: row.id,
     fullName: row.full_name,
-    company: row.company,
-    nif: row.nif,
     phone: row.phone,
+    notifChannel: row.notif_channel,
+    companyId: row.company_id,
+    companyRole: row.company_role,
+  };
+}
+
+export function mapCompany(row) {
+  return {
+    id: row.id,
+    name: row.name,
+    nif: row.nif,
+    status: row.status,
     defaultTransportCost: row.default_transport_cost,
     minMargin: row.min_margin,
-    notifChannel: row.notif_channel,
   };
 }

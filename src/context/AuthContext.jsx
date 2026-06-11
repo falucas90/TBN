@@ -5,6 +5,7 @@ import { loginWithCredentials, loginWithGoogle, logoutUser, signupUser } from '.
 const AuthContext = createContext(null);
 
 const MOCK_USER = { id: 'mock', email: 'dev@local', role: 'dealer' };
+const MOCK_COMPANY_INFO = { companyId: 'mock-company', companyRole: 'owner' };
 const MOCK_SESSION_KEY = 'crivo.mock.session';
 
 function loadMockSession() {
@@ -19,6 +20,30 @@ function loadMockSession() {
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(supabaseConfigured ? null : loadMockSession());
   const [isLoading, setIsLoading] = useState(supabaseConfigured);
+  const [companyInfo, setCompanyInfo] = useState(supabaseConfigured ? null : MOCK_COMPANY_INFO);
+
+  // Company membership lives in profiles (single source of truth, never
+  // stale like a JWT claim). Platform admins have no company.
+  useEffect(() => {
+    if (!supabaseConfigured) return;
+    if (!currentUser?.id || currentUser.role === 'admin') {
+      setCompanyInfo(null);
+      return;
+    }
+    let cancelled = false;
+    supabase
+      .from('profiles')
+      .select('company_id, company_role')
+      .eq('id', currentUser.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (cancelled) return;
+        setCompanyInfo(
+          data?.company_id ? { companyId: data.company_id, companyRole: data.company_role } : null
+        );
+      });
+    return () => { cancelled = true; };
+  }, [currentUser?.id, currentUser?.role]);
 
   useEffect(() => {
     if (!supabaseConfigured) return;
@@ -68,9 +93,11 @@ export function AuthProvider({ children }) {
   };
 
   const isAuthenticated = !!currentUser;
+  const companyId = companyInfo?.companyId ?? null;
+  const companyRole = companyInfo?.companyRole ?? null;
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, currentUser, isLoading, login, loginGoogle, signup, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, currentUser, isLoading, companyId, companyRole, login, loginGoogle, signup, logout }}>
       {children}
     </AuthContext.Provider>
   );

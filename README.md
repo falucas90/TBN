@@ -53,6 +53,17 @@ cp .env.example .env
 3. **Disable public self-signup (required for the invite-only beta).** In the Supabase Dashboard → Authentication → Sign In / Up, turn **off** "Allow new users to sign up". Removing the signup UI alone is not enforcement — only this setting makes the public API reject self-signups too. Admin invites via `auth.admin.inviteUserByEmail` (the "Convidar utilizador" action in the Admin panel, backed by the `update-user-role` edge function) still work with signups disabled; invited users receive an email link to set their password. The `/signup` page now shows an invite notice instead of a registration form.
 4. To grant a user admin access, set `{"role": "admin"}` in their `app_metadata` (Dashboard → Authentication → Users). The Admin panel and audit log are only visible to admins.
 
+### Access model
+
+Two layers of roles (migration `008_companies.sql`):
+
+- **Platform admin** (`app_metadata.role = 'admin'`) — Crivo operator. Manages accounts, feedback and audit logs via the admin panel; has **no company and no access to dealer business data** (searches/alerts RLS is company-scoped and admins belong to no company).
+- **Company (stand)** — every dealer belongs to exactly one company (`profiles.company_id`). Searches and alerts are company-scoped: the team shares one alert queue (`user_status` is shared; `status_changed_by` records who saved/dismissed). Business defaults (`default_transport_cost`, `min_margin`) live on the company.
+  - **Owner** (`profiles.company_role = 'owner'`) — manages company settings and the team (invite, role change, removal) from Definições → Equipa.
+  - **Member** — full product access, no team/company management.
+
+Invite flows: a platform admin invites a new stand (the signup trigger creates the company with the invitee as owner); a company owner invites members into their own company. Both go through the `update-user-role` edge function, which enforces the caller's privilege server-side; membership changes are only possible via the service role (column-level grants block clients from touching `company_id`/`company_role`).
+
 ### Notifications
 
 Two edge functions deliver email notifications (via [Resend](https://resend.com)): `notify-alert` sends an instant email when an alert row is inserted, and `daily-summary` sends a per-user digest of the last 24 hours.
@@ -127,7 +138,7 @@ Import the repo; build command `npm run build` and publish directory `dist` come
 
 The frontend is useless without its backend. Complete the [Supabase setup](#supabase-setup) first:
 
-1. Apply migrations `001`–`007` from `supabase/migrations/` **in order**.
+1. Apply migrations `001`–`008` from `supabase/migrations/` **in order**.
 2. Deploy the 4 edge functions: `update-user-role` and `delete-account` (default JWT verification), and `notify-alert` and `daily-summary` with `--no-verify-jwt` (see [Notifications](#notifications)).
 3. Set the function secrets (`WEBHOOK_SECRET`, `RESEND_API_KEY`, optional `ALERT_FROM_EMAIL` and `ALLOWED_ORIGIN`) and wire up the Database Webhook and daily-summary cron job.
 4. Set the build env vars above on the host.

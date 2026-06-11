@@ -4,12 +4,10 @@ import { mockAlerts } from '../data/mock-data';
 
 export async function getAlerts({ limit = 50, offset = 0 } = {}) {
   if (!supabaseConfigured) return [...mockAlerts];
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return [];
+  // RLS scopes alerts to the caller's company (shared team queue)
   const { data, error } = await supabase
     .from('alerts')
-    .select('*, searches!inner(user_id)')
-    .eq('searches.user_id', user.id)
+    .select('*')
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1);
   if (error) throw error;
@@ -20,7 +18,7 @@ export async function getAlertCountSince(isoDate) {
   if (!supabaseConfigured) {
     return mockAlerts.filter(a => !a.createdAt || a.createdAt >= isoDate).length;
   }
-  // alerts has its own user_id column with owner-select RLS, so no join is needed
+  // RLS scopes the count to the caller's company
   const { count, error } = await supabase
     .from('alerts')
     .select('*', { count: 'exact', head: true })
@@ -44,14 +42,11 @@ export async function updateAlertStatus(id, userStatus) {
 
 export async function getAlertsBySearch(searchId) {
   if (!supabaseConfigured) return mockAlerts.filter(a => String(a.searchId) === String(searchId));
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return [];
-  // Verify ownership via join — only returns results if the search belongs to this user
+  // RLS scopes alerts to the caller's company
   const { data, error } = await supabase
     .from('alerts')
-    .select('*, searches!inner(user_id)')
+    .select('*')
     .eq('search_id', searchId)
-    .eq('searches.user_id', user.id)
     .order('created_at', { ascending: false });
   if (error) throw error;
   return data.map(mapAlert);

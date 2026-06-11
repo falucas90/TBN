@@ -1,19 +1,41 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
 
+// User & team management.
+//
+// Two privilege levels:
+//   Platform admin (app_metadata.role = 'admin') — manages all accounts:
+//     invite, list, stats, update-role, update-status
+//   Company owner (profiles.company_role = 'owner') — manages own team:
+//     invite-member, list-members, update-member-role, remove-member
+
+const PLATFORM_ACTIONS = ['invite', 'list', 'stats', 'update-role', 'update-status'];
+const OWNER_ACTIONS = ['invite-member', 'list-members', 'update-member-role', 'remove-member'];
+
+const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  });
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const isDuplicateInvite = (error: { status?: number; message?: string }) => {
+  const msg = (error.message || '').toLowerCase();
+  return error.status === 422 || msg.includes('already been registered') ||
+    msg.includes('already registered') || msg.includes('email_exists');
+};
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
 
   try {
-    // Verify the caller's JWT and check they are an admin
+    // Verify the caller's JWT
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      return new Response(JSON.stringify({ error: 'Não autorizado' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      return json({ error: 'Não autorizado' }, 401);
     }
 
     // Client-facing Supabase instance (to verify caller's session)
@@ -25,18 +47,7 @@ Deno.serve(async (req) => {
 
     const { data: { user: caller }, error: callerError } = await supabasePublic.auth.getUser();
     if (callerError || !caller) {
-      return new Response(JSON.stringify({ error: 'Sessão inválida' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    const callerRole = caller.app_metadata?.role;
-    if (callerRole !== 'admin') {
-      return new Response(JSON.stringify({ error: 'Acesso negado — apenas administradores' }), {
-        status: 403,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      return json({ error: 'Sessão inválida' }, 401);
     }
 
     // Admin Supabase instance with service_role key for privileged operations
@@ -46,26 +57,47 @@ Deno.serve(async (req) => {
       { auth: { autoRefreshToken: false, persistSession: false } }
     );
 
-    const { action, userId, role, status, email, page: rawPage, perPage: rawPerPage } = await req.json();
+    const {
+      action, userId, role, status, email, companyName, companyRole,
+      page: rawPage, perPage: rawPerPage,
+    } = await req.json();
 
+    const callerRole = caller.app_metadata?.role;
+
+    // ——— Authorization ———————————————————————————————————————
+    if (PLATFORM_ACTIONS.includes(action) && callerRole !== 'admin') {
+      return json({ error: 'Acesso negado — apenas administradores' }, 403);
+    }
+
+    let callerCompanyId: string | null = null;
+    if (OWNER_ACTIONS.includes(action)) {
+      const { data: callerProfile, error: profileError } = await supabaseAdmin
+        .from('profiles')
+        .select('company_id, company_role')
+        .eq('id', caller.id)
+        .maybeSingle();
+      if (profileError) throw profileError;
+      if (!callerProfile?.company_id || callerProfile.company_role !== 'owner') {
+        return json({ error: 'Acesso negado — apenas o responsável do stand' }, 403);
+      }
+      callerCompanyId = callerProfile.company_id;
+    }
+
+    // ——— Platform admin actions ——————————————————————————————
     if (action === 'invite') {
       const cleanEmail = typeof email === 'string' ? email.trim() : '';
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
-        return new Response(JSON.stringify({ error: 'Email inválido' }), {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
+      if (!EMAIL_RE.test(cleanEmail)) {
+        return json({ error: 'Email inválido' }, 400);
       }
+      // The signup trigger creates a fresh company (named after
+      // `company` metadata when given) with the invitee as owner.
+      const cleanCompanyName = typeof companyName === 'string' ? companyName.trim() : '';
       const { data, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(cleanEmail, {
-        data: { role: 'dealer' },
+        data: { role: 'dealer', ...(cleanCompanyName ? { company: cleanCompanyName } : {}) },
       });
       if (error) {
-        const msg = (error.message || '').toLowerCase();
-        if (error.status === 422 || msg.includes('already been registered') || msg.includes('already registered') || msg.includes('email_exists')) {
-          return new Response(JSON.stringify({ error: 'Este email já tem conta.' }), {
-            status: 409,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          });
+        if (isDuplicateInvite(error)) {
+          return json({ error: 'Este email já tem conta.' }, 409);
         }
         throw error;
       }
@@ -76,9 +108,7 @@ Deno.serve(async (req) => {
         old_value: null,
         new_value: cleanEmail,
       });
-      return new Response(JSON.stringify({ user: data.user }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      return json({ user: data.user });
     }
 
     if (action === 'list') {
@@ -97,9 +127,7 @@ Deno.serve(async (req) => {
       } else {
         body.hasMore = users.length === perPage;
       }
-      return new Response(JSON.stringify(body), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      return json(body);
     }
 
     if (action === 'stats') {
@@ -120,34 +148,31 @@ Deno.serve(async (req) => {
         totalUsers = count ?? 0;
       }
 
-      const [totalSearchesRes, activeSearchesRes, totalAlertsRes, alerts7dRes] = await Promise.all([
+      const [totalSearchesRes, activeSearchesRes, totalAlertsRes, alerts7dRes, companiesRes] = await Promise.all([
         supabaseAdmin.from('searches').select('*', { count: 'exact', head: true }),
         supabaseAdmin.from('searches').select('*', { count: 'exact', head: true }).eq('status', 'active'),
         supabaseAdmin.from('alerts').select('*', { count: 'exact', head: true }),
         supabaseAdmin.from('alerts').select('*', { count: 'exact', head: true }).gte('created_at', sevenDaysAgo),
+        supabaseAdmin.from('companies').select('*', { count: 'exact', head: true }),
       ]);
       const firstError =
-        totalSearchesRes.error || activeSearchesRes.error || totalAlertsRes.error || alerts7dRes.error;
+        totalSearchesRes.error || activeSearchesRes.error || totalAlertsRes.error ||
+        alerts7dRes.error || companiesRes.error;
       if (firstError) throw firstError;
 
-      return new Response(
-        JSON.stringify({
-          totalUsers,
-          activeSearches: activeSearchesRes.count ?? 0,
-          totalSearches: totalSearchesRes.count ?? 0,
-          alerts7d: alerts7dRes.count ?? 0,
-          totalAlerts: totalAlertsRes.count ?? 0,
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return json({
+        totalUsers,
+        totalCompanies: companiesRes.count ?? 0,
+        activeSearches: activeSearchesRes.count ?? 0,
+        totalSearches: totalSearchesRes.count ?? 0,
+        alerts7d: alerts7dRes.count ?? 0,
+        totalAlerts: totalAlertsRes.count ?? 0,
+      });
     }
 
     if (action === 'update-role') {
       if (!userId || !role) {
-        return new Response(JSON.stringify({ error: 'userId e role são obrigatórios' }), {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
+        return json({ error: 'userId e role são obrigatórios' }, 400);
       }
       const { data: target } = await supabaseAdmin.auth.admin.getUserById(userId);
       const oldRole = target?.user?.app_metadata?.role ?? 'dealer';
@@ -162,24 +187,16 @@ Deno.serve(async (req) => {
         old_value: oldRole,
         new_value: role,
       });
-      return new Response(JSON.stringify({ user: data.user }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      return json({ user: data.user });
     }
 
     if (action === 'update-status') {
       if (!userId || status === undefined) {
-        return new Response(JSON.stringify({ error: 'userId e status são obrigatórios' }), {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
+        return json({ error: 'userId e status são obrigatórios' }, 400);
       }
       // Self-lockout guard: an admin must not deactivate their own account.
       if (userId === caller.id && status !== 'active') {
-        return new Response(
-          JSON.stringify({ error: 'Não pode desativar a sua própria conta.' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        return json({ error: 'Não pode desativar a sua própria conta.' }, 400);
       }
       const { data: target } = await supabaseAdmin.auth.admin.getUserById(userId);
       const oldStatus = target?.user?.app_metadata?.status ?? 'active';
@@ -194,19 +211,117 @@ Deno.serve(async (req) => {
         old_value: oldStatus,
         new_value: status,
       });
-      return new Response(JSON.stringify({ user: data.user }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      return json({ user: data.user });
     }
 
-    return new Response(JSON.stringify({ error: 'Ação desconhecida' }), {
-      status: 400,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    // ——— Company owner actions ———————————————————————————————
+
+    if (action === 'invite-member') {
+      const cleanEmail = typeof email === 'string' ? email.trim() : '';
+      if (!EMAIL_RE.test(cleanEmail)) {
+        return json({ error: 'Email inválido' }, 400);
+      }
+      // The signup trigger links the invitee to the owner's company.
+      const { data, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(cleanEmail, {
+        data: { role: 'dealer', company_id: callerCompanyId, company_role: 'member' },
+      });
+      if (error) {
+        if (isDuplicateInvite(error)) {
+          return json({ error: 'Este email já tem conta.' }, 409);
+        }
+        throw error;
+      }
+      await supabaseAdmin.from('audit_logs').insert({
+        admin_id: caller.id,
+        target_id: data.user?.id ?? null,
+        action: 'member_invite',
+        old_value: null,
+        new_value: cleanEmail,
+      });
+      return json({ user: data.user });
+    }
+
+    if (action === 'list-members') {
+      const { data: members, error } = await supabaseAdmin
+        .from('profiles')
+        .select('id, full_name, company_role')
+        .eq('company_id', callerCompanyId)
+        .order('company_role', { ascending: false });
+      if (error) throw error;
+      const enriched = await Promise.all((members ?? []).map(async (m) => {
+        const { data: u } = await supabaseAdmin.auth.admin.getUserById(m.id);
+        return {
+          id: m.id,
+          fullName: m.full_name,
+          companyRole: m.company_role,
+          email: u?.user?.email ?? null,
+          status: u?.user?.app_metadata?.status ?? 'active',
+          invitedAt: u?.user?.created_at ?? null,
+          lastSignInAt: u?.user?.last_sign_in_at ?? null,
+        };
+      }));
+      return json({ members: enriched });
+    }
+
+    if (action === 'update-member-role' || action === 'remove-member') {
+      if (!userId) {
+        return json({ error: 'userId é obrigatório' }, 400);
+      }
+      if (userId === caller.id) {
+        return json({ error: 'Não pode alterar a sua própria conta.' }, 400);
+      }
+      const { data: targetProfile, error: targetError } = await supabaseAdmin
+        .from('profiles')
+        .select('company_id, company_role')
+        .eq('id', userId)
+        .maybeSingle();
+      if (targetError) throw targetError;
+      if (!targetProfile || targetProfile.company_id !== callerCompanyId) {
+        return json({ error: 'Utilizador não pertence ao seu stand.' }, 404);
+      }
+
+      if (action === 'update-member-role') {
+        if (!['owner', 'member'].includes(companyRole)) {
+          return json({ error: 'companyRole inválido' }, 400);
+        }
+        const { error } = await supabaseAdmin
+          .from('profiles')
+          .update({ company_role: companyRole })
+          .eq('id', userId);
+        if (error) throw error;
+        await supabaseAdmin.from('audit_logs').insert({
+          admin_id: caller.id,
+          target_id: userId,
+          action: 'member_role_change',
+          old_value: targetProfile.company_role,
+          new_value: companyRole,
+        });
+        return json({ ok: true });
+      }
+
+      // remove-member: detach from the company and deactivate the
+      // account — an orphaned login has no business data to see.
+      const { error: detachError } = await supabaseAdmin
+        .from('profiles')
+        .update({ company_id: null, company_role: 'member' })
+        .eq('id', userId);
+      if (detachError) throw detachError;
+      const { error: statusError } = await supabaseAdmin.auth.admin.updateUserById(userId, {
+        app_metadata: { status: 'inactive' },
+      });
+      if (statusError) throw statusError;
+      await supabaseAdmin.from('audit_logs').insert({
+        admin_id: caller.id,
+        target_id: userId,
+        action: 'member_remove',
+        old_value: targetProfile.company_role,
+        new_value: null,
+      });
+      return json({ ok: true });
+    }
+
+    return json({ error: 'Ação desconhecida' }, 400);
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return json({ error: err.message }, 500);
   }
 });
