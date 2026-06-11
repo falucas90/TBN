@@ -21,7 +21,7 @@ dealer sees will be wrong.
       **service_role** key. Expected: project is healthy and the SQL Editor is
       reachable.
 
-- [ ] **Apply migrations in order (001 → 006).** Action: run the SQL files in
+- [ ] **Apply migrations in order (001 → 007).** Action: run the SQL files in
       `supabase/migrations/` in numeric order via the SQL Editor, or
       `supabase db push`. Order matters: 003 fixes the audit RLS policy created
       in 002, and 005 depends on the `alerts` table from 001.
@@ -36,7 +36,10 @@ dealer sees will be wrong.
         `supabase_realtime` publication.
       - `006_notification_cron.sql` — **commented-out** cron snippet only;
         applying it is a no-op (see step "Schedule daily-summary" below).
-      Expected: no SQL errors; the three tables plus `audit_logs` exist.
+      - `007_feedback.sql` — `feedback` table + owner-insert / admin-select
+        policies (backs the in-app feedback widget).
+      Expected: no SQL errors; the three tables plus `audit_logs` and
+      `feedback` exist.
 
 - [ ] **Verify realtime is enabled on `alerts`.** Action: 005 already adds the
       table to the publication. Confirm with:
