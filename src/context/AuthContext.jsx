@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { supabase, supabaseConfigured } from '../lib/supabase';
-import { loginWithCredentials, loginWithGoogle, logoutUser, signupUser } from '../services/authService';
+import { loginWithCredentials, loginWithGoogle, logoutUser } from '../services/authService';
 
 const AuthContext = createContext(null);
 
@@ -82,10 +82,6 @@ export function AuthProvider({ children }) {
     await loginWithGoogle();
   };
 
-  const signup = async (email, password, metadata) => {
-    await signupUser(email, password, metadata);
-  };
-
   const logout = async () => {
     await logoutUser();
     localStorage.removeItem(MOCK_SESSION_KEY);
@@ -97,7 +93,7 @@ export function AuthProvider({ children }) {
   const companyRole = companyInfo?.companyRole ?? null;
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, currentUser, isLoading, companyId, companyRole, login, loginGoogle, signup, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, currentUser, isLoading, companyId, companyRole, login, loginGoogle, logout }}>
       {children}
     </AuthContext.Provider>
   );

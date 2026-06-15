@@ -22,17 +22,6 @@ export async function logoutUser() {
   if (error) throw error;
 }
 
-export async function signupUser(email, password, metadata) {
-  if (!supabase) return;
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: { data: metadata },
-  });
-  if (error) throw error;
-  return data.user;
-}
-
 export async function sendPasswordResetEmail(email) {
   if (!supabase) return;
   const { error } = await supabase.auth.resetPasswordForEmail(email, {

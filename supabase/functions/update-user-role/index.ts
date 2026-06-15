@@ -89,11 +89,12 @@ Deno.serve(async (req) => {
       if (!EMAIL_RE.test(cleanEmail)) {
         return json({ error: 'Email inválido' }, 400);
       }
-      // The signup trigger creates a fresh company (named after
-      // `company` metadata when given) with the invitee as owner.
       const cleanCompanyName = typeof companyName === 'string' ? companyName.trim() : '';
+      // The invite creates the auth user; the AFTER-INSERT trigger
+      // creates only a bare profile (no company). Tenancy is assigned
+      // below via the service role — never trusted through metadata.
       const { data, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(cleanEmail, {
-        data: { role: 'dealer', ...(cleanCompanyName ? { company: cleanCompanyName } : {}) },
+        data: { role: 'dealer' },
       });
       if (error) {
         if (isDuplicateInvite(error)) {
@@ -101,9 +102,29 @@ Deno.serve(async (req) => {
         }
         throw error;
       }
+
+      // Create the new stand and make the invitee its owner. Done with
+      // the service role (bypasses RLS and the profiles column grants),
+      // so client metadata is never trusted for tenant binding.
+      const newUserId = data.user?.id;
+      if (!newUserId) throw new Error('Invite did not return a user');
+      const { data: company, error: companyError } = await supabaseAdmin
+        .from('companies')
+        .insert({ name: cleanCompanyName || cleanEmail.split('@')[0] })
+        .select('id')
+        .single();
+      if (companyError) throw companyError;
+      const { error: profileError } = await supabaseAdmin
+        .from('profiles')
+        .upsert(
+          { id: newUserId, company_id: company.id, company_role: 'owner' },
+          { onConflict: 'id' },
+        );
+      if (profileError) throw profileError;
+
       await supabaseAdmin.from('audit_logs').insert({
         admin_id: caller.id,
-        target_id: data.user?.id ?? null,
+        target_id: newUserId,
         action: 'invite',
         old_value: null,
         new_value: cleanEmail,
@@ -221,9 +242,11 @@ Deno.serve(async (req) => {
       if (!EMAIL_RE.test(cleanEmail)) {
         return json({ error: 'Email inválido' }, 400);
       }
-      // The signup trigger links the invitee to the owner's company.
+      // The invite creates the auth user (bare profile via the
+      // trigger); we link them to the owner's company below with the
+      // service role — tenancy is never passed through metadata.
       const { data, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(cleanEmail, {
-        data: { role: 'dealer', company_id: callerCompanyId, company_role: 'member' },
+        data: { role: 'dealer' },
       });
       if (error) {
         if (isDuplicateInvite(error)) {
@@ -231,9 +254,20 @@ Deno.serve(async (req) => {
         }
         throw error;
       }
+
+      const newMemberId = data.user?.id;
+      if (!newMemberId) throw new Error('Invite did not return a user');
+      const { error: memberError } = await supabaseAdmin
+        .from('profiles')
+        .upsert(
+          { id: newMemberId, company_id: callerCompanyId, company_role: 'member' },
+          { onConflict: 'id' },
+        );
+      if (memberError) throw memberError;
+
       await supabaseAdmin.from('audit_logs').insert({
         admin_id: caller.id,
-        target_id: data.user?.id ?? null,
+        target_id: newMemberId,
         action: 'member_invite',
         old_value: null,
         new_value: cleanEmail,
@@ -322,6 +356,8 @@ Deno.serve(async (req) => {
 
     return json({ error: 'Ação desconhecida' }, 400);
   } catch (err) {
-    return json({ error: err.message }, 500);
+    // Don't leak internal error details to the client.
+    console.error(err);
+    return json({ error: 'Erro interno do servidor' }, 500);
   }
 });
