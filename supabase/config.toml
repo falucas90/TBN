@@ -1,0 +1,13 @@
+# Crivo — Supabase CLI / local project config.
+#
+# Closed beta: access is by invite only. Self-service signup must be
+# OFF so a brand-new auth user cannot be created from the client.
+#
+# NOTE: this file governs the LOCAL / CLI project (and is applied to
+# the hosted project by `supabase config push`). The HOSTED dashboard
+# toggle "Authentication → Allow new users to sign up" must ALSO be
+# turned off — the dashboard setting is authoritative for the live
+# project unless you run `supabase config push`.
+
+[auth]
+enable_signup = false
