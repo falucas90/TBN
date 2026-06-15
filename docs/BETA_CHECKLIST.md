@@ -21,10 +21,11 @@ dealer sees will be wrong.
       **service_role** key. Expected: project is healthy and the SQL Editor is
       reachable.
 
-- [ ] **Apply migrations in order (001 → 007).** Action: run the SQL files in
-      `supabase/migrations/` in numeric order via the SQL Editor, or
-      `supabase db push`. Order matters: 003 fixes the audit RLS policy created
-      in 002, and 005 depends on the `alerts` table from 001.
+- [ ] **Apply every migration in numeric order (001 → latest).** Action: run
+      **all** the SQL files in `supabase/migrations/` in numeric order via the
+      SQL Editor, or `supabase db push` — do not stop early. Order matters: 003
+      fixes the audit RLS policy created in 002, 005 depends on the `alerts`
+      table from 001, and 009 rebuilds the RLS to be company-scoped.
       - `001_initial_schema.sql` — `profiles`, `searches`, `alerts`, RLS, the
         `handle_new_user` signup trigger, and `updated_at` triggers.
       - `002_audit_log.sql` — `audit_logs` table + admin-only select policy.
@@ -38,8 +39,15 @@ dealer sees will be wrong.
         applying it is a no-op (see step "Schedule daily-summary" below).
       - `007_feedback.sql` — `feedback` table + owner-insert / admin-select
         policies (backs the in-app feedback widget).
-      Expected: no SQL errors; the three tables plus `audit_logs` and
-      `feedback` exist.
+      - `008_feedback_triage.sql` — feedback status/triage columns + admin RLS
+        (backs the Admin → Feedback triage flow).
+      - `009_companies.sql` — **multi-tenancy, required by the frontend**: the
+        `companies` table, `company_id` on `profiles`/`searches`/`alerts`, and
+        company-scoped RLS that replaces the per-owner policies.
+      Apply any further-numbered files the same way — keep going to the
+      highest-numbered file present.
+      Expected: no SQL errors; the `profiles`, `searches`, `alerts`,
+      `audit_logs`, `feedback` **and `companies`** tables all exist.
 
 - [ ] **Disable public self-signup (invite-only beta).** Action: Dashboard →
       Authentication → Sign In / Up → turn **off** "Allow new users to sign
@@ -59,7 +67,8 @@ dealer sees will be wrong.
       where pubname = 'supabase_realtime' and tablename = 'alerts';
       ```
       Expected: one row returned. (Realtime in the app filters by
-      `user_id=eq.<id>` — see `src/context/AlertsContext.jsx`.)
+      `company_id=eq.<id>` — the alert feed is a company-wide shared queue; see
+      `src/context/AlertsContext.jsx`.)
 
 - [ ] **Deploy the five edge functions.** Action — note that `notify-alert`,
       `daily-summary` and `notify-feedback` are called by a webhook / cron (not
@@ -206,11 +215,17 @@ dealer sees will be wrong.
 4. [ ] **Log in.** Action: log in at `/login` with the credentials. Expected:
        you land in the app (e.g. `/searches`).
 
-5. [ ] **Verify the `profiles` row was auto-created.** Action: in the SQL Editor
-       run `select id, full_name, company, nif from public.profiles;`. Expected:
-       exactly one row for the new user — created by the `handle_new_user`
-       trigger from migration 001. (Invited users have no signup-form metadata,
-       so `full_name` / `company` / `nif` may be empty — that is expected.)
+5. [ ] **Verify the `profiles` row and company were established.** Action: in
+       the SQL Editor run
+       `select id, full_name, company_id, company_role from public.profiles;`
+       and `select id, name, nif from public.companies;`. Expected: exactly one
+       `profiles` row for the new user, with a non-null `company_id` and a
+       `company_role` (`owner` for a newly invited stand), plus the matching
+       `companies` row. The profile is created by the `handle_new_user` trigger
+       (migration 001); the company and the user's membership/role are
+       established by the invite flow (migration 009). (Invited users have no
+       signup-form metadata, so `full_name` and the company `name` / `nif` may
+       be empty until filled in from Definições — that is expected.)
 
 6. [ ] **Create a search.** Action: in the app create a search; make sure its
        status is **active** and that **email alerts are enabled** for it (so the
@@ -232,7 +247,8 @@ dealer sees will be wrong.
 8. [ ] **Realtime toast + unread badge.** Action: keep the app open as that user
        while running step 7. Expected: a toast `Novo alerta: …` appears and the
        **Alertas** unread badge increments by one (`AlertsContext` listens for
-       `INSERT` filtered by `user_id`).
+       `INSERT` filtered by `company_id` — the company-wide shared queue, so any
+       member of the company sees it).
 
 9. [ ] **Alert email arrives.** Action: check the dealer inbox. Expected: an
        email `Novo alerta Crivo: BMW 330e Touring (teste beta)` arrives — only
@@ -295,7 +311,8 @@ flag (see notes below the table).
 
 | Column | Type | Unit / allowed values | Nullable | Notes |
 |---|---|---|---|---|
-| `user_id` | uuid | the alert owner's `auth.users.id` | **no** | Drives realtime delivery and RLS owner-select. Must be a real user. |
+| `user_id` | uuid | the alert owner's `auth.users.id` | **no** | The originating user (RLS/audit). Must be a real user. |
+| `company_id` | uuid | references `public.companies.id` | **no** | Scopes the alert to a company. **Drives realtime delivery** (the feed filters by `company_id=eq.<id>`) and company-scoped RLS — the whole company shares the queue. Must match the owner's company. |
 | `search_id` | uuid | references `public.searches.id` | yes (FK `on delete set null`) | **Required for the email** — `notify-alert` returns "no search" if null. Realtime/UI work without it. |
 | `car_title` | text | free text, e.g. `"BMW 330e Touring"` | **no** | Used in the toast, the alert row, and the email subject. |
 | `platform` | text | marketplace name, e.g. `"Mobile.de"`, `"AutoScout24"` | **no** | Shown in UI and emails. |
