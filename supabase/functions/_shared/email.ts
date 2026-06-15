@@ -18,11 +18,17 @@ export async function sendEmail(
   const from = Deno.env.get('ALERT_FROM_EMAIL') ?? 'alertas@crivo.pt';
 
   if (!apiKey) {
+    // Log only non-sensitive metadata: never the full recipient address or the
+    // rendered HTML body (PII / message contents).
+    const [localPart, domain] = to.split('@');
+    const redactedTo = domain
+      ? `${localPart.slice(0, 1)}***@${domain}`
+      : '***';
     console.log('[email] RESEND_API_KEY not configured — would send:', {
       from,
-      to,
+      to: redactedTo,
       subject,
-      html,
+      recipients: 1,
     });
     return { sent: false, reason: 'RESEND_API_KEY not configured' };
   }

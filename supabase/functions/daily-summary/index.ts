@@ -2,6 +2,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { sendEmail, formatEur, escapeHtml } from '../_shared/email.ts';
 import { getCompanyRecipients } from '../_shared/recipients.ts';
 import { corsHeaders } from '../_shared/cors.ts';
+import { timingSafeEqualStr } from '../_shared/auth.ts';
 
 // Daily digest of alerts.
 // Designed to be invoked on a schedule (pg_cron + pg_net, or an external cron
@@ -26,7 +27,7 @@ Deno.serve(async (req) => {
   try {
     // Shared-secret guard — the cron caller must send this header
     const secret = Deno.env.get('WEBHOOK_SECRET');
-    if (!secret || req.headers.get('x-webhook-secret') !== secret) {
+    if (!secret || !timingSafeEqualStr(req.headers.get('x-webhook-secret') ?? '', secret)) {
       return jsonResponse({ error: 'Não autorizado' }, 401);
     }
 
@@ -36,17 +37,27 @@ Deno.serve(async (req) => {
       { auth: { autoRefreshToken: false, persistSession: false } }
     );
 
-    // Companies with at least one active search with the daily summary enabled
+    // Active searches with the daily summary enabled. We need both the
+    // company and the search id: a digest only includes alerts from searches
+    // that actually opted in (status='active' AND daily_summary=true), so we
+    // map each company to its set of enabled search ids and filter on it.
     const { data: searches, error: searchError } = await supabaseAdmin
       .from('searches')
-      .select('company_id')
+      .select('id, company_id')
       .eq('status', 'active')
       .eq('daily_summary', true);
     if (searchError) throw searchError;
 
-    const companyIds = [
-      ...new Set((searches ?? []).map((s) => s.company_id).filter(Boolean)),
-    ];
+    // company_id -> set of enabled search ids
+    const enabledSearchesByCompany = new Map<string, string[]>();
+    for (const s of searches ?? []) {
+      if (!s.company_id || !s.id) continue;
+      const list = enabledSearchesByCompany.get(s.company_id);
+      if (list) list.push(s.id);
+      else enabledSearchesByCompany.set(s.company_id, [s.id]);
+    }
+
+    const companyIds = [...enabledSearchesByCompany.keys()];
 
     const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     let processed = 0;
@@ -57,10 +68,19 @@ Deno.serve(async (req) => {
     for (const companyId of companyIds) {
       processed++;
       try {
+        // Only alerts from this company's opted-in searches. Excludes alerts
+        // whose search_id is null or points to a paused / non-enabled search.
+        const enabledSearchIds = enabledSearchesByCompany.get(companyId) ?? [];
+        if (enabledSearchIds.length === 0) {
+          skipped++;
+          continue;
+        }
+
         const { data: alerts, error: alertsError } = await supabaseAdmin
           .from('alerts')
           .select('car_title, platform, price_original, listing_url, created_at')
           .eq('company_id', companyId)
+          .in('search_id', enabledSearchIds)
           .gte('created_at', since)
           .order('created_at', { ascending: false });
         if (alertsError) throw alertsError;
@@ -138,6 +158,7 @@ Deno.serve(async (req) => {
 
     return jsonResponse({ processed, sent, skipped, results });
   } catch (err) {
-    return jsonResponse({ error: err.message }, 500);
+    console.error('[daily-summary] erro não tratado:', err);
+    return jsonResponse({ error: 'Erro interno' }, 500);
   }
 });
