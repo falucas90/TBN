@@ -53,13 +53,19 @@ export default function AlertHistory() {
   const enriched = useMemo(() => (alerts ?? []).map(alert => {
     const { isvPayable } = calculateISV(alert.cc, alert.co2, alert.fuelType, alert.ageYears, alert.flags.includes('PHEV'), false);
     const totalCost = alert.priceOriginal + isvPayable + alert.transportEst;
-    const marginEst = alert.marketPrice - totalCost;
+    // Without a market price the margin is unknown — keep it null rather than
+    // letting `null - totalCost` produce NaN, which renders as "€ NaN" and
+    // silently fails every numeric margin comparison.
+    const marginEst = alert.marketPrice == null ? null : alert.marketPrice - totalCost;
     return { ...alert, isvPayable, totalCost, marginEst };
   }), [alerts]);
 
   const filtered = useMemo(() => enriched
     .filter(a => filterBrand === 'all' || getBrand(a.carTitle) === filterBrand)
-    .filter(a => filterMargin === 'all' || a.marginEst >= parseInt(filterMargin, 10))
+    // A row with an unknown margin can't be claimed to clear a "> €X" threshold,
+    // so exclude it explicitly when a margin filter is active (not via a silent
+    // NaN comparison).
+    .filter(a => filterMargin === 'all' || (a.marginEst != null && a.marginEst >= parseInt(filterMargin, 10)))
     .filter(a => !searchText || a.carTitle.toLowerCase().includes(searchText.toLowerCase())),
   [enriched, filterBrand, filterMargin, searchText]);
 
@@ -150,7 +156,11 @@ export default function AlertHistory() {
                           </div>
                           <div className="price-stack__col">
                             <span className="price-stack__label">Margem</span>
-                            <span className="price-stack__val price-stack__val--emerald">+ {eur(a.marginEst)}</span>
+                            {a.marginEst == null ? (
+                              <span className="price-stack__val" style={{ color: 'var(--dust)' }}>—</span>
+                            ) : (
+                              <span className="price-stack__val price-stack__val--emerald">+ {eur(a.marginEst)}</span>
+                            )}
                           </div>
                         </div>
                       </div>

@@ -130,6 +130,43 @@ describe('PHEV reduction', () => {
   });
 });
 
+describe('PHEV reduction vs non-PHEV (page wiring)', () => {
+  // Guards the IsvCalculator fix: passing isPhev=true for a low-CO2 PHEV must
+  // yield exactly the 0.25 reduction relative to the same car taxed as non-PHEV.
+  it('a low-CO2 PHEV pays a quarter of the equivalent non-PHEV ISV', () => {
+    const phev = calculateISV(1395, 40, 'Gasolina', 2, true, false);
+    const plain = calculateISV(1395, 40, 'Gasolina', 2, false, false);
+    expect(phev.isvPayable).toBeCloseTo(plain.isvPayable * 0.25, 2);
+    expect(phev.isvPayable).toBeLessThan(plain.isvPayable);
+  });
+});
+
+// EV exemption is handled at the page level (IsvCalculator short-circuits
+// fuel === 'Elétrico' to a zeroed breakdown) because calculateISV has no EV
+// branch and would tax an EV on the petrol table. This reproduces that mapping.
+function pageEstimate(cc, co2, fuel, ageYears) {
+  if (fuel === 'Elétrico') {
+    return { ccComponent: 0, co2Component: 0, subtotal: 0, ageDiscountAmount: 0, isvPayable: 0 };
+  }
+  const isPhev = fuel === 'Híbrido (PHEV)';
+  return calculateISV(cc, co2, fuel, ageYears, isPhev, false);
+}
+
+describe('page-level fuel mapping', () => {
+  it('Elétrico is ISV-exempt (payable 0) even with engine-taxable specs', () => {
+    const ev = pageEstimate(2000, 0, 'Elétrico', 0);
+    expect(ev.isvPayable).toBe(0);
+    // The bare engine would have charged the petrol table here.
+    expect(calculateISV(2000, 0, 'Elétrico', 0, false, false).isvPayable).toBeGreaterThan(0);
+  });
+
+  it('Híbrido (PHEV) with co2 ≤ 50 gets the 0.25 reduction', () => {
+    const phev = pageEstimate(1395, 40, 'Híbrido (PHEV)', 2);
+    const plain = calculateISV(1395, 40, 'Híbrido (PHEV)', 2, false, false);
+    expect(phev.isvPayable).toBeCloseTo(plain.isvPayable * 0.25, 2);
+  });
+});
+
 describe('invariants', () => {
   it('never returns a negative ISV', () => {
     const cases = [
