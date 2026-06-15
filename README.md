@@ -44,7 +44,7 @@ cp .env.example .env
 
 ## Supabase setup
 
-1. Apply the SQL migrations in `supabase/migrations/` **in order** (SQL Editor or `supabase db push`).
+1. Apply **every** SQL migration in `supabase/migrations/` in numeric order, `001` → latest (SQL Editor or `supabase db push`). This includes `008_feedback_triage.sql` (feedback status/triage columns + admin RLS) and `009_companies.sql` — the multi-tenancy migration the frontend **requires** (the `companies` table, `company_id` on `profiles`/`searches`/`alerts`, and company-scoped RLS). Skipping any file leaves the app broken.
 2. Deploy the edge functions (both require the service-role key, available to functions by default):
    ```bash
    supabase functions deploy update-user-role
@@ -66,7 +66,7 @@ Invite flows: a platform admin invites a new stand (the signup trigger creates t
 
 ### Notifications
 
-Two edge functions deliver email notifications (via [Resend](https://resend.com)): `notify-alert` sends an instant email when an alert row is inserted, and `daily-summary` sends one digest per company of the last 24 hours.
+Three edge functions deliver email notifications (via [Resend](https://resend.com)): `notify-alert` sends an instant email when an alert row is inserted, `daily-summary` sends one digest per company of the last 24 hours, and `notify-feedback` emails the admin inbox when a dealer submits feedback.
 
 **Who receives them:** notifications follow the company scoping — the team shares one alert queue, so **every active member of the alert's company** is emailed, not just the member who created the search. The existing per-search switches still gate whether anything is sent at all (`alert_channels.email` for instant alerts, `daily_summary` for the digest), and a **suspended company receives nothing** (mirroring `current_company_id()` cutting off app access). `profiles.notif_channel` is a per-member *channel preference* (WhatsApp/Email/SMS), not an opt-out: since email is the only implemented channel and the default preference is WhatsApp, filtering on it would silently disable notifications for anyone who never changed the default — so today all members get email, and `notif_channel` will become the per-member router once WhatsApp/SMS delivery exists.
 
@@ -74,17 +74,19 @@ Two edge functions deliver email notifications (via [Resend](https://resend.com)
    ```bash
    supabase functions deploy notify-alert --no-verify-jwt
    supabase functions deploy daily-summary --no-verify-jwt
+   supabase functions deploy notify-feedback --no-verify-jwt
    ```
 2. Set the required secrets:
    ```bash
-   supabase secrets set WEBHOOK_SECRET=<random-string> RESEND_API_KEY=<resend-key> ALERT_FROM_EMAIL=alertas@crivo.pt ALLOWED_ORIGIN=<app-origin>
+   supabase secrets set WEBHOOK_SECRET=<random-string> RESEND_API_KEY=<resend-key> ALERT_FROM_EMAIL=alertas@crivo.pt ALLOWED_ORIGIN=<app-origin> FEEDBACK_EMAIL=<admin-inbox>
    ```
-   `ALERT_FROM_EMAIL` is optional (defaults to `alertas@crivo.pt`). Without `RESEND_API_KEY` the functions log the composed email and return `{ "sent": false }` — safe to deploy before keys exist. `ALLOWED_ORIGIN` is optional and pins the CORS `Access-Control-Allow-Origin` of **all** edge functions to the app origin (e.g. `https://app.crivo.pt`); when unset it defaults to `*` so local development keeps working.
+   `ALERT_FROM_EMAIL` is optional (defaults to `alertas@crivo.pt`). `FEEDBACK_EMAIL` is the inbox that receives new-feedback notifications from `notify-feedback`; without it that function returns `{ "sent": false }` and skips sending. Without `RESEND_API_KEY` the functions log the composed email and return `{ "sent": false }` — safe to deploy before keys exist. `ALLOWED_ORIGIN` is optional and pins the CORS `Access-Control-Allow-Origin` of **all** edge functions to the app origin (e.g. `https://app.crivo.pt`); when unset it defaults to `*` so local development keeps working.
 3. Create the Database Webhook for instant alerts (Dashboard → Database → Webhooks → Create):
    - Table: `alerts`, event: **INSERT**
    - Type: HTTP request, method **POST**, URL: `https://<PROJECT-REF>.supabase.co/functions/v1/notify-alert`
    - Add a custom HTTP header `x-webhook-secret` with the same value as the `WEBHOOK_SECRET` secret.
-4. Schedule the daily digest at 08:00 Europe/Lisbon with pg_cron + pg_net (pg_cron runs in UTC — Lisbon is UTC+0 in winter, UTC+1 in summer):
+4. Create the Database Webhook for feedback notifications — same as the alerts webhook, but table `feedback`, event **INSERT**, URL `https://<PROJECT-REF>.supabase.co/functions/v1/notify-feedback`, with the same `x-webhook-secret` header. Submitting feedback in the app then emails `FEEDBACK_EMAIL` and the entry appears in **Admin → Feedback** for triage.
+5. Schedule the daily digest at 08:00 Europe/Lisbon with pg_cron + pg_net (pg_cron runs in UTC — Lisbon is UTC+0 in winter, UTC+1 in summer):
    ```sql
    create extension if not exists pg_cron;
    create extension if not exists pg_net;
@@ -140,9 +142,9 @@ Import the repo; build command `npm run build` and publish directory `dist` come
 
 The frontend is useless without its backend. Complete the [Supabase setup](#supabase-setup) first:
 
-1. Apply migrations `001`–`008` from `supabase/migrations/` **in order**.
-2. Deploy the 4 edge functions: `update-user-role` and `delete-account` (default JWT verification), and `notify-alert` and `daily-summary` with `--no-verify-jwt` (see [Notifications](#notifications)).
-3. Set the function secrets (`WEBHOOK_SECRET`, `RESEND_API_KEY`, optional `ALERT_FROM_EMAIL` and `ALLOWED_ORIGIN`) and wire up the Database Webhook and daily-summary cron job.
+1. Apply **every** file in `supabase/migrations/` in numeric order (`001` → latest) — including `008_feedback_triage.sql` and `009_companies.sql` (multi-tenancy: the `companies` table and company-scoped RLS the frontend requires).
+2. Deploy the 5 edge functions: `update-user-role` and `delete-account` (default JWT verification), and `notify-alert`, `daily-summary` and `notify-feedback` with `--no-verify-jwt` (see [Notifications](#notifications)).
+3. Set the function secrets (`WEBHOOK_SECRET`, `RESEND_API_KEY`, optional `ALERT_FROM_EMAIL`, `ALLOWED_ORIGIN` and `FEEDBACK_EMAIL`) and wire up the alerts and feedback Database Webhooks and the daily-summary cron job.
 4. Set the build env vars above on the host.
 
 ### SPA routing
