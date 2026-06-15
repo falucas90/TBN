@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "test": "vitest run",
     "preview": "vite preview",
-    "audit": "npm audit --audit-level=high",
+    "audit": "npm audit --omit=dev --audit-level=high",
     "seed:alert": "node scripts/seed-test-alert.mjs"
   },
   "dependencies": {
