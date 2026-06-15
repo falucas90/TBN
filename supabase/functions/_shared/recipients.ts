@@ -1,6 +1,6 @@
 // Shared recipient resolution for Crivo notification functions.
 //
-// Alerts are company-scoped (migration 008): the whole team works one alert
+// Alerts are company-scoped (migration 009): the whole team works one alert
 // queue, so notifications go to every active member of the company, not just
 // the search creator. profiles.notif_channel is a channel preference
 // ('WhatsApp' | 'Email' | 'SMS'), not an opt-out — and email is the only
@@ -14,9 +14,12 @@ export interface Recipient {
   email: string;
 }
 
-// All active members of a company, resolved to their auth email.
+// All active members of a company (company active AND member not deactivated),
+// resolved to their auth email.
 // Returns [] when the company is missing or suspended (suspension silences
 // notifications, mirroring current_company_id() cutting off app access).
+// Members deactivated at the platform level (app_metadata.status === 'inactive')
+// are skipped — they have lost app access and must not receive emails.
 // Members whose email cannot be resolved are skipped, never fatal.
 export async function getCompanyRecipients(
   supabaseAdmin: SupabaseClient,
@@ -47,6 +50,9 @@ export async function getCompanyRecipients(
       );
       continue;
     }
+    // Skip platform-deactivated members: deactivation cuts off app access,
+    // so they must not keep receiving notification emails.
+    if (userData?.user?.app_metadata?.status === 'inactive') continue;
     const email = userData?.user?.email;
     if (email) recipients.push({ userId: member.id, email });
   }

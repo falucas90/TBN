@@ -1,5 +1,6 @@
 import { sendEmail, escapeHtml } from '../_shared/email.ts';
 import { corsHeaders } from '../_shared/cors.ts';
+import { timingSafeEqualStr } from '../_shared/auth.ts';
 
 // Feedback notifier.
 // Designed to be called by a Supabase Database Webhook on INSERT into
@@ -27,7 +28,7 @@ Deno.serve(async (req) => {
   try {
     // Shared-secret guard — the Database Webhook must send this header
     const secret = Deno.env.get('WEBHOOK_SECRET');
-    if (!secret || req.headers.get('x-webhook-secret') !== secret) {
+    if (!secret || !timingSafeEqualStr(req.headers.get('x-webhook-secret') ?? '', secret)) {
       return jsonResponse({ error: 'Não autorizado' }, 401);
     }
 
@@ -61,6 +62,7 @@ Deno.serve(async (req) => {
     const result = await sendEmail(adminEmail, subject, html);
     return jsonResponse(result);
   } catch (err) {
-    return jsonResponse({ error: err.message }, 500);
+    console.error('[notify-feedback] erro não tratado:', err);
+    return jsonResponse({ error: 'Erro interno' }, 500);
   }
 });
