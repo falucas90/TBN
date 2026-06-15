@@ -175,8 +175,11 @@ export default function AdminStands() {
                 return (
                   <tr key={u.id}>
                     <td>
-                      <div style={{ fontWeight: 500 }}>{company || displayName}</div>
-                      <div style={{ fontSize: 11.5, color: 'var(--dust)' }}>{company ? displayName : u.email}</div>
+                      {/* Stand name comes from user_metadata.company. When absent,
+                          show '—' rather than the contact's name, which would
+                          misleadingly read as the stand name. */}
+                      <div style={{ fontWeight: 500, color: company ? undefined : 'var(--dust)' }}>{company || '—'}</div>
+                      <div style={{ fontSize: 11.5, color: 'var(--dust)' }}>{displayName}{displayName !== u.email && u.email ? ` · ${u.email}` : ''}</div>
                     </td>
                     <td><Pill mono>{u.user_metadata?.plan || 'Pro'}</Pill></td>
                     <td>

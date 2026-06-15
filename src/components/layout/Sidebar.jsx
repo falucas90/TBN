@@ -5,11 +5,13 @@ import { SieveMark } from '../ui/Logo';
 import { Icon } from '../ui/Primitives';
 import { getSearches } from '../../services/searchesService';
 import { getAlerts } from '../../services/alertsService';
+import { getCompany } from '../../services/companiesService';
 
 export default function Sidebar() {
   const { logout, currentUser } = useAuth();
   const navigate = useNavigate();
   const [counts, setCounts] = useState({ searches: null, alerts: null });
+  const [companyName, setCompanyName] = useState(null);
 
   useEffect(() => {
     let mounted = true;
@@ -19,6 +21,16 @@ export default function Sidebar() {
     ]).then(([searches, alerts]) => {
       if (mounted) setCounts({ searches: searches.length, alerts: alerts.length });
     });
+    return () => { mounted = false; };
+  }, []);
+
+  // Real stand name comes from companies.name (RLS-scoped), not the dropped
+  // user_metadata.company. Platform admins have no company → falls back to 'Crivo'.
+  useEffect(() => {
+    let mounted = true;
+    getCompany()
+      .then(c => { if (mounted) setCompanyName(c?.name ?? null); })
+      .catch(() => {});
     return () => { mounted = false; };
   }, []);
 
@@ -61,7 +73,7 @@ export default function Sidebar() {
   );
 
   const fullName = currentUser?.user_metadata?.full_name || currentUser?.email || 'Utilizador';
-  const company = currentUser?.user_metadata?.company || 'Crivo';
+  const company = companyName || 'Crivo';
   const initials = fullName.split(/\s+/).map(p => p[0]).filter(Boolean).slice(0, 2).join('').toUpperCase();
 
   return (

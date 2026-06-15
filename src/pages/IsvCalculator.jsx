@@ -32,10 +32,15 @@ export default function IsvCalculator() {
     return Math.max(0, new Date().getFullYear() - Number(m[1]));
   }, [regDate]);
 
-  const result = useMemo(
-    () => calculateISV(Number(cc) || 0, Number(co2) || 0, fuel, ageYears, false, false),
-    [cc, co2, fuel, ageYears]
-  );
+  const result = useMemo(() => {
+    // EVs are ISV-exempt in Portugal. calculateISV would otherwise tax them on
+    // the petrol table, so short-circuit to a zeroed breakdown instead.
+    if (fuel === 'Elétrico') {
+      return { ccComponent: 0, co2Component: 0, subtotal: 0, ageDiscountAmount: 0, isvPayable: 0 };
+    }
+    const isPhev = fuel === 'Híbrido (PHEV)';
+    return calculateISV(Number(cc) || 0, Number(co2) || 0, fuel, ageYears, isPhev, false);
+  }, [cc, co2, fuel, ageYears]);
 
   const landed = useMemo(() => {
     const base = (Number(price) || 0) + result.isvPayable + (Number(transport) || 0) + (Number(iuc) || 0);
