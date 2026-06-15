@@ -55,7 +55,7 @@ cp .env.example .env
 
 ### Access model
 
-Two layers of roles (migration `008_companies.sql`):
+Two layers of roles (migration `009_companies.sql`):
 
 - **Platform admin** (`app_metadata.role = 'admin'`) — Crivo operator. Manages accounts, feedback and audit logs via the admin panel; has **no company and no access to dealer business data** (searches/alerts RLS is company-scoped and admins belong to no company).
 - **Company (stand)** — every dealer belongs to exactly one company (`profiles.company_id`). Searches and alerts are company-scoped: the team shares one alert queue (`user_status` is shared; `status_changed_by` records who saved/dismissed). Business defaults (`default_transport_cost`, `min_margin`) live on the company.
