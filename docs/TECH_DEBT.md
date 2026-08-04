@@ -1,5 +1,21 @@
 # Tech Debt
 
+## From fix-batch-1 code review (PR #36), non-blocking
+
+- `supabase/functions/update-user-role/index.ts`'s `update-role` action sets
+  `app_metadata.role = 'admin'` *before* clearing the target's
+  `profiles.company_id`/`company_role`. If the tenancy clear then fails, the
+  caller correctly gets a 500 (no false success), but the user is left
+  mid-state — already flagged admin while still resolving to their old
+  company via `current_company_id()` until the call is retried. Not a
+  regression (no worse than pre-promotion access) and the failure window is
+  narrow, but reordering (clear tenancy first, then flip the role) would
+  close it entirely. Small change, low urgency.
+- `src/App.test.jsx`'s `DEALER_ROUTES` covers 6 of the 7 dealer URL patterns
+  the `DealerRoute` guard protects — `/searches/:id/edit` isn't exercised by
+  a test case, even though the guard correctly wraps it in `App.jsx`. Add
+  the missing test case.
+
 ## From the 2026-08-04 product/design state audit (PR #36)
 
 Not urgent — no founder decision needed, revisit opportunistically.
