@@ -62,7 +62,7 @@ export default function CreateSearch() {
   // Margin & notifications
   const [minMargin, setMinMargin] = useState(2500);
   const [alertThreshold, setAlertThreshold] = useState(3000);
-  const [alertChannels, setAlertChannels] = useState({ whatsapp: true, email: false });
+  const [alertChannels, setAlertChannels] = useState({ whatsapp: false, email: true });
   const [dailySummary, setDailySummary] = useState(true);
   const [status, setStatus] = useState('active');
   const [confirmDelete, setConfirmDelete] = useState(false);

@@ -87,6 +87,13 @@
   --color-success-text: var(--emerald);
   --color-success-bg: var(--emerald-12);
   --color-danger-text: var(--coral);
+  --color-danger-bg: var(--coral-12);
+  --color-warn-text: var(--amber);
+  --color-warn-bg: var(--amber-12);
+  /* Info reuses the success/emerald signal color, matching ToastContext's
+     existing 'info' tone convention rather than introducing a new signal. */
+  --color-info-text: var(--emerald);
+  --color-info-bg: var(--emerald-12);
   --color-bg-sidebar: var(--slate);
   --color-bg-page: var(--obsidian);
   --color-text-primary: var(--bone);

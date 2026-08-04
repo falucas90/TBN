@@ -237,6 +237,18 @@ ambiguities worth a quick confirm, not product-direction questions:
    follow-up migration. This spec does not presuppose the answer — resolve
    and record the finding (migration added, or explicitly not needed and
    why) before closing this item.
+   **Resolved (backend-engineer):** migration added —
+   `supabase/migrations/013_search_alert_channels_default.sql` flips the
+   `searches.alert_channels` column default to
+   `'{"whatsapp": false, "email": true}'`. No current insert path relies on
+   the old default (the only insert site, `createSearch` in
+   `src/services/searchesService.js`, always sends `alert_channels`
+   explicitly — `CreateSearch.jsx`'s `alertChannels` state is never
+   `undefined`, and RLS restricts `searches` inserts to the row's own
+   owner, so there is no service-role/edge-function insert path either).
+   The migration is added anyway, at near-zero cost/risk, so the schema
+   default doesn't silently reintroduce the dropped-alerts bug for a
+   future insert path that omits the field.
 3. **Item 6 — redirect implementation site.** Whether the redirect lives in
    `App.jsx` (route-level `<Navigate>`, deleting the `Signup` route/import
    entirely) or inside `Signup.jsx` (component redirects on mount, route
