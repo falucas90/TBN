@@ -41,6 +41,7 @@ let updateUserByIdMock = vi.fn(async (userId, { app_metadata }) => ({
   error: null,
 }));
 let profilesUpdateEqMock = vi.fn(async () => ({ error: null }));
+let profilesUpdatePayloadMock = vi.fn();
 let auditInsertMock = vi.fn(async () => ({ error: null }));
 
 vi.mock('https://esm.sh/@supabase/supabase-js@2', () => ({
@@ -59,7 +60,12 @@ vi.mock('https://esm.sh/@supabase/supabase-js@2', () => ({
       },
       from: (table) => {
         if (table === 'profiles') {
-          return { update: () => ({ eq: (...args) => profilesUpdateEqMock(...args) }) };
+          return {
+            update: (payload) => {
+              profilesUpdatePayloadMock(payload);
+              return { eq: (...args) => profilesUpdateEqMock(...args) };
+            },
+          };
         }
         if (table === 'audit_logs') {
           return { insert: (...args) => auditInsertMock(...args) };
@@ -79,6 +85,7 @@ afterEach(() => {
   getUserByIdMock.mockClear();
   updateUserByIdMock.mockClear();
   profilesUpdateEqMock.mockClear();
+  profilesUpdatePayloadMock.mockClear();
   auditInsertMock.mockClear();
   mockCaller = { id: 'admin-caller-id', app_metadata: { role: 'admin' } };
 });
@@ -101,6 +108,13 @@ describe('update-role: promotion clears tenancy (AC1.1-AC1.3, AC1.6)', () => {
     expect(body.user.app_metadata.role).toBe('admin');
 
     // AC1.1/AC1.2: service-role update on profiles clearing both columns.
+    // (QA note: the original version of this test only asserted `.eq('id', ...)`
+    // was called and discarded the `.update(...)` payload via a mock that
+    // ignored its argument — it never actually verified company_id/
+    // company_role were set to null. Asserting the payload here closes that
+    // gap; see docs/qa/fix-batch-1.md.)
+    expect(profilesUpdatePayloadMock).toHaveBeenCalledTimes(1);
+    expect(profilesUpdatePayloadMock).toHaveBeenCalledWith({ company_id: null, company_role: null });
     expect(profilesUpdateEqMock).toHaveBeenCalledTimes(1);
     expect(profilesUpdateEqMock).toHaveBeenCalledWith('id', 'dealer-1');
 
