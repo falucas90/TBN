@@ -28,7 +28,9 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      # Fails the job on high/critical advisories in shipped (production) dependencies.
-      # Dev-only tooling advisories (e.g. the esbuild dev-server issue via vite) are
-      # excluded since they don't affect the production build; track those separately.
-      - run: npm audit --omit=dev --audit-level=high
+      # Fails the job on high/critical advisories in shipped (production) dependencies,
+      # except a short allowlist of verified-not-applicable advisories (see the reasons
+      # and revisit conditions in scripts/audit-prod-deps.mjs). Dev-only tooling advisories
+      # (e.g. the esbuild dev-server issue via vite) are excluded via --omit=dev since they
+      # don't affect the production build.
+      - run: node scripts/audit-prod-deps.mjs
