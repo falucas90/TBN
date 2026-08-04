@@ -41,9 +41,9 @@ describe('mapSearch', () => {
     expect(s.sources).toEqual([]);
   });
 
-  it('defaults alertChannels to whatsapp on / email off when missing', () => {
+  it('defaults alertChannels to whatsapp off / email on when missing', () => {
     const s = mapSearch({ id: 1 });
-    expect(s.alertChannels).toEqual({ whatsapp: true, email: false });
+    expect(s.alertChannels).toEqual({ whatsapp: false, email: true });
   });
 
   it('keeps an explicitly empty alertChannels object', () => {
