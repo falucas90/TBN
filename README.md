@@ -176,3 +176,5 @@ supabase/
 ## CI
 
 GitHub Actions (`.github/workflows/ci.yml`) runs lint, tests, and build on every push to `main` and on every pull request.
+
+Both CI jobs (`ci` and `security`) always run and always report a status, but skip their expensive steps (`npm ci`/lint/test/build/audit) when every changed file is documentation (anything under `docs/`, or any `*.md` file anywhere). This is computed at run time via `git diff` (see `scripts/check-docs-only.sh`), not a trigger-level path filter, so a required check never gets stuck pending. Any ambiguity (new branch, force-push, etc.) fails safe to running the full pipeline.

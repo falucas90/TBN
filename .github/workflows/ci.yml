@@ -13,28 +13,69 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     steps:
+      # fetch-depth: 0 (full history) is required so the docs-only check below
+      # can always find both sides of the diff (PR base/head, or push
+      # before/after) in the local object database. Do not shrink this without
+      # re-checking that check-docs-only.sh can still resolve both SHAs.
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      # Deliberately NOT a top-level `paths:`/`paths-ignore:` trigger filter:
+      # that would stop the workflow from running at all on docs-only changes,
+      # which leaves a required "ci" status check stuck pending forever if
+      # branch protection ever requires it. Instead the job always runs and
+      # always reports a status; only the expensive steps below are
+      # conditionally skipped, gated on this script's fail-safe result (any
+      # ambiguity => not docs-only => full pipeline runs).
+      - name: Check whether this change is docs-only
+        id: docs_check
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PUSH_BEFORE_SHA: ${{ github.event.before }}
+          PUSH_AFTER_SHA: ${{ github.event.after }}
+        run: bash scripts/check-docs-only.sh
       - uses: actions/setup-node@v6
+        if: steps.docs_check.outputs.docs_only != 'true'
         with:
           node-version: 20
           cache: npm
       - run: npm ci
+        if: steps.docs_check.outputs.docs_only != 'true'
       - run: npm run lint
+        if: steps.docs_check.outputs.docs_only != 'true'
       - run: npm test
+        if: steps.docs_check.outputs.docs_only != 'true'
       - run: npm run build
+        if: steps.docs_check.outputs.docs_only != 'true'
 
   security:
     runs-on: ubuntu-latest
     steps:
+      # See the `ci` job above for why fetch-depth is full history and why
+      # this isn't a trigger-level `paths:` filter.
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Check whether this change is docs-only
+        id: docs_check
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PUSH_BEFORE_SHA: ${{ github.event.before }}
+          PUSH_AFTER_SHA: ${{ github.event.after }}
+        run: bash scripts/check-docs-only.sh
       - uses: actions/setup-node@v6
+        if: steps.docs_check.outputs.docs_only != 'true'
         with:
           node-version: 20
           cache: npm
       - run: npm ci
+        if: steps.docs_check.outputs.docs_only != 'true'
       # Fails the job on high/critical advisories in shipped (production) dependencies,
       # except a short allowlist of verified-not-applicable advisories (see the reasons
       # and revisit conditions in scripts/audit-prod-deps.mjs). Dev-only tooling advisories
       # (e.g. the esbuild dev-server issue via vite) are excluded via --omit=dev since they
       # don't affect the production build.
       - run: node scripts/audit-prod-deps.mjs
+        if: steps.docs_check.outputs.docs_only != 'true'
