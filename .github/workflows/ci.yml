@@ -32,6 +32,14 @@ jobs:
         env:
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          # A `synchronize` action (new push to an already-open PR) carries
+          # its own before/after -- the exact range that push introduced.
+          # check-docs-only.sh prefers this over the cumulative base/head
+          # diff so one earlier non-doc commit in the PR doesn't force every
+          # later docs-only push through the full pipeline.
+          PR_ACTION: ${{ github.event.action }}
+          PR_SYNC_BEFORE: ${{ github.event.before }}
+          PR_SYNC_AFTER: ${{ github.event.after }}
           PUSH_BEFORE_SHA: ${{ github.event.before }}
           PUSH_AFTER_SHA: ${{ github.event.after }}
         run: bash scripts/check-docs-only.sh
@@ -62,6 +70,14 @@ jobs:
         env:
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          # A `synchronize` action (new push to an already-open PR) carries
+          # its own before/after -- the exact range that push introduced.
+          # check-docs-only.sh prefers this over the cumulative base/head
+          # diff so one earlier non-doc commit in the PR doesn't force every
+          # later docs-only push through the full pipeline.
+          PR_ACTION: ${{ github.event.action }}
+          PR_SYNC_BEFORE: ${{ github.event.before }}
+          PR_SYNC_AFTER: ${{ github.event.after }}
           PUSH_BEFORE_SHA: ${{ github.event.before }}
           PUSH_AFTER_SHA: ${{ github.event.after }}
         run: bash scripts/check-docs-only.sh

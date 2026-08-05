@@ -15,9 +15,22 @@
 # docs_only=false output.
 #
 # Requires (workflow supplies these via `env:`):
-#   PR_BASE_SHA, PR_HEAD_SHA         - for pull_request events
-#   PUSH_BEFORE_SHA, PUSH_AFTER_SHA  - for push events
+#   PR_BASE_SHA, PR_HEAD_SHA            - for pull_request events (always)
+#   PR_ACTION, PR_SYNC_BEFORE,
+#     PR_SYNC_AFTER                     - for pull_request events (synchronize only)
+#   PUSH_BEFORE_SHA, PUSH_AFTER_SHA     - for push events
 # Relies on the runner-provided GITHUB_EVENT_NAME and GITHUB_OUTPUT.
+#
+# pull_request diff range: a `synchronize` action (a new push to an already-
+# open PR) carries its own before/after, i.e. the exact commit range that
+# push introduced -- same shape as github.event.before/after on a push
+# event. We prefer that incremental range so a docs-only push doesn't get
+# flagged not-docs-only just because an earlier, unrelated commit elsewhere
+# in the same PR touched code. We fall back to the cumulative base...head
+# diff for opened/reopened (no meaningful before/after there) and as a
+# safety net if a synchronize event's before/after are ever missing or
+# all-zero -- base/head is always valid, so that fallback never needs its
+# own new failure mode.
 set -uo pipefail
 # Deliberately not `-e`: every failure path below is handled explicitly and
 # must still fall through to writing a docs_only output.
@@ -38,9 +51,24 @@ pull_request)
     emit false "Not docs-only: missing PR base/head SHA (base='${PR_BASE_SHA:-}' head='${PR_HEAD_SHA:-}'). Running full pipeline."
     exit 0
   fi
+
+  # Default: cumulative base...head diff (correct for opened/reopened, and
+  # the fallback for synchronize whenever its own before/after aren't usable).
+  diff_from="$PR_BASE_SHA"
+  diff_to="$PR_HEAD_SHA"
+  diff_desc="cumulative PR base $PR_BASE_SHA -> head $PR_HEAD_SHA"
+
+  if [ "${PR_ACTION:-}" = "synchronize" ] \
+    && [ -n "${PR_SYNC_BEFORE:-}" ] && [ -n "${PR_SYNC_AFTER:-}" ] \
+    && [ "$PR_SYNC_BEFORE" != "$ZERO_SHA" ]; then
+    diff_from="$PR_SYNC_BEFORE"
+    diff_to="$PR_SYNC_AFTER"
+    diff_desc="incremental PR synchronize before $PR_SYNC_BEFORE -> after $PR_SYNC_AFTER"
+  fi
+
   err_log="$(mktemp)"
-  if ! changed_files="$(git diff --name-only "$PR_BASE_SHA" "$PR_HEAD_SHA" 2>"$err_log")"; then
-    emit false "Not docs-only: 'git diff $PR_BASE_SHA $PR_HEAD_SHA' could not be computed cleanly. Running full pipeline. $(cat "$err_log")"
+  if ! changed_files="$(git diff --name-only "$diff_from" "$diff_to" 2>"$err_log")"; then
+    emit false "Not docs-only: 'git diff $diff_from $diff_to' ($diff_desc) could not be computed cleanly. Running full pipeline. $(cat "$err_log")"
     exit 0
   fi
   ;;
