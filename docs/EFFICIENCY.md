@@ -9,15 +9,19 @@ durable archive, which is itself an argument for keeping this file current.)
 
 Findings, prioritized by frequency × cost impact:
 
-### 1. Dependency/CI chores ran as full agent cycles — automate them (SAFE)
+### 1. Dependency/CI chores ran as full agent cycles despite Dependabot (SAFE)
 
 **Pattern:** PRs #23, #24, #25 (audit scoping, action bumps, vite/vitest
-upgrades) were each a full agent work cycle for mechanical dependency work.
-**Current approach:** CTO delegates to devops-engineer, then QA + review.
-**Optimization:** Enable Dependabot (or Renovate) for npm and GitHub Actions
-with grouped weekly PRs; agents only touch the rare PR whose CI fails.
-**Estimated impact:** ~3 full cycles avoided per quarter at near-zero token
-cost; agent involvement drops to review-on-failure only.
+upgrades) were each a full agent work cycle for mechanical dependency work —
+yet `.github/dependabot.yml` already covers npm and GitHub Actions weekly.
+**Current approach:** Agent cycles do upgrade work the bot can originate.
+**Optimization:** Adopt a standing rule: dependency bumps arrive only via
+Dependabot PRs and merge on green CI without spec/QA/review agents; an agent
+is dispatched only when a Dependabot PR's CI fails (as in the vite 5→8 case,
+which legitimately needed hands). Consider adding `groups:` to the npm config
+to batch minor/patch bumps into one weekly PR.
+**Estimated impact:** ~2–3 chore cycles per quarter reduced to zero-token
+merges; agent spend reserved for actual breakage.
 
 ### 2. Every builder agent inherits the top-tier session model (TRADEOFF — founders)
 
