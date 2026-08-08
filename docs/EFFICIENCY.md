@@ -1,5 +1,86 @@
 # Efficiency Audits
 
+## 2026-08-08 — Scheduled cross-cycle optimization review
+
+Scope: repeated task patterns across all archived work cycles, reconstructed
+from git history, PR record, and this file. (Note: raw session transcripts are
+not retained in the remote execution container — the repo record is the
+durable archive, which is itself an argument for keeping this file current.)
+
+Findings, prioritized by frequency × cost impact:
+
+### 1. Dependency/CI chores ran as full agent cycles — automate them (SAFE)
+
+**Pattern:** PRs #23, #24, #25 (audit scoping, action bumps, vite/vitest
+upgrades) were each a full agent work cycle for mechanical dependency work.
+**Current approach:** CTO delegates to devops-engineer, then QA + review.
+**Optimization:** Enable Dependabot (or Renovate) for npm and GitHub Actions
+with grouped weekly PRs; agents only touch the rare PR whose CI fails.
+**Estimated impact:** ~3 full cycles avoided per quarter at near-zero token
+cost; agent involvement drops to review-on-failure only.
+
+### 2. Every builder agent inherits the top-tier session model (TRADEOFF — founders)
+
+**Pattern:** All agents except coo (haiku) have `model: inherit`, so every
+cycle runs cpo, design-lead, builders, qa, and reviewer on the session's
+top-tier model.
+**Current approach:** Uniform model across roles regardless of task shape.
+**Optimization:** Pin `model: sonnet` for backend-engineer, frontend-engineer,
+devops-engineer, and qa-engineer (well-specified build/test work following
+acceptance criteria); keep the strongest model for CTO judgment, cpo specs,
+and code-reviewer as the final gate.
+**Estimated impact:** Builder steps dominate cycle token spend; sonnet pricing
+is roughly 1/5 of top-tier, so cycle cost could drop 40–60%. Quality risk on
+subtle RLS/security work is the tradeoff — hence founders' call, per operating
+rule 1. A safe middle path: pin sonnet for frontend + devops only.
+
+### 3. Migration numbering collisions cost a whole fix cycle — add a guard (SAFE)
+
+**Pattern:** PR #22 existed solely to renumber a duplicate `008_` migration.
+With 13 migrations and parallel branches, recurrence is likely.
+**Current approach:** Collisions are discovered after merge, then fixed by an
+agent cycle.
+**Optimization:** A ~10-line CI step that fails when two files in
+`supabase/migrations/` share a numeric prefix.
+**Estimated impact:** Prevents an entire reactive fix cycle per collision;
+check itself costs seconds of CI time and zero tokens.
+
+### 4. CI runs `npm ci` twice per push (SAFE)
+
+**Pattern:** The `ci` and `security` jobs each do checkout + setup-node +
+`npm ci` on every push/PR sync.
+**Current approach:** Two independent jobs, always both run.
+**Optimization:** Fold the security audit into the main job as a final step
+(it needs no isolation), or gate the `security` job on changes to
+`package-lock.json`/`scripts/audit-prod-deps.mjs` plus a weekly schedule so
+new advisories still surface.
+**Estimated impact:** Halves per-push install/setup time (~1–2 min of runner
+time per push) across every future cycle's incremental commits.
+
+### 5. Resolves prior WATCH item: per-commit CI cost is already mitigated
+
+The 2026-08-04 audit flagged incremental commits as a possible CI-cost risk.
+Verified: `ci.yml` uses a concurrency group with `cancel-in-progress` for
+non-main refs, so rapid successive pushes to a PR branch cancel superseded
+runs. Remaining cost is bounded; no process change needed. WATCH item closed.
+
+### 6. This scheduled review overlaps the coo's audit role — consolidate (SAFE)
+
+**Pattern:** A scheduled session now reviews efficiency cross-cycle, while
+the coo agent audits per-cycle, with no shared checklist.
+**Current approach:** Two disconnected efficiency loops.
+**Optimization:** Keep the coo as the per-cycle auditor writing to this file;
+scope the scheduled run to only read this file plus git log since the last
+entry and escalate unapplied SAFE items. Both loops stay cheap and stop
+re-deriving each other's findings.
+**Estimated impact:** Avoids duplicate archaeology each scheduled run
+(this run's discovery pass would shrink to a diff read).
+
+**Recommended founder decision:** item 2 (builder model pinning). Items 1, 3,
+4 are SAFE to apply next cycle via devops-engineer.
+
+---
+
 ## 2026-08-04 — Fix Batch 1 Cycle (PR #36)
 
 **Cycle shape:** cpo + design-lead audit in parallel → CTO spot-check & triage solo → cpo short spec → backend-engineer + frontend-engineer parallel build → qa-engineer reverify → code-reviewer approve. Status: all merged, tests + lint passing.
