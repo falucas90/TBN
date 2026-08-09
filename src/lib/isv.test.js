@@ -134,6 +134,12 @@ describe('PHEV reduction', () => {
     const plain = calculateISV(1000, null, 'Petrol', 0, false, false);
     expect(phev.isvPayable).toBe(plain.isvPayable);
   });
+
+  it('does not apply when co2 is negative — an impossible reading must not silently qualify a PHEV for the reduction', () => {
+    const phev = calculateISV(1000, -5, 'Petrol', 0, true, false);
+    const plain = calculateISV(1000, -5, 'Petrol', 0, false, false);
+    expect(phev.isvPayable).toBe(plain.isvPayable);
+  });
 });
 
 describe('PHEV reduction vs non-PHEV (page wiring)', () => {

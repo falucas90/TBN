@@ -64,10 +64,10 @@ export function calculateISV(cc, co2, fuelType, ageYears, isPhev, isNonEu) {
 
   let totalISV = subtotal * (1 - ageDiscountPercent);
 
-  // Guard against null/undefined co2 ("null <= 50" is true in JS) — a PHEV
-  // with unknown emissions must not silently get the reduction meant for
-  // verified low-CO2 vehicles.
-  if (isPhev && typeof co2 === 'number' && co2 <= 50) totalISV *= 0.25;
+  // Guard against null/undefined co2 ("null <= 50" is true in JS) and against
+  // impossible negative readings — a PHEV with unknown or invalid emissions
+  // must not silently get the reduction meant for verified low-CO2 vehicles.
+  if (isPhev && typeof co2 === 'number' && co2 >= 0 && co2 <= 50) totalISV *= 0.25;
 
   return {
     ccComponent: ccTax,

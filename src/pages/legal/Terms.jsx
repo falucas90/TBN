@@ -37,8 +37,8 @@ export default function Terms() {
       <h2 style={h2}>5. Rescisão</h2>
       <p>
         O utilizador pode eliminar a sua conta a qualquer momento nas Definições, o que remove
-        permanentemente os seus dados. Podemos cessar o serviço com um pré-aviso razoável aos utilizadores
-        com subscrição ativa.
+        permanentemente os seus dados. Podemos cessar o serviço com um pré-aviso razoável aos
+        utilizadores.
       </p>
 
       <h2 style={h2}>6. Contacto</h2>
