@@ -244,6 +244,18 @@ dealer sees will be wrong.
        (or `npm run seed:alert` with those vars exported). Expected: it prints
        the inserted alert id.
 
+       > **Curated real listings (interim bridge, see `docs/DECISIONS.md`
+       > "2026-08-04 — Interim bridge").** The same script also accepts
+       > optional `ALERT_*` env vars (`ALERT_CAR_TITLE`, `ALERT_PLATFORM`,
+       > `ALERT_LISTING_URL`, `ALERT_PRICE_ORIGINAL`, `ALERT_CC`, `ALERT_CO2`,
+       > `ALERT_FUEL_TYPE`, `ALERT_AGE_YEARS`, `ALERT_TRANSPORT_EST`,
+       > `ALERT_MARKET_PRICE`, `ALERT_FLAGS`) to hand-insert a real listing
+       > instead of the fixture — any field left unset keeps the fixture's
+       > value. See the header comment in `scripts/seed-test-alert.mjs` for
+       > full usage and units; the tool validates the section E conventions
+       > (canonical `fuel_type`, PHEV rows must carry a real `co2`) and
+       > refuses to insert if they don't hold.
+
 8. [ ] **Realtime toast + unread badge.** Action: keep the app open as that user
        while running step 7. Expected: a toast `Novo alerta: …` appears and the
        **Alertas** unread badge increments by one (`AlertsContext` listens for
@@ -352,6 +364,12 @@ column for it today. All beta alerts are treated as EU imports.
 > `transport_est` (whole euros), `age_years` (integer years), the exact
 > `fuel_type` string, and `flags` (with `"PHEV"` where applicable). These are
 > the inputs the browser turns into the ISV and margin the dealer trusts.
+
+**Until the ingestion engine ships:** these same fields are populated by hand
+via `scripts/seed-test-alert.mjs`'s `ALERT_*` env vars (step D.7 above), per
+the interim curated-alert bridge in `docs/DECISIONS.md`. The script enforces
+the canonical `fuel_type` set and the PHEV/`co2` pairing above; everything
+else (the right car, the right price) is still on the person typing it in.
 
 ---
 

@@ -1,78 +1,59 @@
 # Tech Debt
 
-## From CI docs-only fast path review (PR #38), non-blocking
+Logged from the 2026-08-04 state-of-the-product review (CTO + backend/frontend/QA/devops, read-only). Dated and sourced so it doesn't drift into folklore — update status inline as items get fixed instead of deleting the line.
 
-- `scripts/check-docs-only.sh`'s final `emit true` line has no explicit
-  `exit 0` after it (every earlier exit path does). Harmless today — it's
-  the last statement and `emit`'s last command exits 0 — but add the
-  explicit exit for consistency with the rest of the script's style.
-- The `docs_check` step (checkout + env wiring + script invocation) is
-  duplicated verbatim between the `ci` and `security` jobs in
-  `.github/workflows/ci.yml` rather than factored into a shared reusable
-  workflow/composite action. Acceptable tradeoff to keep the two jobs
-  independent and parallel; revisit only if a third job needs the same
-  check.
+**Merge note (2026-08-09):** this branch and `main` diverged from the same base (PR #35, the CTO/subagent framework landing) and ran two independent state-of-product review cycles in parallel without either side aware of the other — this session's, and a second one that shipped as PR #36 ("Product/design state docs + fix-batch-1") and PR #38 (CI efficiency). Both cycles converged on some of the same findings (most notably the `alertChannels` default bug — both fixed it with the identical value; PR #36's version is more complete, since it also fixed the DB column default via a proper migration and the `mappers.js` read-fallback, which this session's cycle had deliberately left as residual risk — see below, now resolved) and each found real things the other missed (this session found the PHEV/co2Tax null-coercion bugs and the billing/WhatsApp fabrications; PR #36 found an admin-promotion tenancy leak and an EV ISV exemption gap). Merged below with no attempt to re-litigate either side's judgment calls. Worth a founder note: running two CTO sessions concurrently and unannounced cost real duplicated effort (two "state of product" audits, two fix batches touching the same bug) — see the standup for a coordination recommendation.
 
-## From fix-batch-1 code review (PR #36), non-blocking
+## Product / core loop
 
-- `supabase/functions/update-user-role/index.ts`'s `update-role` action sets
-  `app_metadata.role = 'admin'` *before* clearing the target's
-  `profiles.company_id`/`company_role`. If the tenancy clear then fails, the
-  caller correctly gets a 500 (no false success), but the user is left
-  mid-state — already flagged admin while still resolving to their old
-  company via `current_company_id()` until the call is retried. Not a
-  regression (no worse than pre-promotion access) and the failure window is
-  narrow, but reordering (clear tenancy first, then flip the role) would
-  close it entirely. Small change, low urgency.
-- `src/App.test.jsx`'s `DEALER_ROUTES` covers 6 of the 7 dealer URL patterns
-  the `DealerRoute` guard protects — `/searches/:id/edit` isn't exercised by
-  a test case, even though the guard correctly wraps it in `App.jsx`. Add
-  the missing test case.
+- **[CRITICAL] No ingestion engine exists.** Every `alerts` row to date has come from a manual run of `scripts/seed-test-alert.mjs`. `docs/DATA_CONTRACT.md` describes an "ingestion/scraper team" with zero code footprint and no sign-off in the doc's own sign-off table. This is a roadmap decision, not a bug — founder decided build-in-house (see `docs/DECISIONS.md`, "Ingestion strategy"); spec at `docs/specs/ingestion-engine.md`. (2026-08-04)
+- **[HIGH] New searches default to zero working alert channels. — FIXED** (independently, both sides): this session fixed `CreateSearch.jsx` 2026-08-09 (commit `9cc8952`), verified by QA; PR #36 (2026-08-05) additionally fixed `src/lib/mappers.js`'s read-fallback and shipped `supabase/migrations/013_search_alert_channels_default.sql` to fix the DB column default too — resolving what this session had logged as residual/dormant risk. `alertChannels` now defaults to `{ whatsapp: false, email: true }` everywhere: client default, read-fallback, and DB column default all agree. **Still not done:** existing search rows saved under the old default were not backfilled by either fix.
+- **[HIGH] PHEV ISV miscalculation when `co2` is null. — FIXED 2026-08-09 (commit `9cc8952`), verified by QA.** `src/lib/isv.js:67` — `isPhev && co2 <= 50`; `null <= 50` evaluates `true` in JS, so a PHEV alert with missing CO2 silently gets the full 75% ISV reduction regardless of real emissions. Reproduced: ~€4,050 margin overstatement on a representative PHEV. `co2` is nullable in the `alerts` schema and unvalidated by the (draft, unsigned) data contract. Guard is now `isPhev && typeof co2 === 'number' && co2 >= 0 && co2 <= 50` (negative-value gap found by QA, closed same-day in commit `b33bb63`), with regression tests.
+- **[HIGH] `co2Tax` has the same null-coercion bug as the PHEV guard above, for every vehicle, not just PHEVs.** `src/lib/isv.js:42-47,55` — `applyBracket(co2, ...)`'s `value <= b.max` check coerces `null` to `0`, so any listing with missing `co2` silently lands in the cheapest bracket (co2Tax of 5 for diesel / 10 for petrol) instead of erroring — understating ISV, overstating the margin shown to the dealer, exactly the trust failure this cycle was fixing. Found by code-reviewer 2026-08-09 during final review; confirmed by CTO by reading the code directly. **Deliberately not patched as a quick fast-follow**, unlike the PHEV negative-co2 case: `cc`'s null-handling is a documented, intentional convention (`docs/DATA_CONTRACT.md`: "Null ⇒ treated as 0 ⇒ floor of €100 applies"), but silently picking the *cheapest* co2 bracket for missing data is the wrong direction — it should probably surface as "ISV não calculável" in the UI rather than a specific wrong number, which means changing `calculateISV`'s return contract and both call sites (`AlertHistory.jsx`, `IsvCalculator.jsx`), not just adding a guard. Needs a real (small) design decision before a builder starts. (2026-08-09)
+- **[MEDIUM] `RATE_TABLES` in `src/lib/isv.js` hardcodes tax year 2026 with no staleness guard.** Will silently keep serving 2026 rates past January 2027 unless someone remembers to add a new table entry. (2026-08-04)
+- **[HIGH] No server-side data integrity on `public.alerts`.** No CHECK constraints on `fuel_type`, `cc`, `co2`, prices, or the `flags`/PHEV marker across any of the 12 (now 13) migrations — every invariant lives only as prose in the draft data contract. Dormant while only the seed script writes; becomes a live risk the day an external ingestion system writes with its own service-role key. (2026-08-04)
+- **[LOW] `scripts/seed-test-alert.mjs`'s curated-listing mode (added 2026-08-09 for the interim manual bridge, `docs/DECISIONS.md` "2026-08-04 — Interim bridge") defaults per-field, not per-row.** Any `ALERT_*` field a curator leaves unset silently keeps the smoke-test BMW 330e fixture's specific value (e.g. `cc: 1998`, or `listing_url` pointing at a fake example link) rather than `null` or a hard requirement to fill it in. The script warns at runtime listing which fields are still defaulted and hard-fails the PHEV/`co2` and canonical-`fuel_type` traps, but doesn't block an insert that mixes real and stale-fixture fields. Acceptable for a low-volume, disclosed manual bridge; revisit (require full-row input, or explicit-null support per field) if curation volume grows or the warning proves easy to miss. (2026-08-09)
 
-## From the 2026-08-04 product/design state audit (PR #36)
+## Frontend disclosure / fabricated data
 
-Not urgent — no founder decision needed, revisit opportunistically.
+- **[CRITICAL] `src/pages/Dashboard.jsx`** (the first screen after login) is 100% hardcoded fixtures — no service calls; `range`/`region` toggles are inert. (2026-08-04)
+- **[HIGH] Billing is fabricated in three places and contradicts the free-beta status. — FIXED 2026-08-09 (commit `9cc8952`), verified by QA.** `Settings.jsx` showed a fake "Plano Pro · €49/mês · Ativa"; `admin/AdminBilling.jsx` showed fake MRR/churn/invoices (`AdminBilling.jsx:6` comment: "mirrors the design mock until Stripe lands"); `pages/legal/Terms.jsx` stated a binding "€99/mês" clause. No Stripe/payment code exists anywhere in the repo. All three now show honest free-beta status; `Terms.jsx` §5 "Rescisão"'s inconsistent "com subscrição ativa" qualifier fixed same-day (commit `b33bb63`), and its stale "Última atualização" date stamp fixed same-day (commit `e827d94`). **Open founder question, not a code fix:** what Crivo should actually charge once billing ships — see `docs/FOUNDER_QUESTIONS.md`. (2026-08-04, fixed 2026-08-09)
+- **[MEDIUM] `admin/AdminOverview.jsx` "Fontes" panel shows a permanent green "Operacional" pill with fake per-source latency** — could lead an admin to believe the (nonexistent) ingestion pipeline is running. Pull or clearly label until real. (2026-08-04)
+- **[MEDIUM] `IsvCalculator.jsx`'s "Importar por URL," "Guardar estimativa," and "Importar histórico" are UI-only stubs** — toast, no persistence/parsing/fetch, no backing service. Either wire them up or hide them; low urgency in closed beta with a small user set. (2026-08-04, independently confirmed by both review cycles)
+- **[MEDIUM] `AlertHistory.jsx` has no save/dismiss control in the UI** even though the backend fully supports lifecycle (`alerts.user_status`, `updateAlertStatus()`, tested). Makes `docs/BETA_CHECKLIST.md` step D.11 impossible to complete today. The "Todos/Abertos/Descartados" filter sets state the filtering logic never reads — folds into the same fix, not a standalone patch. (2026-08-04)
+- **[LOW] Sidebar shows a static once-on-mount unread count**; `clearUnread` from `AlertsContext` is never invoked anywhere, so the (correctly implemented) mobile badge can only grow within a session — only resets when the tab closes or the company changes. (2026-08-04)
+- **[HIGH] Live WhatsApp-capability UI outside the 2026-08-09 honesty batch's scope still implies the channel works.** `Settings.jsx:329-354` has a full phone-number-entry section with a "Verificado" pill and a quiet-hours toggle; `Settings.jsx:378-385`'s "Canal de notificação preferido" dropdown defaults to `'WhatsApp'` and offers `'SMS'`; `admin/AdminOverview.jsx:58` labels a real stat's delta "envio WhatsApp". Confirmed via `supabase/functions/_shared/recipients.ts`'s own comment that `notif_channel` has zero effect on delivery today. Correctly out of the honesty batch's declared scope, but arguably a worse fabrication than what was fixed: a dealer who "verifies" a WhatsApp number reasonably believes it does something. Needs a founder/design-lead-scoped follow-up, not a quick patch. (2026-08-09)
+- **[MEDIUM] Opening an old search (saved before the 2026-08-09 default fix) in edit mode shows the WhatsApp `Switch` checked-but-disabled**, contradicting the adjacent "Brevemente" pill, and a dealer who saves without separately enabling Email would silently re-persist the broken zero-alert config (`CreateSearch.jsx:89`). Low practical risk today (no confirmed live deployment yet). (2026-08-09)
+- **[LOW] `WhatsAppCard.jsx` (used in `Landing.jsx`'s hero and `CreateSearch.jsx`'s preview) is still visually styled as a WhatsApp chat bubble** (green palette, speech-bubble tail) even though the surrounding copy no longer claims WhatsApp delivery works today. The component's own text never says "WhatsApp," so it's not a false claim, but the visual metaphor is a soft mixed signal. Cosmetic; a design-lead call. (2026-08-09)
 
-- **53% of the `ui/`+`forms/` component library is unused** (`Badge`, `Card`,
-  `SegmentedControl`, `Slider`, `StatCard`, `StepIndicator`, `Toggle`,
-  `CurrencyInput`, `PlatformCheckbox`) — everything shipped runs on the
-  parallel `Primitives.jsx` kit instead. Before deleting: confirm none of it
-  represents an abandoned decision worth reviving (e.g. `Slider` for
-  margin/threshold inputs, `CurrencyInput`'s € prefix, `StepIndicator` for
-  CreateSearch's 4-step form) — design-lead flagged this, not decided it.
-- A second, disjoint set of design tokens referenced only by the unused
-  components above (`--color-bg-card`, `--shadow-sm`, `--accent`,
-  `--accent-dim`, `--surface-3`, `--text-muted`, `--border-subtle`) doesn't
-  exist in `tokens.css`. Only worth fixing if/when those components get
-  revived; dead otherwise.
-- Two icon systems coexist (`Primitives.jsx`'s hand-rolled `Icon` vs.
-  `lucide-react`, imported directly by `MobileNav`, `VerifyEmail`,
-  `FeedbackWidget`, `Callout`, `ToastContext`) — the same nav item renders a
-  different icon on desktop vs. mobile (Sidebar vs. MobileNav).
-- Loading-skeleton/empty-state styling is copy-pasted byte-for-byte across
-  5 screens instead of extracted into a shared component.
-- `admin.css` and most of `app.css` (`.dash-pipeline`, `.dash-grid-2`,
-  `.isv`) define zero responsive breakpoints — Dashboard's lower sections
-  and every Admin screen's grids don't reflow on narrow viewports. A
-  `.isv-grid` class with the correct breakpoint already exists in
-  `global.css` but is dead CSS, never referenced.
-- `AlertsContext`'s `clearUnread` export is never called — the mobile
-  unread badge only resets when the tab closes or the company changes.
-- `AlertHistory`'s "Todos / Abertos / Descartados" filter sets state the
-  filtering logic never reads (folds into the alert-triage UI spec above —
-  fix there, not as a standalone patch).
-- Account deletion and "remove member" use plain click-to-confirm even
-  though `ConfirmDialog` already supports typed confirmation
-  (`confirmText`) and the deletion copy calls the action irreversible.
-  Worth adding typed confirmation, low urgency.
-- `IsvCalculator`'s "URL do anúncio" input mode, "Guardar estimativa," and
-  "Importar histórico" are UI-only stubs (toast, no persistence/parsing).
-  Either wire them up or hide them — currently they imply capability that
-  doesn't exist. Low urgency while in closed beta with a small user set.
-- Two independent `SieveMark`/`Wordmark` implementations
-  (`Logo.jsx` vs. `Primitives.jsx`) instead of one shared one.
-- `docs/SECURITY.md` finding S-16 is marked TODO but looks closed in code
-  (`src/lib/supabase.js` already throws on `PROD && !supabaseConfigured`);
-  `docs/BETA_CHECKLIST.md` step 15 says non-admins redirect to `/searches`,
-  `AdminRoute` actually redirects to `/dashboard`. Worth a docs pass to
-  reconcile both docs with current code.
+## Component / design hygiene (from PR #36's design-lead audit, not urgent)
+
+- **53% of the `ui/`+`forms/` component library is unused** (`Badge`, `Card`, `SegmentedControl`, `Slider`, `StatCard`, `StepIndicator`, `Toggle`, `CurrencyInput`, `PlatformCheckbox`) — everything shipped runs on the parallel `Primitives.jsx` kit instead. Before deleting: confirm none represents an abandoned decision worth reviving (e.g. `Slider` for margin/threshold inputs, `CurrencyInput`'s € prefix, `StepIndicator` for CreateSearch's 4-step form) — flagged, not decided.
+- A second, disjoint set of design tokens referenced only by the unused components above (`--color-bg-card`, `--shadow-sm`, `--accent`, `--accent-dim`, `--surface-3`, `--text-muted`, `--border-subtle`) doesn't exist in `tokens.css`. Only worth fixing if those components get revived.
+- Two icon systems coexist (`Primitives.jsx`'s hand-rolled `Icon` vs. `lucide-react`, imported directly by `MobileNav`, `VerifyEmail`, `FeedbackWidget`, `Callout`, `ToastContext`) — the same nav item renders a different icon on desktop vs. mobile.
+- Loading-skeleton/empty-state styling is copy-pasted byte-for-byte across 5 screens instead of extracted into a shared component.
+- `admin.css` and most of `app.css` (`.dash-pipeline`, `.dash-grid-2`, `.isv`) define zero responsive breakpoints — Dashboard's lower sections and every Admin screen's grids don't reflow on narrow viewports. A `.isv-grid` class with the correct breakpoint already exists in `global.css` but is dead CSS, never referenced.
+- Account deletion and "remove member" use plain click-to-confirm even though `ConfirmDialog` already supports typed confirmation (`confirmText`), and the deletion copy calls the action irreversible. Worth adding, low urgency.
+- Two independent `SieveMark`/`Wordmark` implementations (`Logo.jsx` vs. `Primitives.jsx`) instead of one shared one.
+- Doc/code drift: `docs/BETA_CHECKLIST.md` step 15 says non-admins redirect to `/searches`; `AdminRoute` actually redirects to `/dashboard`. Worth a docs pass.
+
+## Test / CI coverage
+
+- **[HIGH] ESLint doesn't actually lint `.mjs`/`.cjs` files anywhere in the repo** — `eslint.config.js:14` scopes rules to `files: ['**/*.{js,jsx}']` only. Confirmed empirically (code-reviewer, 2026-08-09): a snippet with an unused var and an undefined global returns 0 problems via `eslint --stdin --stdin-filename foo.mjs`, but the identical snippet as `.js` correctly fails. This means `npm run lint` passing is not real signal for `scripts/*.mjs` and `scripts/lib/*.mjs`. Same blind-spot family as the `supabase/functions` exclusion below. One-line fix (`files: ['**/*.{js,jsx,mjs,cjs}']`). (2026-08-09)
+- **[CRITICAL] `supabase/functions` is excluded from ESLint entirely** (`eslint.config.js:8`) and has near-zero test coverage — of the 5 edge functions (incl. `notify-alert`, the alert-delivery core), only `update-user-role` now has a test file (`index.test.js`, added by PR #36 alongside its tenancy-leak fix). The RLS policies across 13 migrations (23+ `CREATE POLICY` statements) remain untouched by anything in CI. A broken edge function or a broken RLS policy (i.e. a cross-company data leak) would still mostly go green today. (2026-08-04, partially addressed 2026-08-05)
+- **[MEDIUM] Zero test coverage on auth/access control — partially addressed.** PR #36 added `src/App.test.jsx` covering `ProtectedRoute`/`AdminRoute`/`DealerRoute`, but `DEALER_ROUTES` covers 6 of 7 dealer URL patterns — `/searches/:id/edit` isn't exercised even though `DealerRoute` correctly wraps it. `AuthContext.jsx` itself still has no dedicated test file. (2026-08-04, downgraded from HIGH 2026-08-05)
+- **[MEDIUM] 5 of 7 services untested**, including `authService.js` (login, GDPR export/delete, admin role/status actions). (2026-08-04)
+- `supabase/functions/update-user-role/index.ts`'s `update-role` action sets `app_metadata.role = 'admin'` *before* clearing the target's `profiles.company_id`/`company_role`. If the tenancy clear then fails, the caller correctly gets a 500 (no false success), but the user is left mid-state — already flagged admin while still resolving to their old company via `current_company_id()` until retried. Not a regression and the failure window is narrow, but reordering (clear tenancy first, then flip the role) would close it entirely. Found by PR #36's code-reviewer. Small, low urgency.
+- `scripts/check-docs-only.sh`'s final `emit true` line has no explicit `exit 0` after it (every earlier exit path does). Harmless today — it's the last statement and `emit`'s last command exits 0 — but add the explicit exit for style consistency. Found by PR #38's code-reviewer.
+- The `docs_check` step (checkout + env wiring + script invocation) is duplicated verbatim between the `ci` and `security` jobs in `.github/workflows/ci.yml` rather than factored into a shared reusable workflow/composite action. Acceptable tradeoff to keep the two jobs independent and parallel; revisit only if a third job needs the same check.
+
+## Ops / deploy
+
+- **[HIGH] No evidence `docs/BETA_CHECKLIST.md` has been executed against a live Supabase project** — no commit, tag, decision-log entry, or config trace of a real provisioning pass. Treat as an unexecuted plan until confirmed otherwise. (2026-08-04)
+- **[MEDIUM] No deploy stage in CI** — deploy-on-merge, if configured, lives entirely in the Vercel/Netlify dashboard, invisible to the repo. No staging/preview strategy, no rollback doc for a bad deploy or migration, no automated post-deploy smoke test. (2026-08-04)
+- **[MEDIUM] Monitoring is off by default** — Sentry is wired but `VITE_SENTRY_DSN` is unset by default, and no sourcemap upload is configured even if enabled (no `@sentry/vite-plugin`, no `build.sourcemap`). Nothing else covers uptime/alerting. (2026-08-04)
+- **[LOW] React 18.3 vs. latest 19.2** — tracked in `scripts/audit-prod-deps.mjs`'s allowlist comment as the reason one `react-router` advisory can't be fully closed; not urgent, real upgrade effort when scheduled. (2026-08-04)
+
+## Process
+
+- `docs/DECISIONS.md`, `docs/FOUNDER_QUESTIONS.md` and this file were empty before 2026-08-04 — expected, since that's cycle one of the CTO/subagent operating model (established in PR #35, the commit immediately prior). Two independent cycles then ran concurrently and unannounced (this session, and PR #36/#38) — see the merge note at the top of this file. Recommendation: one CTO session active per repo at a time, or if founders deliberately want parallel cycles, say so explicitly so each session can check `docs/DECISIONS.md`/`git log` for concurrent work before starting.

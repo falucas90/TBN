@@ -23,8 +23,43 @@
 //
 // Or via npm:  npm run seed:alert   (export the env vars first)
 // ----------------------------------------------------------------------------
+//
+// Curated real listings (interim manual bridge — docs/DECISIONS.md,
+// "2026-08-04 — Interim bridge: disclosed curation + honesty fix batch"):
+// every field below is optional and, unless overridden, falls back to the
+// same fixture PHEV used by the smoke test above, so the plain invocation
+// keeps working unchanged. Set any subset of these to hand-insert a real
+// listing instead (units and conventions: docs/DATA_CONTRACT.md,
+// docs/BETA_CHECKLIST.md section E):
+//   ALERT_CAR_TITLE, ALERT_PLATFORM, ALERT_LISTING_URL (absolute http(s) URL),
+//   ALERT_PRICE_ORIGINAL, ALERT_CC, ALERT_CO2 (all whole numbers),
+//   ALERT_FUEL_TYPE (must be exactly 'Diesel' | 'Gasolina' | 'Híbrido (PHEV)' |
+//   'Elétrico'), ALERT_AGE_YEARS, ALERT_TRANSPORT_EST, ALERT_MARKET_PRICE,
+//   ALERT_FLAGS (comma-separated, e.g. "PHEV,Alta quilometragem";
+//   ALERT_FLAGS=none for an explicit empty list).
+//
+// Example — a real (non-PHEV) diesel listing, targeting the same user/search
+// as any other run:
+//   ALERT_CAR_TITLE="VW Golf 1.6 TDI" ALERT_PLATFORM="AutoScout24" \
+//   ALERT_LISTING_URL="https://www.autoscout24.de/angebote/<real-id>" \
+//   ALERT_PRICE_ORIGINAL=15900 ALERT_CC=1598 ALERT_CO2=104 \
+//   ALERT_FUEL_TYPE="Diesel" ALERT_AGE_YEARS=4 ALERT_TRANSPORT_EST=800 \
+//   ALERT_MARKET_PRICE=21500 ALERT_FLAGS=none \
+//   SUPABASE_URL=https://<ref>.supabase.co \
+//   SUPABASE_SERVICE_ROLE_KEY=<service-role-key> \
+//   TEST_USER_ID=<auth-user-uuid> TEST_SEARCH_ID=<search-uuid> \
+//   node scripts/seed-test-alert.mjs
+//
+// If a field is left unset it keeps the fixture's value (e.g. omitting
+// ALERT_FLAGS on a PHEV keeps flags = ['PHEV']) — the script warns which
+// fields are still defaulted whenever at least one field was overridden, and
+// hard-fails on the data-contract traps that produce silently wrong numbers
+// (a PHEV flag with no co2, a fuel_type that isn't one of the canonical
+// strings, a non-integer or negative price).
+// ----------------------------------------------------------------------------
 
 import { createClient } from '@supabase/supabase-js';
+import { parseListingOverrides, buildListing, validateListing } from './lib/curated-alert.mjs';
 
 const {
   SUPABASE_URL,
@@ -51,38 +86,41 @@ if (missing.length > 0) {
   process.exit(1);
 }
 
+// Build the listing: the fixture PHEV (see scripts/lib/curated-alert.mjs),
+// with any ALERT_* env vars overriding individual fields. Validates against
+// the data-contract conventions that have no DB constraint behind them.
+let listing;
+let defaultedFields;
+try {
+  const overrides = parseListingOverrides(process.env);
+  ({ listing, defaultedFields } = buildListing(overrides));
+  validateListing(listing);
+
+  if (Object.keys(overrides).length > 0 && defaultedFields.length > 0) {
+    console.warn(
+      `Note: not overridden, still using the fixture's value: ${defaultedFields.join(', ')}.\n` +
+        "If this is a real curated listing, double-check those are right for THIS car — " +
+        "especially 'flags' (fixture default is ['PHEV']) and 'listing_url' (fixture default " +
+        'is a fake example link).'
+    );
+  }
+} catch (err) {
+  console.error(err.message);
+  process.exit(1);
+}
+
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
   auth: { autoRefreshToken: false, persistSession: false },
 });
 
-// A realistic PHEV alert. Units must match the data contract exactly
-// (see docs/BETA_CHECKLIST.md section E):
-//   - price_original, market_price, transport_est : whole euros (integer)
-//   - cc   : engine displacement in cm3 (integer)
-//   - co2  : WLTP emissions in g/km (integer)
-//   - age_years : whole years since registration (integer)
-//   - fuel_type : 'Diesel' switches the ISV CO2 table; anything else uses petrol
-//   - flags : must include 'PHEV' for the browser ISV calc to apply the PHEV rule
-//
-// These numbers are chosen so the client-side margin (market_price minus
-// price_original, ISV and transport) comes out positive.
+// See docs/BETA_CHECKLIST.md section E for the full column-by-column contract.
 const row = {
   user_id: TEST_USER_ID,
   // search_id is optional in the schema, but notify-alert requires it to send
   // the email, so include it when provided.
   ...(TEST_SEARCH_ID ? { search_id: TEST_SEARCH_ID } : {}),
   date: 'Today',
-  car_title: 'BMW 330e Touring (teste beta)',
-  platform: 'Mobile.de',
-  listing_url: 'https://www.mobile.de/auto-inserat/bmw-330e/example-crivo-test',
-  price_original: 28500, // euros
-  cc: 1998, // cm3
-  co2: 36, // g/km WLTP (<= 50 so the PHEV rule applies)
-  fuel_type: 'Gasolina', // petrol CO2 table (only 'Diesel' switches the branch)
-  age_years: 3, // whole years
-  transport_est: 800, // euros
-  market_price: 37500, // euros
-  flags: ['PHEV'],
+  ...listing,
   user_status: 'new',
 };
 

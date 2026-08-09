@@ -4,7 +4,7 @@ const h2 = { fontSize: 16, fontWeight: 600, color: 'var(--bone)', marginTop: '1r
 
 export default function Terms() {
   return (
-    <LegalLayout title="Termos de Serviço" updated="junho de 2026">
+    <LegalLayout title="Termos de Serviço" updated="agosto de 2026">
       <h2 style={h2}>1. O serviço</h2>
       <p>
         A Crivo é uma plataforma de inteligência de sourcing para revendedores automóveis em Portugal.
@@ -21,9 +21,9 @@ export default function Terms() {
 
       <h2 style={h2}>3. Pagamento</h2>
       <p>
-        O serviço é disponibilizado por subscrição mensal de €99, com possibilidade de cancelamento a
-        qualquer momento. O cancelamento produz efeitos no final do período de faturação em curso, sem
-        reembolso proporcional do período já pago.
+        A Crivo está atualmente em fase de beta gratuita: o acesso ao serviço não tem qualquer custo e
+        não existe subscrição ativa nem cobrança. Se, no futuro, for introduzido um plano pago, os
+        utilizadores serão informados com antecedência e estes termos serão atualizados em conformidade.
       </p>
 
       <h2 style={h2}>4. Estimativas e responsabilidade</h2>
@@ -37,8 +37,8 @@ export default function Terms() {
       <h2 style={h2}>5. Rescisão</h2>
       <p>
         O utilizador pode eliminar a sua conta a qualquer momento nas Definições, o que remove
-        permanentemente os seus dados. Podemos cessar o serviço com um pré-aviso razoável aos utilizadores
-        com subscrição ativa.
+        permanentemente os seus dados. Podemos cessar o serviço com um pré-aviso razoável aos
+        utilizadores.
       </p>
 
       <h2 style={h2}>6. Contacto</h2>

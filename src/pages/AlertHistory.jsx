@@ -91,6 +91,17 @@ export default function AlertHistory() {
           </>}
         />
         <div className="page__body">
+          <div style={{
+            display: 'flex', alignItems: 'flex-start', gap: 10,
+            padding: '12px 16px', marginBottom: 20,
+            background: 'var(--amber-12)', border: '1px solid rgba(184,132,18,0.25)', borderRadius: 'var(--r-md)',
+          }}>
+            <Icon name="alert" size={14} color="var(--amber)" strokeWidth={1.8} />
+            <span style={{ fontSize: 12.5, color: 'var(--bone)', lineHeight: 1.5 }}>
+              <strong>Curadoria manual.</strong> Durante a beta, cada alerta é selecionado e validado manualmente pela equipa Crivo — o motor de deteção automática ainda está em construção.
+            </span>
+          </div>
+
           {showFilters && (
             <div className="row gap-3" style={{ marginBottom: 24, flexWrap: 'wrap' }}>
               <div className="input-group" style={{ width: 220 }}>
