@@ -43,7 +43,7 @@ jobs:
           PUSH_BEFORE_SHA: ${{ github.event.before }}
           PUSH_AFTER_SHA: ${{ github.event.after }}
         run: bash scripts/check-docs-only.sh
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         if: steps.docs_check.outputs.docs_only != 'true'
         with:
           node-version: 20
@@ -81,7 +81,7 @@ jobs:
           PUSH_BEFORE_SHA: ${{ github.event.before }}
           PUSH_AFTER_SHA: ${{ github.event.after }}
         run: bash scripts/check-docs-only.sh
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         if: steps.docs_check.outputs.docs_only != 'true'
         with:
           node-version: 20
