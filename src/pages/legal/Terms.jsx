@@ -4,7 +4,7 @@ const h2 = { fontSize: 16, fontWeight: 600, color: 'var(--bone)', marginTop: '1r
 
 export default function Terms() {
   return (
-    <LegalLayout title="Termos de Serviço" updated="junho de 2026">
+    <LegalLayout title="Termos de Serviço" updated="agosto de 2026">
       <h2 style={h2}>1. O serviço</h2>
       <p>
         A Crivo é uma plataforma de inteligência de sourcing para revendedores automóveis em Portugal.
