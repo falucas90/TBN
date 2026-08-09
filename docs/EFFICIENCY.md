@@ -132,5 +132,5 @@ The first version devops-engineer shipped had a real bug: it diffed the PR's cum
 
 **Action:** SAFE, ship as the pattern going forward. CTO direct-diff-review before code-reviewer, on a small enough diff, catches real bugs cheaper than round-tripping through the full review gate — consistent with the CTO spot-check pattern already marked SAFE above. Not a substitute for code-reviewer (still routed there for independent sign-off), just a cheaper first pass when CTO already has full context on a small change.
 
-**Status:** PR #38, draft pending code-reviewer sign-off and final CI confirmation on this commit.
+**Status:** Merged (PR #38). code-reviewer independently re-ran the pre-fix script against the exact "docs-only push after an earlier code commit" scenario and confirmed it failed there, then confirmed the post-fix script passes — the fix is real, not a no-op. Both code paths (mixed diff → full pipeline; docs-only after a prior code commit → fast path) also verified live on this PR's own GitHub Actions runs.
 
