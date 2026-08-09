@@ -51,7 +51,12 @@ export default function AlertHistory() {
   }, [alerts]);
 
   const enriched = useMemo(() => (alerts ?? []).map(alert => {
-    const { isvPayable } = calculateISV(alert.cc, alert.co2, alert.fuelType, alert.ageYears, alert.flags.includes('PHEV'), false);
+    // EVs are ISV-exempt in Portugal — calculateISV would otherwise tax them
+    // on the petrol table, so short-circuit to a zeroed ISV, same as the
+    // fuel === 'Elétrico' branch in IsvCalculator.jsx.
+    const isvPayable = alert.fuelType === 'Elétrico'
+      ? 0
+      : calculateISV(alert.cc, alert.co2, alert.fuelType, alert.ageYears, alert.flags.includes('PHEV'), false).isvPayable;
     const totalCost = alert.priceOriginal + isvPayable + alert.transportEst;
     // Without a market price the margin is unknown — keep it null rather than
     // letting `null - totalCost` produce NaN, which renders as "€ NaN" and

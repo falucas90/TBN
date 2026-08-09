@@ -201,6 +201,29 @@ Deno.serve(async (req) => {
         app_metadata: { role },
       });
       if (error) throw error;
+
+      // Promoting to platform admin must permanently clear any leftover
+      // tenancy: platform admins belong to no company, and current_company_id()
+      // (used throughout RLS) resolves from profiles.company_id. Without this,
+      // a promoted ex-dealer keeps read/write access to their former
+      // company's searches/alerts. Non-admin role changes (demotion, no-op)
+      // must not touch tenancy at all.
+      if (role === 'admin') {
+        const { error: tenancyError } = await supabaseAdmin
+          .from('profiles')
+          .update({ company_id: null, company_role: null })
+          .eq('id', userId);
+        if (tenancyError) {
+          // The auth role already changed at this point — but we must not
+          // report success while the tenancy clear silently failed (that
+          // would leave a "role changed, but old-company access still
+          // leaks" state with no error surfaced). Fail loudly so the
+          // caller retries instead of trusting a false 200.
+          console.error(tenancyError);
+          return json({ error: 'Falha ao limpar associação ao stand do utilizador.' }, 500);
+        }
+      }
+
       await supabaseAdmin.from('audit_logs').insert({
         admin_id: caller.id,
         target_id: userId,

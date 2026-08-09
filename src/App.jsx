@@ -9,7 +9,6 @@ import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import IsvCalculator from './pages/IsvCalculator';
-import Signup from './pages/Signup';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import VerifyEmail from './pages/VerifyEmail';
@@ -60,6 +59,17 @@ function AdminRoute({ children }) {
   return children;
 }
 
+// Symmetric counterpart of AdminRoute: keeps platform admins off dealer-only
+// screens (they have no company_id/company_role, so those pages would be
+// broken/empty for them) and redirects them to /admin instead.
+function DealerRoute({ children }) {
+  const { isAuthenticated, currentUser, isLoading } = useAuth();
+  if (isLoading) return <AuthLoadingSpinner />;
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (currentUser?.role === 'admin') return <Navigate to="/admin" replace />;
+  return children;
+}
+
 function App() {
   return (
     <ErrorBoundary>
@@ -70,21 +80,22 @@ function App() {
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
+            {/* /signup is a dead invite-only page from the old flow (item 6, fix-batch-1) */}
+            <Route path="/signup" element={<Navigate to="/login" replace />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/verify-email" element={<VerifyEmail />} />
             <Route path="/termos" element={<Terms />} />
             <Route path="/privacidade" element={<Privacy />} />
 
-            {/* Protected Routes */}
-            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/searches" element={<ProtectedRoute><Searches /></ProtectedRoute>} />
-            <Route path="/searches/new" element={<ProtectedRoute><CreateSearch /></ProtectedRoute>} />
-            <Route path="/searches/:id/edit" element={<ProtectedRoute><CreateSearch /></ProtectedRoute>} />
-            <Route path="/alerts" element={<ProtectedRoute><AlertHistory /></ProtectedRoute>} />
-            <Route path="/isv" element={<ProtectedRoute><IsvCalculator /></ProtectedRoute>} />
-            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            {/* Protected Routes (dealer-only: platform admins are redirected to /admin) */}
+            <Route path="/dashboard" element={<ProtectedRoute><DealerRoute><Dashboard /></DealerRoute></ProtectedRoute>} />
+            <Route path="/searches" element={<ProtectedRoute><DealerRoute><Searches /></DealerRoute></ProtectedRoute>} />
+            <Route path="/searches/new" element={<ProtectedRoute><DealerRoute><CreateSearch /></DealerRoute></ProtectedRoute>} />
+            <Route path="/searches/:id/edit" element={<ProtectedRoute><DealerRoute><CreateSearch /></DealerRoute></ProtectedRoute>} />
+            <Route path="/alerts" element={<ProtectedRoute><DealerRoute><AlertHistory /></DealerRoute></ProtectedRoute>} />
+            <Route path="/isv" element={<ProtectedRoute><DealerRoute><IsvCalculator /></DealerRoute></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><DealerRoute><Settings /></DealerRoute></ProtectedRoute>} />
             <Route path="/admin" element={<AdminRoute><AdminOverview /></AdminRoute>} />
             <Route path="/admin/stands" element={<AdminRoute><AdminStands /></AdminRoute>} />
             <Route path="/admin/billing" element={<AdminRoute><AdminBilling /></AdminRoute>} />

@@ -9,7 +9,7 @@ export function mapSearch(row) {
     sources: row.sources ?? [],
     minMargin: row.min_margin,
     alertThreshold: row.alert_threshold,
-    alertChannels: row.alert_channels ?? { whatsapp: true, email: false },
+    alertChannels: row.alert_channels ?? { whatsapp: false, email: true },
     dailySummary: row.daily_summary,
     matchesToday: row.matches_today,
     avgMargin: row.avg_margin,
