@@ -14,5 +14,9 @@ and on what timeline? Options and my recommendation are in the state-of-product
 report delivered in chat on 2026-08-04.
 
 **Resolved 2026-08-04:** founder chose Option C (build in-house). See
-`docs/DECISIONS.md` for the full entry. Still open: what runs in the interim
-while it's being built — asked in chat, answer pending.
+`docs/DECISIONS.md` for the full entry.
+
+**Interim question also resolved 2026-08-04:** founder delegated the call
+("evaluate the best option and start"); CTO decided disclosed curation +
+honesty fix batch, ship now. See `docs/DECISIONS.md`, same date, second
+entry. No further founder input needed — team is executing.
