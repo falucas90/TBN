@@ -62,7 +62,9 @@ export default function CreateSearch() {
   // Margin & notifications
   const [minMargin, setMinMargin] = useState(2500);
   const [alertThreshold, setAlertThreshold] = useState(3000);
-  const [alertChannels, setAlertChannels] = useState({ whatsapp: true, email: false });
+  // WhatsApp delivery isn't implemented server-side yet — default to the
+  // channel that actually works so a dealer never silently gets zero alerts.
+  const [alertChannels, setAlertChannels] = useState({ whatsapp: false, email: true });
   const [dailySummary, setDailySummary] = useState(true);
   const [status, setStatus] = useState('active');
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -291,10 +293,13 @@ export default function CreateSearch() {
               </div>
               <div className="settings__row">
                 <div>
-                  <div className="settings__row-label">Receber no WhatsApp</div>
-                  <div className="settings__row-desc">O alerta chega minutos depois do anúncio ser publicado.</div>
+                  <div className="settings__row-label" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    Receber no WhatsApp
+                    <Pill tone="amber">Brevemente</Pill>
+                  </div>
+                  <div className="settings__row-desc">Ainda não disponível. Por agora, os alertas chegam por email.</div>
                 </div>
-                <Switch checked={alertChannels.whatsapp} onChange={(v) => setAlertChannels(a => ({ ...a, whatsapp: v }))} />
+                <Switch checked={alertChannels.whatsapp} onChange={(v) => setAlertChannels(a => ({ ...a, whatsapp: v }))} disabled />
               </div>
               <div className="settings__row">
                 <div>

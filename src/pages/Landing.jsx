@@ -33,8 +33,8 @@ function Hero() {
           <h1 className="hero__title">Filtra o ruído.<br />Encontra a <em>margem</em>.</h1>
           <p className="hero__sub">
             O Crivo vigia as principais plataformas europeias de usados, a cada minuto.
-            Quando um carro passa nos teus filtros, recebes um alerta no WhatsApp —
-            já com ISV, custo landed em Portugal e margem estimada.
+            Quando um carro passa nos teus filtros, recebes um alerta por email —
+            já com ISV, custo landed em Portugal e margem estimada. Alertas no WhatsApp, brevemente.
           </p>
           <div className="hero__cta">
             <a className="btn btn--primary btn--lg" href="mailto:suporte@crivo.pt">
@@ -45,7 +45,7 @@ function Hero() {
           <p className="hero__note">Beta privada · Acesso por convite · Gratuito durante a beta</p>
         </div>
         <div className="hero__visual">
-          <span className="hero__visual-label">Alerta · WhatsApp · em tempo real</span>
+          <span className="hero__visual-label">Pré-visualização do alerta</span>
           <WhatsAppCard />
         </div>
       </div>
@@ -79,7 +79,7 @@ function Features() {
     {
       icon: 'bell',
       title: 'Alertas onde já estás',
-      body: 'Sem mais um dashboard aberto. O anúncio certo chega ao teu WhatsApp minutos depois de ser publicado.',
+      body: 'Sem mais um dashboard aberto. O anúncio certo chega por email minutos depois de ser publicado. WhatsApp, brevemente.',
     },
     {
       icon: 'calc',

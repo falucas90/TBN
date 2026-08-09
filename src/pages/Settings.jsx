@@ -388,15 +388,12 @@ export default function Settings() {
 
             <section className="settings__section">
               <div className="settings__section-title">Subscrição</div>
-              <div style={{ padding: 20, background: 'var(--graphite)', border: '1px solid var(--hairline)', borderRadius: 'var(--r-md)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 20 }}>
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div className="settings__row-label">Plano Pro · € 49 / mês</div>
-                    <Pill tone="emerald">Ativa</Pill>
-                  </div>
-                  <div className="settings__row-desc">Pagamento processado pela Stripe.</div>
+              <div style={{ padding: 20, background: 'var(--graphite)', border: '1px solid var(--hairline)', borderRadius: 'var(--r-md)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div className="settings__row-label">Beta gratuita</div>
+                  <Pill tone="emerald">Sem faturação</Pill>
                 </div>
-                <Btn variant="ghost" size="sm" onClick={() => addToast('Portal de pagamento em breve.', 'info')}>Gerir pagamento</Btn>
+                <div className="settings__row-desc" style={{ marginTop: 4 }}>Sem custos durante a beta. Sem cartão associado, sem faturas.</div>
               </div>
             </section>
 

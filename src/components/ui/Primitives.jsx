@@ -132,8 +132,15 @@ export const Seg = ({ options, value, onChange }) => (
 );
 
 /* ——————————————————————————— Switch ——————————————————————————— */
-export const Switch = ({ checked, onChange }) => (
-  <button type="button" className="switch" aria-checked={checked} role="switch" onClick={() => onChange && onChange(!checked)} />
+export const Switch = ({ checked, onChange, disabled = false }) => (
+  <button
+    type="button"
+    className="switch"
+    aria-checked={checked}
+    role="switch"
+    disabled={disabled}
+    onClick={() => !disabled && onChange && onChange(!checked)}
+  />
 );
 
 /* ——————————————————————————— NumPair ——————————————————————————— */
