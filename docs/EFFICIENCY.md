@@ -112,5 +112,25 @@ Agents did not re-read PRODUCT_STATE.md or design/CURRENT_STATE.md — they trus
 
 **Monitoring items:**
 - If CTO does routine ops work more than once per cycle, flag as process violation worth revisiting (TRADEOFF: CTO focus vs. speed).
-- If incremental commits are driven by heavy CI overhead per-commit, consider batching within turn before final push (needs CI visibility).
+- ~~If incremental commits are driven by heavy CI overhead per-commit, consider batching within turn before final push (needs CI visibility).~~ Resolved below (2026-08-05).
+
+---
+
+## 2026-08-05 — CI docs-only fast path (PR #38)
+
+**Trigger:** Founder asked directly whether coo had learned ways to improve, surfacing the unresolved "WATCH" item above (per-commit CI cost, visibility unknown at the time).
+
+**Investigation:** CTO pulled real workflow-run history via the GitHub API instead of speculating. Concrete evidence: the fix-batch-1 cycle (branch `claude/agents-udqgi6`, PR #36) fired **10 full CI runs across 37 minutes**, zero cancelled by the existing `concurrency`/`cancel-in-progress` guard (pushes were spaced further apart than the ~30s run time). Several of those pushes were near-certainly docs-only commits (PRODUCT_STATE.md, CURRENT_STATE.md, DECISIONS.md-style updates from cpo/design-lead) that had zero chance of affecting lint/test/build/audit results — agent-driven dev produces far more doc-only commits than a human team would, so this recurs every cycle.
+
+**Fix:** Delegated to devops-engineer: both `ci` and `security` jobs in `.github/workflows/ci.yml` now skip npm ci/lint/test/build/audit when a change touches only `docs/**` or `*.md`, via a new `scripts/check-docs-only.sh` (plain git diff, fail-safe to "run everything" on any ambiguity). Deliberately not a trigger-level `paths:` filter, to avoid a required status check getting stuck pending if branch protection ever requires these jobs — the job always runs and always reports a status, it just finishes in ~2s instead of ~25s when skipping.
+
+**SAFE: CTO spot-check before code-reviewer caught a real correctness gap, cheaply**
+
+The first version devops-engineer shipped had a real bug: it diffed the PR's cumulative `base.sha`..`head.sha`, so once *any* commit in a PR touched code, every later push kept running full CI even if that specific push was docs-only — which would have defeated the exact motivating case (interleaved docs/code pushes within one PR). CTO caught this on direct diff review (not via code-reviewer) before it ever reached that gate, and sent one precise follow-up to the same agent (SendMessage, not a fresh spawn — kept full context, no re-derivation) with the exact fix: prefer the `synchronize` event's own incremental `before`/`after` when usable, fall back to cumulative `base`/`head` for `opened`/`reopened`. Round-trip cost: one message, no new agent spawned, corrected commit landed clean.
+
+**Concrete evidence this was worth catching:** verified live on PR #38 itself — a mixed code+doc push (the correction commit) ran the full pipeline end-to-end (all 8 `ci` steps executed, none skipped); this doc-only entry, pushed as a follow-up commit to the same already-open PR, is the live test of the case that mattered (a docs-only push after a prior code commit in the same PR).
+
+**Action:** SAFE, ship as the pattern going forward. CTO direct-diff-review before code-reviewer, on a small enough diff, catches real bugs cheaper than round-tripping through the full review gate — consistent with the CTO spot-check pattern already marked SAFE above. Not a substitute for code-reviewer (still routed there for independent sign-off), just a cheaper first pass when CTO already has full context on a small change.
+
+**Status:** Merged (PR #38). code-reviewer independently re-ran the pre-fix script against the exact "docs-only push after an earlier code commit" scenario and confirmed it failed there, then confirmed the post-fix script passes — the fix is real, not a no-op. Both code paths (mixed diff → full pipeline; docs-only after a prior code commit → fast path) also verified live on this PR's own GitHub Actions runs.
 

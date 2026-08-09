@@ -1,5 +1,18 @@
 # Tech Debt
 
+## From CI docs-only fast path review (PR #38), non-blocking
+
+- `scripts/check-docs-only.sh`'s final `emit true` line has no explicit
+  `exit 0` after it (every earlier exit path does). Harmless today — it's
+  the last statement and `emit`'s last command exits 0 — but add the
+  explicit exit for consistency with the rest of the script's style.
+- The `docs_check` step (checkout + env wiring + script invocation) is
+  duplicated verbatim between the `ci` and `security` jobs in
+  `.github/workflows/ci.yml` rather than factored into a shared reusable
+  workflow/composite action. Acceptable tradeoff to keep the two jobs
+  independent and parallel; revisit only if a third job needs the same
+  check.
+
 ## From fix-batch-1 code review (PR #36), non-blocking
 
 - `supabase/functions/update-user-role/index.ts`'s `update-role` action sets
