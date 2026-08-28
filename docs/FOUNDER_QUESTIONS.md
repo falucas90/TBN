@@ -6,13 +6,11 @@ These are business/ops facts outside this repo, or real pricing decisions —
 not something the CTO can resolve from the code, unlike the rest of the
 findings.
 
-1. **Does the external marketplace-monitoring system (the thing that
-   actually scrapes Mobile.de/AutoScout24 and inserts `alerts` rows) exist
-   and run anywhere today?** There is no scraper/matcher code in this repo —
-   every alert arrives via an external system's service-role insert, and the
-   data contract it's supposed to honor (`docs/DATA_CONTRACT.md`) is still
-   an unsigned draft. If that system isn't running yet, the entire product
-   is currently unfed regardless of any UI/UX fix.
+1. ~~Does the external marketplace-monitoring system exist and run anywhere
+   today?~~ **Resolved 2026-08-09:** yes, it's live — real `alerts` rows are
+   flowing today. `docs/DATA_CONTRACT.md` sign-off is still separately
+   outstanding (see that doc), but the pipeline itself is fed. See
+   `docs/DECISIONS.md` 2026-08-09.
 2. **What should Crivo actually charge, and when?** No billing code exists
    anywhere, but `legal/Terms.jsx`, Settings, and `AdminBilling.jsx`
    currently show three different numbers (€99/mo, €49/mo, and a
