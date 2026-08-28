@@ -1,5 +1,38 @@
 # Founder Decisions Log
 
+## 2026-08-09 — Next cycle: alert triage + mock-data labeling; Dashboard real-data deferred
+
+**Context:** fix-batch-1 (PR #36) shipped 2026-08-05. Two items from the
+2026-08-04 triage remained queued pending specs: wiring alert triage, labeling
+mocked panels as example data, and replacing Dashboard's hardcoded KPIs with
+real data (the largest of the three). Two founder questions had also been
+open since 2026-08-04 (`docs/FOUNDER_QUESTIONS.md`).
+
+**Decision:**
+- **Ingestion status resolved:** founders confirmed the scraper/ingestion
+  system is live — real `alerts` rows are flowing today. This unblocks
+  Dashboard real-data work (no longer at risk of aggregating an empty table).
+- **Sequencing:** despite ingestion being live, founders chose to ship the two
+  small, self-contained items first this cycle, deferring the larger
+  Dashboard rewrite:
+  1. Wire alert triage (save/dismiss) to the already-shipped
+     `updateAlertStatus` service and the dead "Abertos/Descartados" filter on
+     `AlertHistory`.
+  2. Label mocked panels (Dashboard, AdminBilling, AdminOverview's chart/
+     source-health panel) as example data so beta dealers don't mistake
+     fixtures for live numbers.
+- Real Dashboard data (replacing the 100%-hardcoded KPIs/charts with backend
+  aggregation) is queued as the next cycle after this one.
+- Pricing (the other open founder question) remains unresolved — not
+  blocking engineering work while the product is a free closed beta.
+
+**Next step:** cpo writes a short acceptance-criteria spec
+(`docs/specs/fix-batch-2.md`) for items 1–2 above, CTO diagnosis already done
+in `docs/PRODUCT_STATE.md`/`docs/TECH_DEBT.md` — same lean-spec pattern as
+fix-batch-1 per `docs/EFFICIENCY.md`'s SAFE recommendation.
+
+---
+
 ## 2026-08-04 — CTO owns triage of the product/design state findings
 
 **Context:** `docs/PRODUCT_STATE.md` (cpo) and `docs/design/CURRENT_STATE.md`
